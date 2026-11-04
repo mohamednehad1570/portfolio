@@ -43,3 +43,6 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | Focus-visible | Accessibility | CSS state for elements focused by keyboard; used for the visible focus ring | `globals.css` |
 | `prefers-reduced-motion` | Accessibility | OS setting that asks sites to avoid animation | `globals.css`, components |
 | Cascade layer (`@layer`) | Styling | CSS grouping that decides which rules win regardless of order | `globals.css` (`components` layer) |
+| `satisfies` | TypeScript | Checks a value against a type without widening the value's own type | `src/content/site.ts` |
+| Content as data | Architecture | Page copy kept in typed data files, separate from components | `src/content/site.ts` |
+| `wa.me` link | Messaging | WhatsApp's click-to-chat URL; the phone number lives only inside it, never as visible text | `src/content/site.ts` (WhatsApp row) |
