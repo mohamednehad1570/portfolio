@@ -34,3 +34,12 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | `ssr: false` | Frontend framework | Skips rendering a component on the server/at build time; it exists only in the browser | `CubesLayer.tsx` |
 | Layout shift | Performance | Content jumping when something loads late; the canvas is `position: fixed` so it causes none | `CubesBackground.tsx` |
 | Decorative (`aria-hidden`) | Accessibility | Marks an element as invisible to screen readers because it carries no information | `CubesBackground.tsx` |
+| Design tokens | Design systems | Named design values (colours, fonts) defined once and reused everywhere | `src/app/globals.css` (`@theme`) |
+| `@theme` | Styling (Tailwind v4) | Tailwind v4 block where tokens are declared; each becomes a CSS variable and a utility class | `src/app/globals.css` |
+| `next/font` | Performance | Next.js tool that downloads Google Fonts at build time and self-hosts them, so no request goes to Google at runtime | `src/app/layout.tsx` |
+| Variable font | Typography | One font file containing a range of weights/widths/sizes, selected by axes (`wght`, `opsz`) | Bricolage Grotesque in `layout.tsx` |
+| Optical size (`opsz`) | Typography | Font axis that adjusts letter shapes for small or large text | `layout.tsx`, `VariableProximity` |
+| `font-display: swap` | Performance | Shows fallback text immediately and swaps to the web font when it loads | `layout.tsx` |
+| Focus-visible | Accessibility | CSS state for elements focused by keyboard; used for the visible focus ring | `globals.css` |
+| `prefers-reduced-motion` | Accessibility | OS setting that asks sites to avoid animation | `globals.css`, components |
+| Cascade layer (`@layer`) | Styling | CSS grouping that decides which rules win regardless of order | `globals.css` (`components` layer) |

@@ -1,26 +1,138 @@
+/*
+ * Global styles: design tokens (Tailwind v4 @theme), base rules, type scale, focus and reduced-motion rules.
+ * Why here: one place for the approved look from the prototype (reference/prototype/src/styles.css).
+ * Section and component styles are appended below by the parts that build them.
+ */
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------- Tokens: Tailwind turns these into utilities (bg-bg, text-ink, ...) and CSS variables ---------- */
+@theme {
+  --color-bg: #ffffff;
+  --color-ink: #14171c;
+  --color-muted: #535a65;
+  --color-line: #e2e6eb;
+  --color-accent: #1f5f8b;
+  --color-accent-soft: #e9f1f7;
 }
 
+/*
+ * Fonts: next/font self-hosts the font files and sets --font-bricolage / --font-instrument on <html>
+ * (see layout.tsx). `inline` makes Tailwind copy these values as they are, so --font-display and --font-body
+ * are plain variables usable from CSS, from JS strings (gallery, VariableProximity) and as font-display / font-body.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-bricolage), "Segoe UI", system-ui, sans-serif;
+  --font-body: var(--font-instrument), "Segoe UI", system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ---------- Base ---------- */
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: var(--color-ink);
+}
+
+/* Visible keyboard focus everywhere (WCAG 2.4.7); only for keyboard users, so clicks stay clean */
+:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+/* Text for screen readers only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Type scale (from the prototype) ---------- */
+@layer components {
+  .eyebrow {
+    display: block;
+    margin: 0 0 14px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+  /* characters still scrambled in the DecryptedText label */
+  .eyebrow-enc {
+    color: #9aa3ad;
+  }
+  .h1 {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 5.6vw, 72px);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    font-weight: 700;
+    margin: 0 0 22px;
+    text-wrap: balance;
+  }
+  .h2 {
+    font-family: var(--font-display);
+    font-size: clamp(34px, 4.2vw, 54px);
+    line-height: 1.06;
+    letter-spacing: -0.025em;
+    font-weight: 700;
+    margin: 0 0 14px;
+  }
+  .h3 {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.2vw, 28px);
+    letter-spacing: -0.015em;
+    font-weight: 650;
+    margin: 0;
+  }
+  .lead {
+    font-size: clamp(17px, 1.5vw, 19px);
+    line-height: 1.6;
+    color: var(--color-muted);
+    max-width: 34em;
+    margin: 0 0 34px;
+  }
+  .body {
+    font-size: 16px;
+    line-height: 1.65;
+    color: #3a404a;
+    margin: 0;
+    max-width: 36em;
+  }
+  /* Placeholder text Mohammed will write: always visibly grey */
+  .todo {
+    color: #8a919b;
+  }
+}
+
+/* ---------- Reduced motion: no smooth scrolling; components switch their own animations off ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
