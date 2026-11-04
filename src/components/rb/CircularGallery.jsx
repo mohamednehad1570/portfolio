@@ -1048,7 +1048,9 @@ const CircularGallery = ({
       gl.deleteBuffer(vertexBuffer);
       gl.deleteBuffer(indexBuffer);
       gl.deleteVertexArray(vao);
-      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      // MODIFIED: loseContext() removed. React Strict Mode (dev) runs this cleanup and then mounts again on the
+      // same <canvas>; getContext() hands back the same context, which loseContext() had already killed, so the
+      // remount drew nothing. Deleting our own textures, buffers and program above is enough.
     };
   }, []);
 

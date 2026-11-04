@@ -122,7 +122,8 @@ export default function About() {
       <ol className="wrap about-list">
         {topics.map((t) => (
           <li key={t.title}>
-            <Image src={t.image} alt="" width={624} height={800} />
+            {/* "Who I am" reuses the hero photo: it must be eager like the hero copy, or Next.js warns that the LCP image is lazy */}
+            <Image src={t.image} alt="" width={624} height={800} loading={t.image === site.hero.photo.src ? "eager" : "lazy"} />
             <h3 className="h3">{t.title}</h3>
             <p className="body">
               <TodoText text={t.body} />

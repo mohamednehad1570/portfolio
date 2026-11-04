@@ -44,7 +44,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${bricolage.variable} ${instrument.variable}`}>
+    // data-scroll-behavior: Next.js 16 no longer switches smooth scrolling off during page navigation by itself;
+    // this attribute asks it to, so the home <-> /privacy transitions stay instant while in-page jumps stay smooth.
+    <html lang="en" data-scroll-behavior="smooth" className={`${bricolage.variable} ${instrument.variable}`}>
       <body>
         {/* Without JavaScript the enter animations would leave content invisible, so show it at once */}
         <noscript>
