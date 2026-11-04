@@ -13,6 +13,8 @@ const { privacy } = site;
 export const metadata: Metadata = {
   title: `${privacy.title} · ${site.name}`,
   description: privacy.metaDescription,
+  alternates: { canonical: "/privacy/" }, // not the home page's canonical inherited from the layout
+  openGraph: { url: "/privacy/" },
 };
 
 export default function PrivacyPage() {

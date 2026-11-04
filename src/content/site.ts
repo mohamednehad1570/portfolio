@@ -29,8 +29,21 @@ export type ContactRow = {
   band: "blue" | "clear";
 };
 
+const LINKEDIN_URL = "https://linkedin.com/in/mohdman";
+const GITHUB_URL = "https://github.com/mohamednehad1570";
+
 export const site = {
   name: "Mohammed Nehad",
+  // Confirmed public profiles (used for the structured data in the page head)
+  profiles: [LINKEDIN_URL, GITHUB_URL],
+
+  seo: {
+    title: "Mohammed Nehad · Web developer",
+    description:
+      "Websites that are fast, clear and built to last. Web developer based in Cairo, working with clients worldwide. Start with a free 30-minute call.",
+    ogImage: "/images/hero.jpg",
+    ogImageAlt: "Mohammed Nehad smiling, outdoors",
+  },
   nav: [
     { id: "about", label: "About", href: "#about" },
     { id: "projects", label: "Projects", href: "#projects" },
@@ -98,7 +111,7 @@ export const site = {
         title: "Predictive Kubernetes autoscaling",
         body: "Graduation project: forecasts e-commerce traffic from historical data and scales Kubernetes pods before spikes like Black Friday arrive. [One line on the result.]",
         tags: ["Kubernetes", "GKE", "KEDA", "Prophet", "Prometheus and Grafana"],
-        href: "https://github.com/mohamednehad1570",
+        href: GITHUB_URL,
         linkLabel: "View on GitHub ↗",
         external: true,
         ariaLabel: "View the autoscaling project on GitHub",
@@ -127,11 +140,11 @@ export const site = {
         href: "https://wa.me/201021282909?text=Hi%20Mohammed%2C%20I%20saw%20your%20website",
         band: "clear",
       },
-      { label: "LinkedIn", marquee: "LinkedIn · /in/mohdman", href: "https://linkedin.com/in/mohdman", band: "blue" },
+      { label: "LinkedIn", marquee: "LinkedIn · /in/mohdman", href: LINKEDIN_URL, band: "blue" },
       {
         label: "GitHub",
         marquee: "GitHub · mohamednehad1570",
-        href: "https://github.com/mohamednehad1570",
+        href: GITHUB_URL,
         band: "clear",
       },
       { label: "Book a free call", marquee: "Book a free call · 30 min · no commitment", href: "#book", band: "blue" },

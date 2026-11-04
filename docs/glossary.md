@@ -65,3 +65,12 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | 404 page (`not-found.tsx`) | Web architecture | Page shown for URLs that do not exist; a static export writes it to `404.html`, which static hosts serve automatically | `src/app/not-found.tsx` |
 | Prefetch | Performance | Next.js loads the files of a linked page in advance (the footer's Privacy link) | `Footer.tsx` |
 | Placeholder paragraph | Content | Text in `[brackets]` that Mohammed will write; shown grey | `/privacy`, `TodoText.tsx` |
+| `metadata` / `metadataBase` | SEO | Next.js way to set page title, description and tags; `metadataBase` turns relative URLs into absolute ones | `layout.tsx` |
+| Open Graph | SEO / social | Tags that control the preview card when a link is shared (title, description, image) | `layout.tsx` |
+| Canonical URL | SEO | The one official address of a page, so search engines do not count duplicates | `layout.tsx`, `privacy/page.tsx` |
+| Sitemap | SEO | `sitemap.xml`: list of pages for search engines | `src/app/sitemap.ts` |
+| `robots.txt` | SEO | File that tells crawlers what they may visit and where the sitemap is | `src/app/robots.ts` |
+| JSON-LD | SEO | Structured data embedded as JSON so search engines understand the page | `PersonJsonLd.tsx` |
+| schema.org `Person` | SEO | Standard vocabulary describing a person (name, url, profiles) | `PersonJsonLd.tsx` |
+| `NEXT_PUBLIC_*` | Configuration | Environment variables that Next.js copies into the browser code at build time (never put secrets in them) | `src/lib/siteUrl.ts`, `.env.example` |
+| `force-static` | Web architecture | Route setting that makes a generated file (sitemap, robots) build to a plain file | `sitemap.ts`, `robots.ts` |

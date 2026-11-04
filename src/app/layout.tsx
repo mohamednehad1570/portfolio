@@ -7,6 +7,9 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import "./sections.css";
+import PersonJsonLd from "@/components/PersonJsonLd";
+import { site } from "@/content/site";
+import { SITE_URL } from "@/lib/siteUrl";
 
 // Display font. Variable font with weight + optical-size axes: VariableProximity animates both.
 const bricolage = Bricolage_Grotesque({
@@ -24,8 +27,19 @@ const instrument = Instrument_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Mohammed Nehad · Web developer",
-  description: "Websites that are fast, clear and built to last.",
+  metadataBase: new URL(SITE_URL), // makes relative image/canonical paths absolute
+  title: site.seo.title,
+  description: site.seo.description,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: site.name,
+    title: site.seo.title,
+    description: site.seo.description,
+    url: "/",
+    images: [{ url: site.seo.ogImage, width: 340, height: 425, alt: site.seo.ogImageAlt }],
+  },
+  twitter: { card: "summary", title: site.seo.title, description: site.seo.description, images: [site.seo.ogImage] },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -36,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <noscript>
           <style>{".reveal{opacity:1!important;transform:none!important}"}</style>
         </noscript>
+        <PersonJsonLd />
         {children}
       </body>
     </html>
