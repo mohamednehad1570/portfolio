@@ -23,3 +23,14 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | requestAnimationFrame | Browser API | Runs a function before the next screen repaint; the standard way to drive animation loops | `FlowingMenu.jsx`, `CircularGallery.jsx` |
 | ESLint override | Code quality | Config block that changes lint rules for chosen files only | `eslint.config.mjs` (rule relaxations for `src/components/rb/`) |
 | React Compiler lint rules | Code quality | `react-hooks` checks (refs, purity) that assume code is compiler-safe; flag patterns vendored components use on purpose | `eslint.config.mjs` |
+| WebGL2 | Graphics | Browser API for drawing hardware-accelerated 2D/3D graphics on a canvas | `CubesBackground.tsx`, `CircularGallery.jsx` |
+| Shader (vertex / fragment) | Graphics | Small GPU programs: the vertex shader positions each corner, the fragment shader colours each pixel | `CubesBackground.tsx` |
+| Instanced rendering | Graphics | Drawing many copies of one mesh in a single GPU call, each with its own data (here: one cube per grid cell) | `CubesBackground.tsx` (`drawElementsInstanced`) |
+| Quaternion | Maths / graphics | Four-number way to store a 3D rotation without gimbal lock | `CubesBackground.tsx` (cube tilt) |
+| Orthographic projection | Graphics | Projection with no perspective: parallel lines stay parallel, so the grid looks flat | `CubesBackground.tsx` (`uM` matrix) |
+| devicePixelRatio | Browser API | How many real screen pixels make one CSS pixel; capped at 2 to save GPU work | `CubesBackground.tsx` |
+| Spring simulation | Animation | Motion where a value is pulled toward a target with stiffness and damping, so it overshoots and settles | `CubesBackground.tsx` (`step`) |
+| `next/dynamic` | Frontend framework | Loads a component as a separate JavaScript chunk, on demand | `CubesLayer.tsx` |
+| `ssr: false` | Frontend framework | Skips rendering a component on the server/at build time; it exists only in the browser | `CubesLayer.tsx` |
+| Layout shift | Performance | Content jumping when something loads late; the canvas is `position: fixed` so it causes none | `CubesBackground.tsx` |
+| Decorative (`aria-hidden`) | Accessibility | Marks an element as invisible to screen readers because it carries no information | `CubesBackground.tsx` |
