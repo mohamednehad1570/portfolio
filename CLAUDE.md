@@ -24,6 +24,7 @@ Next.js static export. See `AGENTS.md` for the Next.js version note (read the do
 - `src/app/`: routes, layout, global CSS, sitemap, robots
 - `src/components/`: site components; `src/components/rb/` = vendored React Bits (see its README)
 - `src/content/site.ts`: all page copy as typed data (no copy hard-coded in components)
+- `src/lib/`: shared helpers (colour constants, site URL, reduced-motion hook)
 - `public/images/`: photos
 - `docs/`: ADRs and glossary
 - `reference/prototype/`: approved Vite prototype (documentation only; excluded from lint/tsc)

@@ -582,3 +582,98 @@ main,
   margin-top: 40px;
   margin-bottom: 12px;
 }
+
+/* ---------- Lazy-loading fallbacks and the reduced-motion About ---------- */
+/* Static stand-in for the gallery: one photo and its title */
+.gallery-fallback {
+  margin: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  gap: 10px;
+}
+.gallery-fallback img {
+  height: 100%;
+  width: auto;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.gallery-fallback figcaption {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+}
+
+/* the pinned block is transparent to layout, so the About section lays out exactly as before */
+.about-pinned {
+  display: contents;
+}
+.about-list {
+  display: none;
+}
+
+/* Plain contact links (menu loading, or no JavaScript) */
+.contact-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.contact-list a {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-line);
+}
+
+/* Visible focus on the main button (the vendored StarBorder only draws a faint outline) */
+a.cta.star-border:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* no pin, no gallery: the 4 topics become a simple list */
+  .about {
+    height: auto;
+    padding: 120px 0 90px;
+  }
+  .about-pinned {
+    display: none;
+  }
+  .about-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 48px 40px;
+    margin-top: 40px;
+    margin-bottom: 0;
+    padding-block: 0;
+    list-style: none;
+  }
+  .about-list li {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+  .about-list img {
+    width: 100%;
+    max-width: 320px;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: 18px;
+  }
+}
+@media (prefers-reduced-motion: reduce) and (max-width: 760px) {
+  .about-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

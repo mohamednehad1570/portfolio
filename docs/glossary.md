@@ -74,3 +74,12 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | schema.org `Person` | SEO | Standard vocabulary describing a person (name, url, profiles) | `PersonJsonLd.tsx` |
 | `NEXT_PUBLIC_*` | Configuration | Environment variables that Next.js copies into the browser code at build time (never put secrets in them) | `src/lib/siteUrl.ts`, `.env.example` |
 | `force-static` | Web architecture | Route setting that makes a generated file (sitemap, robots) build to a plain file | `sitemap.ts`, `robots.ts` |
+| Lazy loading (code splitting) | Performance | Downloading a chunk of JavaScript only when needed, so first paint is not blocked | `About.tsx`, `Contact.tsx`, `CubesLayer.tsx` |
+| Fallback (loading state) | UX / robustness | Simple stand-in shown while the real component loads or when it cannot run | `GalleryFallback`, `ContactList` |
+| `requestIdleCallback` | Browser API | Runs work when the browser is idle; used to pre-download the lazy chunks | `src/lib/useMotionAllowed.ts` |
+| `useSyncExternalStore` | Frontend framework | React hook that reads an outside value (here the OS reduced-motion setting) and re-renders when it changes | `src/lib/useMotionAllowed.ts` |
+| Hydration | Frontend framework | React attaching to server-made HTML in the browser; the first client render must match the HTML | `useMotionAllowed.ts` (server snapshot = false) |
+| Progressive enhancement | Architecture | Page works in its simple form first and gains animation only where the browser allows | About (list vs pinned gallery), cubes |
+| Roving tabindex | Accessibility | Only one item of a widget is in the tab order; arrow keys move inside it | `CircularGallery` hidden buttons |
+| Focus ring contrast | Accessibility | The visible keyboard-focus outline must stand out from its surroundings (WCAG 2.4.7 / 1.4.11) | `sections.css` (`a.cta.star-border:focus-visible`) |
+| `display: contents` | CSS | Makes a wrapper disappear from layout while keeping its children; used so one block can be hidden by media query without changing layout | `.about-pinned` |

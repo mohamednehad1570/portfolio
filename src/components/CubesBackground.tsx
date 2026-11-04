@@ -280,10 +280,11 @@ export default function CubesBackground({ color = "#1f5f8b", lineAlpha = 0.3, pa
     };
     wakeRef.current = wake;
 
+    // Reduced motion: the grid is drawn once, flat, and never reacts to the pointer.
     const onMove = (e: PointerEvent) => {
+      if (reduce) return;
       pointer.x = e.clientX; pointer.y = e.clientY; pointer.moved = clock;
-      if (reduce) { if (!live.current.paused) { step(0); render(); } }
-      else wake();
+      wake();
     };
     const onDown = (e: PointerEvent) => {
       if (reduce || (e.target as Element | null)?.closest?.(NO_RIPPLE_SELECTOR)) return; // ripples only on empty space

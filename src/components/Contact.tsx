@@ -3,17 +3,41 @@
  * "Book a free call" panel (a placeholder where the Cal.com embed will go later).
  * Why (D17): rows alternate blue / transparent bands, a round photo spins between the repeated labels.
  * The menu mounts only once Contact is ~25% visible (SiteState), so its intro animation is actually seen.
+ * Its code loads lazily (preloaded when the browser is idle); a plain link list is the fallback.
  */
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import { site } from "@/content/site";
 import { ACCENT, INK, LINE } from "@/lib/theme";
-import FlowingMenu from "./rb/FlowingMenu";
+import { preloadWhenIdle } from "@/lib/useMotionAllowed";
 import ScrollReveal from "./rb/ScrollReveal";
 import VariableProximity from "./rb/VariableProximity";
 import Reveal from "./Reveal";
 import { useSiteState } from "./SiteState";
+
+const loadMenu = () => import("./rb/FlowingMenu");
+
+/** Plain list of the same links: shown while the animated menu downloads and when JavaScript is off. */
+function ContactList() {
+  return (
+    <ul className="contact-list">
+      {site.contact.rows.map((row) => {
+        const external = /^https?:/.test(row.href);
+        return (
+          <li key={row.label}>
+            <a href={row.href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+              {row.label}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+const FlowingMenu = dynamic(loadMenu, { ssr: false, loading: () => <ContactList /> });
 
 const BANDS = {
   blue: { bandColor: ACCENT, bandText: "#ffffff" },
@@ -24,6 +48,8 @@ export default function Contact() {
   const { contact } = site;
   const { contactSeen } = useSiteState();
   const titleBoxRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => preloadWhenIdle(loadMenu), []);
 
   // Map content rows to the FlowingMenu item shape; http(s) links open in a new tab.
   const items = contact.rows.map((row) => ({
@@ -71,6 +97,9 @@ export default function Contact() {
             ariaLabel={contact.menuAriaLabel}
           />
         )}
+        <noscript>
+          <ContactList />
+        </noscript>
       </div>
       <div id="book" className="wrap book">
         <Reveal className="book-panel">
