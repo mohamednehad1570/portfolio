@@ -148,4 +148,29 @@ export const site = {
     privacy: { label: "Privacy", href: "/privacy/" },
   },
   toTopLabel: "Back to top",
+
+  // /privacy: headings only, with bracketed placeholders for Mohammed (and a lawyer, if needed) to write.
+  privacy: {
+    title: "Privacy",
+    metaDescription: "How this website handles personal data.",
+    backLabel: "← Back to home",
+    sections: [
+      { heading: "Who runs this site", body: "[Name, country and contact address of the person responsible for this website.]" },
+      {
+        heading: "What data is collected",
+        body: "[When the booking calendar is added: first name and email, processed by Cal.com to arrange the call. Say what is stored, why, and for how long.]",
+      },
+      {
+        heading: "Analytics",
+        body: "[If cookieless analytics is added later: which tool, what it counts, and that no cookies are used.]",
+      },
+      { heading: "How to ask for deletion", body: "[How a visitor can ask to see or delete their data, and how fast Mohammed replies.]" },
+      { heading: "Contact", body: "[Email address for privacy questions.]" },
+    ],
+  },
+
+  notFound: {
+    text: "This page does not exist.",
+    linkLabel: "Go to the home page",
+  },
 };

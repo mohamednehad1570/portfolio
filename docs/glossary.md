@@ -62,3 +62,6 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | Landmark | Accessibility | Semantic region (`header`, `nav`, `main`, `footer`) that screen readers can jump between | `Header.tsx`, `page.tsx`, `Footer.tsx` |
 | Enter-once animation | UX | Entrance effect that plays the first time an element appears, then never again | `Reveal.tsx` |
 | Type declaration (`.d.ts`) | TypeScript | File that describes the types of JavaScript code without changing it | `src/components/rb/*.d.ts` |
+| 404 page (`not-found.tsx`) | Web architecture | Page shown for URLs that do not exist; a static export writes it to `404.html`, which static hosts serve automatically | `src/app/not-found.tsx` |
+| Prefetch | Performance | Next.js loads the files of a linked page in advance (the footer's Privacy link) | `Footer.tsx` |
+| Placeholder paragraph | Content | Text in `[brackets]` that Mohammed will write; shown grey | `/privacy`, `TodoText.tsx` |
