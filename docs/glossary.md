@@ -46,3 +46,19 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | `satisfies` | TypeScript | Checks a value against a type without widening the value's own type | `src/content/site.ts` |
 | Content as data | Architecture | Page copy kept in typed data files, separate from components | `src/content/site.ts` |
 | `wa.me` link | Messaging | WhatsApp's click-to-chat URL; the phone number lives only inside it, never as visible text | `src/content/site.ts` (WhatsApp row) |
+| GSAP | Animation | JavaScript animation library (free since 3.13, includes ScrollTrigger and SplitText) | `About.tsx`, `rb/SplitText.jsx`, `rb/ScrollReveal.jsx` |
+| ScrollTrigger | Animation | GSAP plugin that ties animation or pinning to scroll position | `About.tsx`, `SiteState.tsx` |
+| Pinning | Animation / UX | Holding a section fixed on screen while the page scroll "pays" for an animation | `About.tsx` |
+| Snap (scroll snap) | UX | Scroll position settles on defined stops (here each of the 4 photos) | `About.tsx` (`snap: 1/(n-1)`) |
+| `useGSAP` | Frontend framework | React hook that runs GSAP code and cleans it up on unmount | `About.tsx` |
+| Scrollspy | UX | Highlights the nav link of the section currently on screen | `SiteState.tsx`, `Header.tsx` |
+| React Context | Frontend framework | Way to share state with many components without passing props down | `SiteState.tsx` |
+| Server Component | Frontend framework | Component rendered to HTML at build time; ships no JavaScript | `page.tsx`, `Projects.tsx`, `Hero.tsx`, `Footer.tsx` |
+| `next/image` | Performance | Next.js `<Image>`: lazy loading, size attributes, no layout shift (unoptimized in a static export) | `Hero.tsx` |
+| `<noscript>` | Robustness | Content shown only when JavaScript is off | `layout.tsx` (reveal fallback) |
+| `100svh` | CSS | "Small viewport height": 100% of the visible height with mobile browser bars shown | `sections.css` (`.hero`, `.about`) |
+| Safe-area inset | CSS | Space reserved for notches and home bars on phones (`env(safe-area-inset-*)`) | `sections.css` |
+| Touch target | Accessibility | Minimum tappable size (44px) for links and buttons | `sections.css` |
+| Landmark | Accessibility | Semantic region (`header`, `nav`, `main`, `footer`) that screen readers can jump between | `Header.tsx`, `page.tsx`, `Footer.tsx` |
+| Enter-once animation | UX | Entrance effect that plays the first time an element appears, then never again | `Reveal.tsx` |
+| Type declaration (`.d.ts`) | TypeScript | File that describes the types of JavaScript code without changing it | `src/components/rb/*.d.ts` |

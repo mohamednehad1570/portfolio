@@ -6,6 +6,7 @@
 import type { Metadata } from "next";
 import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
 import "./globals.css";
+import "./sections.css";
 
 // Display font. Variable font with weight + optical-size axes: VariableProximity animates both.
 const bricolage = Bricolage_Grotesque({
@@ -30,7 +31,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${bricolage.variable} ${instrument.variable}`}>
-      <body>{children}</body>
+      <body>
+        {/* Without JavaScript the enter animations would leave content invisible, so show it at once */}
+        <noscript>
+          <style>{".reveal{opacity:1!important;transform:none!important}"}</style>
+        </noscript>
+        {children}
+      </body>
     </html>
   );
 }

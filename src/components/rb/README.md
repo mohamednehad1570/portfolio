@@ -9,7 +9,7 @@ No `@hugeicons/*` packages are used.
 | Component | Used for | Modified? |
 |---|---|---|
 | `CircularGallery` | About photo carousel | Yes: vertical wheel is ignored (only horizontal deltas turn it); engine exposes `goTo(index)`; new `activeIndex` prop drives it |
-| `FlowingMenu` | Contact rows | Yes: Hugeicons removed; `alwaysOn` prop (all bands visible, `clipPath: none`, marquee always running); per-row `bandColor` / `bandText`; `data-always` hides the static label visually (still read by screen readers); round image spins (CSS `rotate`, 20 s, off under reduced motion); marquee loop pauses while the menu is off-screen (IntersectionObserver) |
+| `FlowingMenu` | Contact rows | Yes: Hugeicons removed; `alwaysOn` prop (all bands visible, `clipPath: none`, marquee always running); per-row `bandColor` / `bandText`; per-row `external` flag adds `target="_blank" rel="noopener noreferrer"`; `data-always` hides the static label visually (still read by screen readers); round image spins (CSS `rotate`, 20 s, off under reduced motion); marquee loop pauses while the menu is off-screen (IntersectionObserver) |
 | `StarBorder` | Button border | No |
 | `Magnet` | Button pull | No |
 | `ClickSpark` | Button click effect | No |

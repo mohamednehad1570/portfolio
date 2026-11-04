@@ -617,7 +617,15 @@ function FlowingMenu({
             >
               {dividers && index > 0 && <span className={DIVIDER} data-intro-rule="" aria-hidden="true" />}
               {item.link ? (
-                <a className={LINK} href={item.link} aria-current={active ? 'page' : undefined} {...handlers}>
+                <a
+                  className={LINK}
+                  href={item.link}
+                  // MODIFIED: external rows open in a new tab without giving the new page access to this one
+                  target={item.external ? '_blank' : undefined}
+                  rel={item.external ? 'noopener noreferrer' : undefined}
+                  aria-current={active ? 'page' : undefined}
+                  {...handlers}
+                >
                   {content}
                 </a>
               ) : (
