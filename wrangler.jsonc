@@ -26,9 +26,11 @@
   // Custom Domains: Cloudflare attaches the Worker to these hostnames and creates their proxied DNS records and
   // TLS certificates itself. The apex is the canonical address; www gets a 301 to the apex from a Redirect Rule
   // in the dashboard (the rule runs before the Worker, so www requests never reach it).
+  // zone_name names the DNS zone (the domain in this Cloudflare account) the records go into; Wrangler could not
+  // work it out from the hostname alone (API error 10082 "Can't infer zone from route").
   "routes": [
-    { "pattern": "mohammednehad.com", "custom_domain": true },
-    { "pattern": "www.mohammednehad.com", "custom_domain": true }
+    { "pattern": "mohammednehad.com", "zone_name": "mohammednehad.com", "custom_domain": true },
+    { "pattern": "www.mohammednehad.com", "zone_name": "mohammednehad.com", "custom_domain": true }
   ],
 
   // Keep the mohammednehad.<account>.workers.dev URL (it is off by default once routes exist). It answers with
