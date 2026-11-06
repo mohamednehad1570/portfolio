@@ -198,10 +198,14 @@ const BlurText = ({
   loopDelay = 2,
   color,
   fromColor,
-  focusOnHover = false
+  focusOnHover = false,
+  // MODIFIED: `play` = false keeps the words hidden until the parent says go (the hero description waits for the
+  // typed title). Left undefined, the component behaves as before.
+  play
 }) => {
   const ref = useRef(null);
-  const [phase, setPhase] = useState(() => startPhase(trigger));
+  // MODIFIED: with `play` false even a trigger="load" text starts hidden (phase 'from') and waits for `play`
+  const [phase, setPhase] = useState(() => (play === false ? 'from' : startPhase(trigger)));
   const firstPhase = useRef(phase).current;
   const [focusWord, setFocusWord] = useState(-1);
   const settledRef = useRef(phase === 'rest');
@@ -258,6 +262,7 @@ const BlurText = ({
 
   useEffect(() => {
     if (phase !== 'from') return undefined;
+    if (play === false) return undefined; // MODIFIED: held by the parent
     if (trigger === 'load') {
       setPhase('in');
       return undefined;
@@ -279,7 +284,7 @@ const BlurText = ({
     );
     observer.observe(element);
     return () => observer.disconnect();
-  }, [phase, trigger, threshold, rootMargin]);
+  }, [phase, trigger, threshold, rootMargin, play]);
 
   useEffect(() => {
     let timer = 0;

@@ -85,10 +85,6 @@ a {
     text-transform: uppercase;
     color: var(--color-accent);
   }
-  /* characters still scrambled in the DecryptedText label */
-  .eyebrow-enc {
-    color: var(--color-todo);
-  }
   .h1 {
     font-family: var(--font-display);
     font-size: clamp(40px, 5.6vw, 72px);

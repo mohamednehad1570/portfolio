@@ -1,14 +1,17 @@
 /**
  * Reveal: fades and slides its children in once, the first time they enter the screen.
- * Why: used for photos, cards and small text blocks. Adds a CSS class directly on the element (no React
- * state, so no re-render). Reduced-motion visitors see the content at once (see the rules in sections.css).
+ * Why: used for photos, cards and body paragraphs. `from="fade"` is the site's block fade-up for body text
+ * (opacity, 6px blur and 16px rise, ADR 0005); left/right slide the project frames in. The "before" look is
+ * applied by CSS only under the `js` class and never for reduced motion (rule 8, see sections.css), so
+ * without JavaScript the content is simply visible.
  */
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { useEnterOnce } from "@/lib/useEnterOnce";
 
 type Props = {
-  from?: "up" | "left" | "right";
+  from?: "up" | "left" | "right" | "fade";
   delay?: number; // ms
   className?: string;
   children: ReactNode;
@@ -16,26 +19,7 @@ type Props = {
 
 export default function Reveal({ from = "up", delay = 0, className = "", children }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return undefined;
-    if (typeof IntersectionObserver === "undefined") {
-      el.classList.add("is-in");
-      return undefined;
-    }
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add("is-in");
-          io.disconnect(); // enter-once
-        }
-      },
-      { threshold: 0.2 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+  useEnterOnce(ref, 0.2);
 
   return (
     <div ref={ref} className={`reveal reveal--${from} ${className}`} style={{ transitionDelay: `${delay}ms` }}>

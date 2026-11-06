@@ -5,6 +5,8 @@
  */
 import type { Metadata } from "next";
 import Link from "next/link";
+import Reveal from "@/components/Reveal";
+import { Heading } from "@/components/sections/SectionText";
 import TodoText from "@/components/TodoText";
 import { site } from "@/content/site";
 
@@ -23,13 +25,15 @@ export default function PrivacyPage() {
       <Link className="text-link" href="/">
         {privacy.backLabel}
       </Link>
-      <h1 className="h1">{privacy.title}</h1>
+      <Heading tag="h1" text={privacy.title} className="h1" />
       {privacy.sections.map((section) => (
         <section key={section.heading}>
-          <h2 className="h3 doc-heading">{section.heading}</h2>
-          <p className="body">
-            <TodoText text={section.body} />
-          </p>
+          <Heading tag="h2" text={section.heading} className="h3 doc-heading" />
+          <Reveal from="fade">
+            <p className="body">
+              <TodoText text={section.body} />
+            </p>
+          </Reveal>
         </section>
       ))}
     </main>

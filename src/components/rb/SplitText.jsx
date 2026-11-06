@@ -413,7 +413,10 @@ const SplitText = ({
     <Tag
       key={text}
       ref={ref}
-      className={`split-parent ${className}`}
+      // MODIFIED: rule 8 (visible without animation). The text used to be hidden with an inline
+      // `visibility: hidden` until the split was ready, which put an invisible heading in the server HTML.
+      // Now a class does it, and the CSS applies it only under `.js` and not for reduced motion (sections.css).
+      className={`split-parent${ready ? '' : ' split-pending'} ${className}`}
       style={{
         textAlign,
         overflow: clip ? 'hidden' : 'visible',
@@ -421,8 +424,7 @@ const SplitText = ({
         whiteSpace: 'normal',
         wordWrap: 'break-word',
         color,
-        cursor: trigger === 'click' ? 'pointer' : undefined,
-        visibility: ready ? undefined : 'hidden'
+        cursor: trigger === 'click' ? 'pointer' : undefined
       }}
     >
       {text}

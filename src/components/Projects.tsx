@@ -4,23 +4,20 @@
  * the cards slide in from opposite sides. The Emaar link stays "#projects" until the client approves showing it.
  */
 import { site } from "@/content/site";
-import ScrollReveal from "./rb/ScrollReveal";
-import SplitText from "./rb/SplitText";
 import CtaButton from "./CtaButton";
 import { BrowserFrame, TerminalFrame } from "./ProjectFrame";
 import Reveal from "./Reveal";
 import TodoText from "./TodoText";
+import { Eyebrow, Heading, Intro } from "./sections/SectionText";
 
 export default function Projects() {
   const { projects } = site;
   return (
     <section id="projects" className="section">
       <div className="wrap">
-        <p className="eyebrow">{projects.label}</p>
-        <SplitText tag="h2" text={projects.title} className="h2" splitType="words" delay={60} textAlign="left" trigger="view" />
-        <ScrollReveal baseOpacity={0} enableBlur blurStrength={4} baseRotation={0} containerClassName="intro" textClassName="intro-text">
-          {projects.intro}
-        </ScrollReveal>
+        <Eyebrow text={projects.label} />
+        <Heading tag="h2" text={projects.title} className="h2" />
+        <Intro text={projects.intro} />
 
         <div className="projects">
           {projects.items.map((p, i) => {
@@ -28,10 +25,12 @@ export default function Projects() {
             return (
               <Reveal key={p.title} from={i === 0 ? "left" : "right"} delay={i === 0 ? 0 : 120} className="project">
                 <Frame href={p.href} external={p.external} ariaLabel={p.ariaLabel} address={p.address} shot={p.shot} />
-                <h3 className="h3">{p.title}</h3>
-                <p className="body">
-                  <TodoText text={p.body} />
-                </p>
+                <Heading tag="h3" text={p.title} className="h3" />
+                <Reveal from="fade">
+                  <p className="body">
+                    <TodoText text={p.body} />
+                  </p>
+                </Reveal>
                 <ul className="tags">
                   {p.tags.map((tag) => (
                     <li key={tag}>{tag}</li>

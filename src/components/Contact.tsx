@@ -12,9 +12,9 @@ import dynamic from "next/dynamic";
 import { site } from "@/content/site";
 import { ACCENT_STRONG, INK, LINE } from "@/lib/theme";
 import { preloadWhenIdle } from "@/lib/useMotionAllowed";
-import ScrollReveal from "./rb/ScrollReveal";
 import VariableProximity from "./rb/VariableProximity";
 import Reveal from "./Reveal";
+import { Eyebrow, Heading, Intro, RiseWords } from "./sections/SectionText";
 import { useSiteState } from "./SiteState";
 
 const loadMenu = () => import("./rb/FlowingMenu");
@@ -64,8 +64,8 @@ export default function Contact() {
   return (
     <section id="contact" className="section contact">
       <div className="wrap" ref={titleBoxRef}>
-        <p className="eyebrow">{contact.label}</p>
-        <h2 className="h2 vp-title">
+        <Eyebrow text={contact.label} />
+        <RiseWords className="h2 vp-title">
           <VariableProximity
             label={contact.title}
             containerRef={titleBoxRef}
@@ -73,10 +73,8 @@ export default function Contact() {
             fromFontVariationSettings="'wght' 500, 'opsz' 48"
             toFontVariationSettings="'wght' 800, 'opsz' 96"
           />
-        </h2>
-        <ScrollReveal baseOpacity={0} enableBlur blurStrength={4} baseRotation={0} containerClassName="intro" textClassName="intro-text">
-          {contact.intro}
-        </ScrollReveal>
+        </RiseWords>
+        <Intro text={contact.intro} />
       </div>
       <div className="menu-box">
         {contactSeen && (
@@ -103,8 +101,10 @@ export default function Contact() {
       </div>
       <div id="book" className="wrap book">
         <Reveal className="book-panel">
-          <h3 className="h3">{contact.book.title}</h3>
-          <p className="body">{contact.book.body}</p>
+          <Heading tag="h3" text={contact.book.title} className="h3" />
+          <Reveal from="fade">
+            <p className="body">{contact.book.body}</p>
+          </Reveal>
           <div className="book-slot">{contact.book.slot}</div>
         </Reveal>
       </div>

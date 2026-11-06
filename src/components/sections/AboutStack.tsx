@@ -24,7 +24,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { site } from "@/content/site";
 import { useMotionAllowed } from "@/lib/useMotionAllowed";
-import SplitText from "../rb/SplitText";
+import { Eyebrow, Heading } from "./SectionText";
 import WordReveal from "./WordReveal";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -109,8 +109,8 @@ export default function AboutStack() {
   return (
     <section id="about" ref={sectionRef} className={`about-stack${motionAllowed ? " is-stack" : ""}`}>
       <div className="wrap about-head">
-        <p className="eyebrow">{about.label}</p>
-        <SplitText tag="h2" text={about.title} className="h2" splitType="words" delay={60} textAlign="left" trigger="view" />
+        <Eyebrow text={about.label} />
+        <Heading tag="h2" text={about.title} className="h2" />
       </div>
 
       <ol ref={listRef} className="wrap stack-list">

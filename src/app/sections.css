@@ -574,20 +574,68 @@ section[id] {
 }
 
 /* ---------- Reveal (entrances that play once) ---------- */
+/* Rule 8: the hidden "before" look exists only under `.js` (set by the inline script in layout.tsx), so with
+   scripts blocked everything is visible. Reduced motion never hides anything (see the block at the end). */
 .reveal {
-  transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.2, 0.9, 0.2, 1);
+  transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.2, 0.9, 0.2, 1), filter 0.7s ease;
 }
-.reveal:not(.is-in) {
+.js .reveal:not(.is-in) {
   opacity: 0;
 }
-.reveal--up:not(.is-in) {
+.js .reveal--up:not(.is-in) {
   transform: translateY(28px);
 }
-.reveal--left:not(.is-in) {
+.js .reveal--left:not(.is-in) {
   transform: translateX(-56px);
 }
-.reveal--right:not(.is-in) {
+.js .reveal--right:not(.is-in) {
   transform: translateX(56px);
+}
+/* Body paragraphs (ADR 0005): the whole block fades up: opacity 0 -> 1, blur 6px -> 0, 16px up, 700 ms */
+.reveal--fade {
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+    filter 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.js .reveal--fade:not(.is-in) {
+  transform: translateY(16px);
+  filter: blur(6px);
+}
+
+/* ---------- Text animation system (ADR 0005) ---------- */
+/* Typed text (TextType): block elements, and no balanced wrapping: `text-wrap: balance` would re-balance the
+   half-typed text and make lines jump while typing. */
+.text-type.eyebrow,
+.text-type.h1 {
+  display: block;
+}
+.hero-title {
+  text-wrap: wrap;
+}
+/* Headings (SplitText): hidden until the split is ready, under `.js` only */
+.js .split-pending {
+  visibility: hidden;
+}
+/* "Let's talk." words rise (RiseWords): clip, and the words wait below the clip under `.js` */
+.rise-clip {
+  overflow: hidden;
+}
+.js [data-rise="pending"] [data-word] {
+  transform: translateY(110%);
+}
+/* Without JavaScript the intro / description words (BlurText writes its hidden start into the HTML) show at once */
+html:not(.js) .blur-text span {
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+}
+/* Hero buttons fade up after the title is typed */
+.hero-actions {
+  transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.js .hero-actions[data-ready="false"] {
+  opacity: 0;
+  transform: translateY(14px);
+  visibility: hidden; /* also out of the tab order until they appear */
 }
 
 /* ---------- Phones: floating bottom pill, stacked sections ---------- */
@@ -658,12 +706,31 @@ section[id] {
   }
 }
 
-/* ---------- Reduced motion: everything static ---------- */
+/* ---------- Reduced motion: everything static and visible (rule 8) ---------- */
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .reveal:not(.is-in) {
-    opacity: 1;
-    transform: none;
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none;
+  }
+  .split-pending {
+    visibility: visible !important;
+  }
+  [data-rise] [data-word] {
+    transform: none !important;
+  }
+  .blur-text span {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+  .hero-actions,
+  .hero-actions[data-ready="false"] {
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
     transition: none;
   }
   .caret {

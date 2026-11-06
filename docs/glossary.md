@@ -40,7 +40,7 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | `satisfies` | TypeScript | Checks a value against a type without widening the value's own type | `src/content/site.ts` |
 | Content as data | Architecture | Page copy kept in typed data files, separate from components | `src/content/site.ts` |
 | `wa.me` link | Messaging | WhatsApp's click-to-chat URL; the phone number lives only inside it, never as visible text | `src/content/site.ts` (WhatsApp row) |
-| GSAP | Animation | JavaScript animation library (free since 3.13, includes ScrollTrigger and SplitText) | `sections/AboutStack.tsx`, `rb/SplitText.jsx`, `rb/ScrollReveal.jsx` |
+| GSAP | Animation | JavaScript animation library (free since 3.13, includes ScrollTrigger and SplitText) | `sections/AboutStack.tsx`, `rb/SplitText.jsx` |
 | ScrollTrigger | Animation | GSAP plugin that ties animation or pinning to scroll position | `sections/AboutStack.tsx`, `SiteState.tsx` |
 | Pinning | Animation / UX | Holding a section fixed on screen while the page scroll "pays" for an animation | Not used since ADR 0003 (it was the old pinned About gallery) |
 | Snap (scroll snap) | UX | Scroll position settles on defined stops (here each of the 4 photos) | Not used since ADR 0003 (it was the old pinned About gallery) |

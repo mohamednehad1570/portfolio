@@ -6,6 +6,7 @@ They are used inside this website only; they are not resold or redistributed as 
 Every file starts with `'use client'` (they use browser APIs). Changes are marked `MODIFIED` in the code.
 No `@hugeicons/*` packages are used.
 `CircularGallery` (the old About carousel) was removed in batch 1b (ADR 0003); it needed no npm package, so nothing else was uninstalled.
+`DecryptedText` and `ScrollReveal` were removed in batch 1c (ADR 0005, one text animation system).
 
 | Component | Used for | Modified? |
 |---|---|---|
@@ -14,10 +15,9 @@ No `@hugeicons/*` packages are used.
 | `Magnet` | Button pull | No |
 | `ClickSpark` | Button click effect | No |
 | `GlareHover` | Project frames | No |
-| `SplitText` | H1 and section H2 | No |
-| `BlurText` | Hero description | No |
-| `DecryptedText` | Hero label | No |
-| `ScrollReveal` | Section intro lines | No |
+| `SplitText` | Section H2 / H3 and privacy headings (words rise) | Yes: the hidden "before" state is the class `split-pending` (applied by CSS under `.js` only) instead of an inline `visibility: hidden`, so the server HTML is never invisible (rule 8) |
+| `BlurText` | Hero description and intro lines | Yes: `play` prop holds the words until the parent says go (hero description waits for the typed title) |
+| `TextType` | Hero label and title, section labels | Yes: `threshold`, `enabled`, `reserveSpace`, `onTypingComplete` props; cursor hidden until typing starts; caret is an inline word-joiner (no mid-word line breaks); CSS shows the whole text without JavaScript and with reduced motion |
 | `VariableProximity` | "Let's talk." | No |
 
 Besides the `MODIFIED` markers, each file got a short header comment naming its source.

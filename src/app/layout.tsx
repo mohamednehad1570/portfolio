@@ -50,12 +50,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     // data-scroll-behavior: Next.js 16 no longer switches smooth scrolling off during page navigation by itself;
     // this attribute asks it to, so the home <-> /privacy transitions stay instant while in-page jumps stay smooth.
-    <html lang="en" data-scroll-behavior="smooth" className={`${bricolage.variable} ${instrument.variable}`}>
+    // suppressHydrationWarning: the inline script below adds the `js` class before React hydrates.
+    <html lang="en" data-scroll-behavior="smooth" className={`${bricolage.variable} ${instrument.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Rule 8 (visible without animation): marks "JavaScript is running". CSS hides animated text and
+            elements only under `.js`, so with scripts blocked (or before they run) nothing is ever hidden. */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+      </head>
       <body>
-        {/* Without JavaScript the enter animations would leave content invisible, so show it at once */}
-        <noscript>
-          <style>{".reveal{opacity:1!important;transform:none!important}"}</style>
-        </noscript>
         <PersonJsonLd />
         {children}
       </body>
