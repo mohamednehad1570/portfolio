@@ -1,0 +1,889 @@
+/*
+ * Section and component styles, ported from the approved prototype (reference/prototype/src/styles.css).
+ * Why a plain CSS file: the layout is shared by several components and by the React Bits parts that ship
+ * their own CSS; tokens come from globals.css.
+ * Layout idea: one dark night-sky page (ADR 0004), content in a 1200px column, the starfield canvas fixed behind
+ * everything (ADR 0002).
+ */
+
+.page {
+  position: relative;
+  overflow-x: clip; /* no horizontal scroll at any width */
+}
+main,
+.footer {
+  position: relative;
+  z-index: 1; /* above the fixed starfield canvas */
+}
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-inline: max(20px, env(safe-area-inset-left, 0px)) max(20px, env(safe-area-inset-right, 0px));
+}
+@media (min-width: 761px) {
+  .wrap {
+    padding-inline: 40px;
+  }
+}
+
+.intro-text {
+  font-size: clamp(17px, 1.5vw, 19px) !important;
+  line-height: 1.6 !important;
+  color: var(--color-muted);
+  font-weight: 400 !important;
+  margin: 0;
+}
+
+/* ---------- Links and buttons ---------- */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 26px;
+}
+.actions--end {
+  margin-top: 64px;
+}
+.btn-magnet {
+  display: inline-block;
+}
+.cta {
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  min-height: 44px; /* touch target */
+  display: inline-flex;
+  align-items: center;
+}
+.text-link {
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px; /* touch target */
+}
+.text-link:hover {
+  color: var(--color-accent);
+}
+
+/* ---------- Navigation ---------- */
+/* Page-colour glass (--color-bg at 88%) with a blur, so text scrolling behind is not readable through it.
+   Browsers without backdrop-filter get a near-solid 97% instead (a blur would be missing, so more opaque).
+   --header-h is the height of the top bar (0 on phones, where the bar is a bottom pill). */
+:root {
+  --nav-bg: rgba(10, 22, 38, 0.88);
+  --header-h: 68px;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --nav-bg: rgba(10, 22, 38, 0.97);
+  }
+}
+/* Jumping to a section (menu link, #hash) must not leave its heading under the sticky header; the same
+   offset lets keyboard focus scroll clear of it. */
+section[id] {
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
+.nav {
+  position: fixed;
+  top: env(safe-area-inset-top, 0px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  background: var(--nav-bg);
+  /* Prefixed first, standard last: the CSS minifier (Lightning CSS) keeps only the prefixed property when the
+     standard one comes first, which silently switched the blur off in Chrome. Check the built CSS if this is edited. */
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-line);
+}
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  text-decoration: none;
+  letter-spacing: -0.01em;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.nav-links {
+  display: flex;
+  gap: 34px;
+}
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-muted);
+  text-decoration: none;
+}
+/* the underline of the active section */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  height: 2px;
+  background: var(--color-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.nav-link:hover,
+.nav-link.is-active {
+  color: var(--color-ink);
+}
+.nav-link:hover::after,
+.nav-link.is-active::after {
+  transform: scaleX(1);
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding: 110px 0 70px;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 64px;
+  align-items: center;
+  width: 100%;
+}
+.hero-text {
+  position: relative;
+}
+/* soft night-sky glow so the stars never compete with the headline */
+.hero-text::before {
+  content: "";
+  position: absolute;
+  inset: -80px -100px;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(10, 22, 38, 0.85), rgba(10, 22, 38, 0.55) 60%, rgba(10, 22, 38, 0));
+}
+.hero-photo-wrap {
+  justify-self: end;
+  width: 100%;
+  max-width: 420px;
+}
+.hero-photo {
+  margin: 0;
+  aspect-ratio: 4 / 5;
+  border-radius: 24px; /* rounded rectangle, no arch (D14) */
+  overflow: hidden;
+  background: var(--color-accent-soft);
+  box-shadow: 0 30px 60px -32px rgba(0, 0, 0, 0.6);
+}
+.hero-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- About (scroll-driven sideways stack, ADR 0010, 0011) ---------- */
+/* Base = a plain list: heading, then photo + number + title + text per topic, all visible (reduced motion, no
+   JavaScript, before hydration). AboutSideways adds `.is-side` once JavaScript runs and motion is allowed. */
+.about-side {
+  --side-w: min(1040px, calc(100% - 80px)); /* slide width (percent of the box it is used in) */
+  --side-peek: 22px; /* how far each passed slide steps left */
+  --side-bottom: 0px; /* room kept for the phone's bottom nav pill */
+  padding: 120px 0 0;
+}
+/* the heading lines up with the slides' left edge */
+.about-head {
+  width: var(--side-w);
+  margin: 0 auto 40px;
+}
+.side-slides {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  display: grid;
+  gap: 72px;
+  width: var(--side-w);
+}
+.side-dots {
+  display: none; /* progress dots exist only in the pinned version */
+}
+/* No box: no background, border, radius or shadow on the slide or card; the stars show through. */
+.side-card {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+}
+/* square photo; the shadow lifts it off the night sky */
+.side-photo {
+  flex: none;
+  margin: 0;
+  width: 440px;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--color-accent-soft); /* only visible while the image loads */
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+.side-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.side-text {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.side-num {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--color-accent);
+}
+.side-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.2vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 650;
+  margin: 0 0 14px;
+}
+.side-body {
+  font-size: clamp(16px, 1.4vw, 18px);
+  max-width: 34em;
+}
+/* Tablet and phone: photo on top, text below */
+@media (max-width: 1024px) {
+  .side-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+  }
+  .side-photo {
+    width: min(100%, 500px);
+  }
+}
+@media (max-width: 760px) {
+  .about-side {
+    --side-w: calc(100% - 32px);
+    --side-peek: 10px;
+    padding-top: 72px;
+  }
+  .side-card {
+    gap: 18px;
+  }
+  .side-photo {
+    width: 100%;
+    border-radius: 16px;
+  }
+}
+
+/*
+ * Pinned mode. The section is a tall pin box; the stage inside it is `position: sticky`, so the PAGE does the
+ * pinning while the visitor scrolls down normally. Pin height = viewH * (1 + 3 topic segments + a last rest and
+ * hold), viewH being the stage height: the viewport minus the sticky top bar (desktop and tablet) or all of it
+ * (phones, where the nav is a bottom pill). --side-rest/-move/-hold are set by AboutSideways.tsx from its constants.
+ * The stage holds heading, slides and dots in one column, so the heading is on screen for the whole pin.
+ */
+/* two classes: must beat `section[id]` (scroll-margin) and `.about-side` (padding) */
+.about-side.is-side {
+  --side-view: calc(100svh - var(--header-h));
+  --side-rest: 0.55;
+  --side-move: 0.45;
+  --side-hold: 0.3;
+  padding: 0;
+  /* a nav click (#about) scrolls to exactly where the stage sticks: heading and topic 1, no blank band */
+  scroll-margin-top: var(--header-h);
+}
+@media (max-width: 760px) {
+  .is-side {
+    --side-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); /* 54px pill + 14px gap */
+  }
+}
+.is-side.side-pin {
+  height: calc(var(--side-view) * (1 + 3 * (var(--side-rest) + var(--side-move)) + var(--side-rest) + var(--side-hold)));
+}
+.is-side .side-stage {
+  position: sticky;
+  top: var(--header-h);
+  height: var(--side-view);
+  overflow: hidden; /* waiting slides are parked past the right edge */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* desktop and tablet: heading + slides + dots centred */
+  gap: 32px;
+  padding: 24px 0;
+}
+@media (max-width: 760px) {
+  .is-side .side-stage {
+    justify-content: flex-start; /* phones: from the top, the bottom stays clear of the pill */
+    gap: 18px;
+    /* below the dots: the pill plus 44px, so the topic text (which ends 24px above the dots' bottom) always
+       stays above the go-to-top button (46px tall, 84px up, right side); the dots sit beside it on the left */
+    padding: 28px 0 calc(var(--side-bottom) + 44px);
+  }
+}
+.is-side .about-head {
+  flex: none;
+  margin-bottom: 0;
+}
+/* All slides share one grid cell, so the list is as tall as the tallest slide and they sit on top of each
+   other; a later slide is painted over an earlier one (z-index = position). JavaScript moves each with transform. */
+.is-side .side-slides {
+  display: grid;
+  grid-template-areas: "slide";
+  width: auto;
+  margin: 0;
+}
+.is-side .side-slide {
+  --depth: 0; /* set by AboutSideways: how far this slide has been passed (0 = front or waiting) */
+  grid-area: slide;
+  justify-self: start;
+  align-self: start; /* every photo shares one top edge, so passed photos peek out evenly behind the front one */
+  width: var(--side-w);
+  transform-origin: 0 50%;
+  will-change: transform;
+}
+.is-side .side-card {
+  width: 100%;
+}
+/* depth effect: filter and opacity only (cheap to animate). --side-photo-fit is measured by AboutSideways so
+   heading, photo, the longest text and the dots always fit in the stage. */
+.is-side .side-photo {
+  filter: brightness(calc(1 - 0.25 * var(--depth)));
+  width: min(440px, var(--side-photo-fit, 440px));
+}
+.is-side .side-text {
+  opacity: max(0, calc(1 - 1.6 * var(--depth))); /* a passed topic's text is gone, so texts never overlap */
+}
+@media (max-width: 1024px) {
+  .is-side .side-photo {
+    width: min(100%, 500px, var(--side-photo-fit, 500px));
+  }
+}
+@media (max-width: 760px) {
+  .is-side .side-photo {
+    width: min(100%, var(--side-photo-fit, 100%));
+  }
+}
+/* progress dots: under the slides, aligned with their left edge, 6x6 idle, 28x6 and accent when active */
+.is-side .side-dots {
+  flex: none;
+  display: flex;
+  gap: 8px;
+  width: var(--side-w);
+  margin-inline: auto;
+}
+.side-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.28);
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+.side-dot.is-active {
+  width: 28px;
+  background: var(--color-accent);
+}
+
+/* ---------- Projects ---------- */
+.section {
+  padding: 140px 0;
+}
+/* Two cards that share five rows (frame, title, description, tags, link). Each card spans the 5 rows and takes
+   them over with `subgrid`, so every row is as tall as the taller of the two cards' content in that row: titles,
+   descriptions, tags and links line up across the cards whatever the text length. */
+.projects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 40px;
+  row-gap: 18px;
+  margin-top: 56px;
+}
+.project {
+  display: grid;
+  grid-row: span 5;
+  grid-template-rows: subgrid;
+  min-width: 0;
+}
+.project > * {
+  min-width: 0;
+}
+.frame-glare {
+  width: 100%;
+  box-shadow: 0 24px 50px -30px rgba(0, 0, 0, 0.7);
+  transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.frame-glare:hover {
+  transform: translateY(-6px);
+}
+/* both project frames are exactly the same size (16:10 picture area), whatever is inside them.
+   The browser frame is a light window on the dark page (D16), so it carries its own text and line colours
+   (--frame-*): the global muted/line tokens are light-on-dark and would be unreadable on it. */
+.frame {
+  --frame-text: #535a65; /* 6:1 or better on the light frame surfaces */
+  --frame-line: #e2e6eb;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  text-decoration: none;
+  color: var(--frame-text);
+}
+.frame-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 16px;
+  background: #f3f5f7;
+  border-bottom: 1px solid var(--frame-line);
+}
+.frame-bar i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #d4d9df;
+}
+.frame-addr {
+  margin-left: 12px;
+  flex: 1;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 12px;
+  color: var(--frame-text);
+}
+.frame-shot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  padding: 24px;
+  background: #eef1f4;
+  font-size: 14px;
+  text-align: center;
+}
+.frame--dark {
+  --frame-text: #9aa3ad;
+  --frame-line: #262a31;
+}
+.frame--dark .frame-bar {
+  background: #171b21;
+}
+.frame--dark .frame-bar i {
+  background: #3a3f48;
+}
+.frame--dark .frame-addr {
+  background: #1f242b;
+  color: #9aa3ad;
+}
+.frame--dark .frame-shot {
+  background: #0f1216;
+  color: #9aa3ad;
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.8;
+  justify-content: flex-start;
+  align-items: flex-start;
+  text-align: left;
+}
+.term-lines {
+  display: block;
+}
+.caret {
+  display: inline-block;
+  width: 8px;
+  height: 15px;
+  margin-left: 4px;
+  vertical-align: -2px;
+  background: var(--color-accent);
+  animation: blink 1s steps(1) infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.tags li {
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+.project .text-link {
+  align-self: flex-start;
+}
+.project .h3 {
+  align-self: start; /* the split heading is inline-block: keep it at the top of its row */
+}
+
+/* ---------- Contact (five rotating text rings, ADR 0006) ---------- */
+.contact {
+  padding-bottom: 80px;
+}
+.vp-title {
+  font-weight: 500;
+}
+.vp-title span {
+  font-family: var(--font-display);
+}
+/* One line: the rings spread over the content width (space-between). Sizes are variables so the same CSS serves
+   desktop (184px), tablet (~140px) and phone (104px, wrapped 3 + 2). */
+.rings {
+  --ring: 184px;
+  --ring-font: 15.5px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 56px;
+}
+.ring-link {
+  display: block;
+  width: var(--ring);
+  height: var(--ring);
+  border-radius: 50%; /* the focus ring follows the circle */
+  text-decoration: none;
+}
+/* the vendored CircularText sets its size inline (184px / 15.5px): the variables take over at other widths */
+.ring-link .circular-text {
+  width: var(--ring) !important;
+  height: var(--ring) !important;
+  font-size: var(--ring-font) !important;
+  margin: 0;
+}
+.ring-text {
+  font-family: var(--font-display);
+  letter-spacing: 0.03em;
+}
+.ring-link:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 5px;
+}
+/* the service logo: the centre 34% of the ring, white */
+.ring-logo {
+  display: block;
+  width: 34%;
+  height: 34%;
+  color: #ffffff;
+}
+.ring-logo {
+  display: grid;
+  place-items: center;
+}
+.ring-logo svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* LinkedIn's official logo is a raster image: scaled to the logo box, proportions kept */
+.ring-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* fade up one after another (120 ms apart) when the row enters the viewport; hidden only under `.js` (rule 8) */
+.ring-item {
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--i) * 120ms);
+}
+.js .rings:not(.is-in) .ring-item {
+  opacity: 0;
+  transform: translateY(24px);
+}
+@media (max-width: 1024px) {
+  .rings {
+    --ring: 140px;
+    --ring-font: 12px;
+  }
+}
+
+/* ---------- Footer and go-to-top ---------- */
+.footer {
+  background: transparent; /* the stars show through */
+  border-top: 1px solid var(--color-line);
+  padding: 28px 0 32px;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 28px;
+}
+.footer-privacy {
+  color: var(--color-muted);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.footer-privacy:hover {
+  color: var(--color-ink);
+  text-decoration: underline;
+}
+.to-top {
+  position: fixed;
+  right: max(24px, env(safe-area-inset-right, 0px));
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 31;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(14, 22, 38, 0.9);
+  border: 1px solid var(--color-line);
+  color: var(--color-ink);
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease, transform 0.3s ease, color 0.2s, border-color 0.2s;
+}
+.to-top.is-shown {
+  opacity: 1;
+  pointer-events: auto;
+  transform: none;
+}
+.to-top:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* ---------- Reveal (entrances that play once) ---------- */
+/* Rule 8: the hidden "before" look exists only under `.js` (set by the inline script in layout.tsx), so with
+   scripts blocked everything is visible. Reduced motion never hides anything (see the block at the end). */
+.reveal {
+  transition: opacity 0.7s ease, transform 0.8s cubic-bezier(0.2, 0.9, 0.2, 1), filter 0.7s ease;
+}
+.js .reveal:not(.is-in) {
+  opacity: 0;
+}
+.js .reveal--left:not(.is-in) {
+  transform: translateX(-56px);
+}
+.js .reveal--right:not(.is-in) {
+  transform: translateX(56px);
+}
+/* Body paragraphs (ADR 0005): the whole block fades up: opacity 0 -> 1, blur 6px -> 0, 16px up, 700 ms */
+.reveal--fade {
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+    filter 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.js .reveal--fade:not(.is-in) {
+  transform: translateY(16px);
+  filter: blur(6px);
+}
+
+/* ---------- Text animation system (ADR 0005) ---------- */
+/* Typed text (TextType): block elements, and no balanced wrapping: `text-wrap: balance` would re-balance the
+   half-typed text and make lines jump while typing. */
+.text-type.eyebrow,
+.text-type.h1 {
+  display: block;
+}
+.hero-title {
+  text-wrap: wrap;
+}
+/* Headings (SplitText): hidden until the split is ready, under `.js` only */
+.js .split-pending {
+  visibility: hidden;
+}
+/* "Let's talk." words rise (RiseWords): clip, and the words wait below the clip under `.js` */
+.rise-clip {
+  overflow: hidden;
+}
+.js [data-rise="pending"] [data-word] {
+  transform: translateY(110%);
+}
+/* Without JavaScript the intro / description words (BlurText writes its hidden start into the HTML) show at once */
+html:not(.js) .blur-text span {
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+}
+/* Hero buttons fade up after the title is typed */
+.hero-actions {
+  transition: opacity 0.6s ease, transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.js .hero-actions[data-ready="false"] {
+  opacity: 0;
+  transform: translateY(14px);
+  visibility: hidden; /* also out of the tab order until they appear */
+}
+
+/* ---------- Phones: floating bottom pill, stacked sections ---------- */
+@media (max-width: 760px) {
+  :root {
+    --header-h: 0px; /* no top bar on phones */
+  }
+  html {
+    scroll-padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px)); /* focus scrolls clear of the bottom pill */
+  }
+  .nav {
+    top: auto;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+    left: 14px;
+    right: 14px;
+    border: 1px solid var(--color-line);
+    border-radius: 999px;
+    background: var(--nav-bg);
+    box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.6);
+  }
+  .nav-inner {
+    height: 54px;
+    padding: 0 20px;
+    justify-content: center;
+  }
+  .brand {
+    display: none;
+  }
+  .nav-links {
+    gap: 30px;
+  }
+  .hero {
+    min-height: 0;
+    padding: 48px 0 80px;
+  }
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  .hero-photo-wrap {
+    order: -1;
+    justify-self: center;
+    max-width: 280px;
+  }
+  .section {
+    padding: 90px 0;
+  }
+  /* phones: the cards stack, so no shared rows are needed */
+  .projects {
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+  .project {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  /* three rings per row (3 + 2, centred); the size shrinks a little on screens narrower than 390px so three still fit */
+  .rings {
+    --ring: min(104px, calc((100vw - 76px) / 3));
+    --ring-font: calc(var(--ring) * 0.096);
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 28px 18px;
+  }
+  .footer {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); /* pill (54px) + its 14px gap + air: the last line is never behind it */
+  }
+  .footer-inner {
+    flex-direction: row;
+    align-items: center;
+    padding-right: 76px; /* keeps Privacy clear of the go-to-top button */
+  }
+  .to-top {
+    right: 16px;
+    bottom: calc(84px + env(safe-area-inset-bottom, 0px)); /* above the bottom nav */
+    width: 46px;
+    height: 46px;
+  }
+}
+
+/* ---------- Reduced motion: everything static and visible (rule 8) ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal:not(.is-in) {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none;
+  }
+  .split-pending {
+    visibility: visible !important;
+  }
+  [data-rise] [data-word] {
+    transform: none !important;
+  }
+  .blur-text span {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+  .ring-item,
+  .js .rings:not(.is-in) .ring-item {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none;
+  }
+  .hero-actions,
+  .hero-actions[data-ready="false"] {
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
+    transition: none;
+  }
+  .caret {
+    animation: none;
+  }
+  .nav-link::after,
+  .frame-glare,
+  .to-top {
+    transition: none;
+  }
+}
+
+/* ---------- Standalone pages (/privacy, 404) ---------- */
+.doc {
+  min-height: 100svh;
+  padding-top: 64px;
+  padding-bottom: 96px;
+}
+.doc .h1 {
+  margin-top: 32px;
+}
+.doc-heading {
+  margin-top: 40px;
+  margin-bottom: 12px;
+}
+
+/* Visible focus on the main button (the vendored StarBorder only draws a faint outline) */
+a.cta.star-border:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+}
