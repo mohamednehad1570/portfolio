@@ -39,17 +39,17 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | `satisfies` | TypeScript | Checks a value against a type without widening the value's own type | `src/content/site.ts` |
 | Content as data | Architecture | Page copy kept in typed data files, separate from components | `src/content/site.ts` |
 | `wa.me` link | Messaging | WhatsApp's click-to-chat URL; the phone number lives only inside it, never as visible text | `src/content/site.ts` (WhatsApp row) |
-| GSAP | Animation | JavaScript animation library (free since 3.13, includes ScrollTrigger and SplitText) | `sections/AboutStack.tsx`, `rb/SplitText.jsx` |
-| ScrollTrigger | Animation | GSAP plugin that ties animation or pinning to scroll position | `sections/AboutStack.tsx`, `SiteState.tsx` |
+| GSAP | Animation | JavaScript animation library (free since 3.13, includes ScrollTrigger and SplitText) | `sections/AboutSideways.tsx`, `rb/SplitText.jsx` |
+| ScrollTrigger | Animation | GSAP plugin that ties animation or pinning to scroll position | `sections/AboutSideways.tsx`, `SiteState.tsx` |
 | Pinning | Animation / UX | Holding a section fixed on screen while the page scroll "pays" for an animation | Not used since ADR 0003 (it was the old pinned About gallery) |
 | Snap (scroll snap) | UX | Scroll position settles on defined stops (here each of the 4 photos) | Not used since ADR 0003 (it was the old pinned About gallery) |
-| `useGSAP` | Frontend framework | React hook that runs GSAP code and cleans it up on unmount | `sections/AboutStack.tsx` |
+| `useGSAP` | Frontend framework | React hook that runs GSAP code and cleans it up on unmount | `sections/AboutSideways.tsx` |
 | Scrollspy | UX | Highlights the nav link of the section currently on screen | `SiteState.tsx`, `Header.tsx` |
 | React Context | Frontend framework | Way to share state with many components without passing props down | `SiteState.tsx` |
 | Server Component | Frontend framework | Component rendered to HTML at build time; ships no JavaScript | `page.tsx`, `Projects.tsx`, `Hero.tsx`, `Footer.tsx` |
 | `next/image` | Performance | Next.js `<Image>`: lazy loading, size attributes, no layout shift (unoptimized in a static export) | `Hero.tsx` |
 | `<noscript>` | Robustness | Content shown only when JavaScript is off. No longer used for animations: the `js` class does that job | (none since batch 1c; `layout.tsx` now sets the `js` class) |
-| `100svh` | CSS | "Small viewport height": 100% of the visible height with mobile browser bars shown | `sections.css` (`.hero`, `.is-stack`) |
+| `100svh` | CSS | "Small viewport height": 100% of the visible height with mobile browser bars shown | `sections.css` (`.hero`, `.is-side`) |
 | Safe-area inset | CSS | Space reserved for notches and home bars on phones (`env(safe-area-inset-*)`) | `sections.css` |
 | Touch target | Accessibility | Minimum tappable size (44px) for links and buttons | `sections.css` |
 | Landmark | Accessibility | Semantic region (`header`, `nav`, `main`, `footer`) that screen readers can jump between | `Header.tsx`, `page.tsx`, `Footer.tsx` |
@@ -79,15 +79,15 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | Shooting star (meteor streak) | Graphics | A short-lived bright head with a fading tail that crosses the sky; here every 5 to 9 seconds, towards the bottom-left | `StarfieldBackground.tsx` (`spawnMeteor`) |
 | Delta time (frame-rate independence) | Animation | Scaling movement by the time since the last frame, so speed is the same on 60 Hz and 144 Hz screens | `StarfieldBackground.tsx` (`step`) |
 | Debounce | Performance | Waiting until events (here window resizing) stop for a moment before doing costly work | `StarfieldBackground.tsx` (`RESIZE_DEBOUNCE_MS`) |
-| `position: sticky` | CSS | Element scrolls normally until it reaches a given offset, then stays there until its container ends | `sections.css` (`.is-stack .stack-item`) |
-| Sticky stacking | UX / CSS | Several sticky items with growing offsets pile up one under the other as you scroll, newer ones painted on top | `sections/AboutStack.tsx`, `sections.css` |
-| Scrubbed animation | Animation | Animation whose progress follows the scroll position exactly (scroll back and it plays back), instead of playing by time | `sections/AboutStack.tsx` (`--depth`) |
+| `position: sticky` | CSS | Element scrolls normally until it reaches a given offset, then stays there until its container ends | `sections.css` (`.is-side .side-stage`) |
+| Sticky stacking | UX / CSS | Several sticky items with growing offsets pile up one under the other as you scroll, newer ones painted on top. Used by the vertical About of batches 1b to 1d; replaced by the sideways stack (ADR 0010) | not used since ADR 0010 |
+| Scrubbed animation | Animation | Animation whose progress follows the scroll position exactly (scroll back and it plays back), instead of playing by time | `sections/AboutSideways.tsx` (`--depth`, the slide transforms) |
 | Scroll hijacking | UX / Accessibility | Taking control of the page scroll (pinning, snapping, smooth-scroll libraries, wheel-capturing boxes), which makes scrolling feel stuck or unfamiliar; banned by ADR 0003 | `CLAUDE.md` rule 9 |
 | Lenis | Tooling | Smooth-scroll JavaScript library that replaces native scrolling; used inside React Bits ScrollStack and therefore not used here | Rejected in ADR 0003 |
 | `color-scheme` | CSS | Tells the browser the page is dark (or light) so native parts such as scrollbars and form controls match | `globals.css` (`:root`), `layout.tsx` (`viewport`) |
 | `theme-color` | Web platform | `<meta>` tag that tints the mobile browser's address bar; set through the Next.js `viewport` export | `layout.tsx` |
-| CSS custom property (variable) | CSS | A `--name` value set once and read with `var()`; here JavaScript sets `--depth` and CSS turns it into scale, brightness and opacity | `sections.css`, `sections/AboutStack.tsx` |
-| `display: flow-root` | CSS | Makes a box contain its children's margins, so a last child's bottom margin counts inside the box (it keeps the last About item stuck for the final hold) | `sections.css` (`.is-stack .stack-list`) |
+| CSS custom property (variable) | CSS | A `--name` value set once and read with `var()`; here JavaScript sets `--depth` and CSS turns it into scale, brightness and opacity | `sections.css`, `sections/AboutSideways.tsx` |
+| `display: flow-root` | CSS | Makes a box contain its children's margins (and floats), so they count inside the box | not used since ADR 0010 (it served the vertical About list) |
 | Word reveal | Animation | Text appearing word by word, each from transparent, blurred and slightly low to normal; the sentence stays readable to screen readers | `sections/WordReveal.tsx` |
 | `sr-only` | Accessibility | CSS class that hides text visually but keeps it for screen readers | `globals.css`, `WordReveal.tsx` |
 | Contrast ratio (WCAG AA) | Accessibility | Brightness difference between text and background; AA needs at least 4.5:1 for body text | Dark theme tokens (ADR 0004) |
@@ -102,8 +102,14 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | `backdrop-filter` | CSS | Blurs (or otherwise filters) what is visible behind an element. The header uses `blur(12px)` over a 88% page-colour fill so text under it is not readable. Needs `-webkit-` for Safari, written before the standard line (see the comment in `sections.css`) | `sections.css` (`.nav`) |
 | `scroll-margin-top` | CSS | Space kept above an element when the browser scrolls to it (links like `#about`, keyboard focus), so a sticky header does not cover it | `sections.css` (`section[id]`, header height + 16px) |
 | `js` class | Robustness pattern | A class that a tiny inline script puts on `<html>` the moment JavaScript runs. CSS hides animated elements only under `.js`, so with scripts blocked nothing is hidden | `layout.tsx`, `sections.css` |
-| Scroll pacing | UX / animation | How much scrolling a step of a scroll effect costs. About: 60% of the viewport height from one photo arriving to the next (`STEP = 0.6`), plus a 30% hold for the last photo (`HOLD = 0.3`). Slower pacing = more wheel notches per photo | `sections/AboutStack.tsx`, `sections.css` (`--stack-pace`, `--stack-hold`), ADR 0008 |
-| Hysteresis | Control / UX | Using two different thresholds for switching on and off (here 0.55 to become the front item, below 0.45 to lose it), so a value hovering near one threshold does not make the state flip back and forth (flicker) | `sections/AboutStack.tsx` (`FRONT_ON`, `FRONT_OFF`) |
+| Scroll pacing | UX / animation | How much scrolling a step of a scroll effect costs. About: 60% of the viewport height from one photo arriving to the next (`STEP = 0.6`), plus a 30% hold for the last photo (`HOLD = 0.3`). Slower pacing = more wheel notches per photo | `sections/AboutSideways.tsx`, `sections.css` (`--stack-pace`, `--stack-hold`), ADR 0008 |
+| Hysteresis | Control / UX | Using two different thresholds for switching on and off (here 0.55 to become the front item, below 0.45 to lose it), so a value hovering near one threshold does not make the state flip back and forth (flicker) | `sections/AboutSideways.tsx` (`FRONT_ON`, `FRONT_OFF`) |
 | `svh` unit | CSS | "Small viewport height": 1svh = 1% of the viewport height with a phone's browser toolbars showing, so it does not change while the toolbar slides in and out. `60svh` = 60% of that height. The existing `100svh` row uses the same unit | `sections.css` (About spacing and hold) |
 | `mailto:` link | Web / email | A link whose address starts with `mailto:` opens the visitor's email app with a new message to that address; no form or server is needed. The address is visible to anyone reading the page, so it can receive spam | `site.ts` (`CONTACT_EMAIL`), the Email ring |
-| Sticky container limit | CSS | A `position: sticky` item can only move inside its container's content box, and its own bottom margin counts as part of the item. So the last item needs empty space after it inside the container (the list's `::after` block) to be able to stay stuck | `sections.css` (`.stack-list::after`), ADR 0008 |
+| Sticky container limit | CSS | A `position: sticky` item can only move inside its container's content box, and its own bottom margin counts as part of the item. So the last item needs empty space after it inside the container to stay stuck. The sideways About avoids the problem: its stage is the only sticky item and the pin is sized to hold it | `sections.css` (`.side-pin`), ADR 0008 and 0010 |
+| Scroll-driven animation | Animation | Animation whose state is a function of the scroll position, not of time. The sideways About computes a progress value from `scrollY` and sets each slide's transform from it | `sections/AboutSideways.tsx` |
+| Pinned section | UX / CSS | A section that stays fixed on screen while the page scroll "pays" for something happening inside it. Here it is pure CSS: a tall pin box with a `position: sticky` stage; no scroll-capturing library | `sections.css` (`.side-pin`, `.side-stage`) |
+| Horizontal movement on vertical scroll | UX / animation | Content moves sideways while the visitor scrolls down. The wheel, touch and page scroll stay vertical and native; sideways trackpad swipes do nothing, and nothing is captured or snapped (rule 9) | About (ADR 0010) |
+| `transform-origin` | CSS | The point a transform (scale, rotate) pivots around. Passed About slides use `0 50%` (left edge, middle) so they shrink toward their left edge and peek out behind the front slide | `sections.css` (`.is-side .side-slide`) |
+| z-index stacking | CSS | Which overlapping element is painted on top. All About slides sit in the same place, and a later slide has a higher `z-index`, so each new topic slides over the earlier ones | `AboutSideways.tsx` (`zIndex: i`) |
+| `translate3d` | CSS | A transform that moves an element in x, y and z; the 3D form lets the browser move it on the graphics card without re-laying out the page, which is why the slides use it | `sections/AboutSideways.tsx` |
