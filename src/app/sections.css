@@ -98,7 +98,8 @@ section[id] {
   right: 0;
   z-index: 30;
   background: var(--nav-bg);
-  backdrop-filter: blur(12px);
+  /* Prefixed first, standard last: the CSS minifier (Lightning CSS) keeps only the prefixed property when the
+     standard one comes first, which silently switched the blur off in Chrome. Check the built CSS if this is edited. */
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-line);
 }
