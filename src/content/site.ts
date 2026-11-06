@@ -32,6 +32,9 @@ export type ContactRing = {
 const LINKEDIN_URL = "https://linkedin.com/in/mohdman";
 const GITHUB_URL = "https://github.com/mohamednehad1570";
 
+// The one public email address (Proton Mail, ADR 0009). Use this constant wherever an address is needed.
+export const CONTACT_EMAIL = "hello@mohammednehad.com";
+
 // Where every "Book a free call" link goes (hero, Projects, Contact ring 5). ADR 0007: a link, no embedded calendar.
 // TODO(batch-4): Cal.com event URL (until then the link only scrolls to Contact).
 export const BOOKING_URL = "#contact";
@@ -130,19 +133,19 @@ export const site = {
     label: "Contact",
     title: "Let's talk.",
     intro: "Pick whatever feels easiest, or book a free 30-minute intro call. No forms and no pressure.",
-    // Five rings in one line (ADR 0006). Direction and colour alternate by position (see ContactRings).
+    // Five rings in one line (ADR 0006), in this order: Book sits in the middle. Spin direction and text colour
+    // come from the position (see ContactRings), not from these entries.
     rings: [
-      // TODO(Mohammed): the Email ring stays on #contact until a real mailbox address exists; then it becomes a mailto: link.
-      { id: "email", label: "Email Mohammed", href: "#contact", ringText: "SAY HELLO • SAY HELLO • " },
+      { id: "email", label: "Email Mohammed", href: `mailto:${CONTACT_EMAIL}`, ringText: "SAY HELLO • SAY HELLO • " },
       {
         id: "whatsapp",
         label: "Message Mohammed on WhatsApp",
         href: "https://wa.me/201021282909?text=Hi%20Mohammed%2C%20I%20saw%20your%20website",
         ringText: "QUICK CHAT • QUICK CHAT • ",
       },
+      { id: "booking", label: "Book a free call", href: BOOKING_URL, ringText: "NO PRESSURE • 30 MIN • FREE • " },
       { id: "linkedin", label: "Mohammed on LinkedIn", href: LINKEDIN_URL, ringText: "LET’S CONNECT • LET’S CONNECT • " },
       { id: "github", label: "Mohammed on GitHub", href: GITHUB_URL, ringText: "SEE THE CODE • OPEN WORK • " },
-      { id: "booking", label: "Book a free call", href: BOOKING_URL, ringText: "NO PRESSURE • 30 MIN • FREE • " },
     ] satisfies ContactRing[],
   },
 
@@ -168,7 +171,7 @@ export const site = {
         body: "[If cookieless analytics is added later: which tool, what it counts, and that no cookies are used.]",
       },
       { heading: "How to ask for deletion", body: "[How a visitor can ask to see or delete their data, and how fast Mohammed replies.]" },
-      { heading: "Contact", body: "[Email address for privacy questions.]" },
+      { heading: "Contact", body: CONTACT_EMAIL },
     ],
   },
 
