@@ -11,7 +11,10 @@
  *   arrival(i) = clamp(1 - (itemTop - stickyTop) / (STEP * viewport height), 0, 1)   (0 = far below, 1 = stuck)
  *   depth(i)   = sum of arrival(j) for every later item j
  *
- * Text: when an item's arrival first passes 0.55 its title and paragraph reveal word by word, once (WordReveal).
+ * Text (ADR 0008): the "front" item is the last one whose arrival is at least FRONT_ON (0.55); once in front it stays
+ * in front until its arrival drops below FRONT_OFF (0.45), so the text never flickers at the boundary. Each time an
+ * item becomes the front item (scrolling down or back up) its title and paragraph reveal word by word again
+ * (WordReveal); an item that is no longer in front but still covered keeps its words and fades out with its depth.
  * Reduced motion / no JavaScript / before hydration: the `is-stack` class is never added, so the topics are a
  * plain list of photo + text, all visible.
  */
@@ -33,7 +36,8 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 // properties (see below), so the spacing in sections.css and the arrival maths here cannot drift apart.
 const STEP = 0.6; // scroll distance from one photo arriving to the next (60svh, about 5 to 6 wheel notches at 900px)
 const HOLD = 0.3; // the last photo holds its place this long before the whole stack scrolls away
-const REVEAL_AT = 0.55; // arrival at which the words start to appear
+const FRONT_ON = 0.55; // arrival at which an item becomes the front item (its words play)
+const FRONT_OFF = 0.45; // arrival below which it stops being front (hysteresis: the gap prevents flicker)
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 
@@ -43,7 +47,8 @@ export default function AboutStack() {
   const listRef = useRef<HTMLOListElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const motionAllowed = useMotionAllowed();
-  const [revealed, setRevealed] = useState<boolean[]>(() => topics.map(() => false)); // text played once per topic
+  // Per topic: are its words shown, and how many times has it come to the front (changes = replay)
+  const [reveal, setReveal] = useState(() => topics.map(() => ({ show: false, n: 0 })));
 
   useGSAP(
     () => {
@@ -51,7 +56,7 @@ export default function AboutStack() {
       if (!motionAllowed || !list) return undefined;
       const items = Array.from(list.querySelectorAll<HTMLElement>(".stack-item"));
       const lastDepth = items.map(() => -1);
-      const played = items.map(() => false);
+      let front = -1; // index of the front item, -1 = none yet
       let naturalTop: number[] = []; // where each item sits in the page before it sticks (document px)
       let stickyTop: number[] = []; // the `top` each item sticks at (viewport px)
 
@@ -73,25 +78,40 @@ export default function AboutStack() {
         const scroll = window.scrollY;
         const arrival = items.map((_, i) => clamp01(1 - (naturalTop[i] - scroll - stickyTop[i]) / span));
         let depth = 0; // sum of the arrivals of all later items, built from the last item backwards
-        const justPlayed: number[] = [];
         for (let i = items.length - 1; i >= 0; i--) {
           if (Math.abs(depth - lastDepth[i]) > 0.001) {
             items[i].style.setProperty("--depth", depth.toFixed(3));
             lastDepth[i] = depth;
           }
-          if (!played[i] && arrival[i] > REVEAL_AT) {
-            played[i] = true;
-            justPlayed.push(i);
-          }
           depth += arrival[i];
         }
-        if (justPlayed.length) {
-          setRevealed((prev) => {
-            const next = prev.slice();
-            justPlayed.forEach((i) => (next[i] = true));
-            return next;
+
+        // Front item with hysteresis: the last item with arrival >= FRONT_ON, except that the current front item
+        // keeps the role while its arrival is still >= FRONT_OFF and a LATER item has not yet reached FRONT_ON.
+        let next = -1;
+        arrival.forEach((a, i) => {
+          if (a >= FRONT_ON) next = i;
+        });
+        if (front > next && arrival[front] >= FRONT_OFF) next = front;
+        const becameFront = next !== front && next >= 0;
+        front = next;
+
+        setReveal((prev) => {
+          let changed = false;
+          const out = prev.map((r, i) => {
+            if (becameFront && i === front) {
+              changed = true;
+              return { show: true, n: r.n + 1 }; // new count = the words remount hidden and play again
+            }
+            // an item that is not in front and has (almost) left: reset it, so it plays again when it returns
+            if (i !== front && arrival[i] < FRONT_OFF && r.show) {
+              changed = true;
+              return { show: false, n: r.n };
+            }
+            return r;
           });
-        }
+          return changed ? out : prev;
+        });
       };
 
       ScrollTrigger.create({
@@ -129,8 +149,8 @@ export default function AboutStack() {
                 <Image src={t.image} alt="" width={624} height={800} loading={t.image === site.hero.photo.src ? "eager" : "lazy"} />
               </figure>
               <div className="stack-text">
-                <WordReveal as="h3" className="stack-title" text={t.title} play={revealed[i]} animate={motionAllowed} stagger={0.08} />
-                <WordReveal className="body stack-body" text={t.body} play={revealed[i]} animate={motionAllowed} startDelay={0.26} stagger={0.035} />
+                <WordReveal as="h3" className="stack-title" text={t.title} play={reveal[i].show} replay={reveal[i].n} animate={motionAllowed} stagger={0.08} />
+                <WordReveal className="body stack-body" text={t.body} play={reveal[i].show} replay={reveal[i].n} animate={motionAllowed} startDelay={0.26} stagger={0.035} />
               </div>
             </div>
           </li>
