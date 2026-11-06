@@ -2,6 +2,7 @@
 
 - Status: Accepted (decisions D14 revised and D22 new, 2026-11-06, approved on samples). Supersedes the text rows of D20 (per-section text effects of batch 1) and the hero text effects of D14 as first built (DecryptedText label, SplitText title).
 - Date: 2026-11-06
+- Amended by [0008](0008-about-scroll-pacing-and-replay.md): the About reveal replays; everything else still plays once.
 - Related: [0003](0003-about-scroll-stack.md) (About keeps its own word-by-word reveal), [0004](0004-dark-theme.md)
 
 ## Context
