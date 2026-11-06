@@ -2,8 +2,12 @@
  * BrowserFrame and TerminalFrame: the picture frame of a project card (light browser window / dark terminal).
  * Why (D16): both cards have the identical 16:10 frame size, and both are wrapped in GlareHover.
  * Until real screenshots exist the frame shows a labelled placeholder (`shot`).
+ * Dark theme (ADR 0004): the browser frame stays light (a light window reads clearly on navy; colours are
+ * provisional, Mohammed decides after seeing the build); the terminal frame is dark and gets a `line` border so
+ * its edge separates from the night-sky background.
  */
 import GlareHover from "./rb/GlareHover";
+import { LINE } from "@/lib/theme";
 
 type FrameProps = {
   href: string;
@@ -56,7 +60,7 @@ export function TerminalFrame({ href, external, ariaLabel, address, shot }: Fram
       height="auto"
       background="#0f1216"
       borderRadius="18px"
-      borderColor="#262a31"
+      borderColor={LINE}
       glareColor="#ffffff"
       glareOpacity={0.35}
       className="frame-glare"
