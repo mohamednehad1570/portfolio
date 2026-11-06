@@ -534,10 +534,20 @@ section[id] {
   height: 34%;
   color: #ffffff;
 }
+.ring-logo {
+  display: grid;
+  place-items: center;
+}
 .ring-logo svg {
   display: block;
   width: 100%;
   height: 100%;
+}
+/* LinkedIn's official logo is a raster image: scaled to the logo box, proportions kept */
+.ring-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 /* fade up one after another (120 ms apart) when the row enters the viewport; hidden only under `.js` (rule 8) */
 .ring-item {

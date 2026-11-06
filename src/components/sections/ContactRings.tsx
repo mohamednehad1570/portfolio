@@ -19,16 +19,14 @@ import { useEnterOnce } from "@/lib/useEnterOnce";
 import CalendarIcon from "../icons/CalendarIcon";
 import EnvelopeOpenIcon from "../icons/EnvelopeOpenIcon";
 import GitHubIcon from "../icons/GitHubIcon";
+import LinkedInIcon from "../icons/LinkedInIcon";
 import WhatsAppIcon from "../icons/WhatsAppIcon";
 import CircularText from "../rb/CircularText";
 
-// TODO(Mohammed): LinkedIn has no logo yet. Its official mark is only distributed by LinkedIn's brand resources (as
-// PNG, not SVG), so it has to be placed by hand as src/components/icons/LinkedInIcon.tsx; until then the ring
-// has an empty centre. Do not redraw the mark: brand rules say it must be shown unmodified.
-const LOGOS: Record<ContactRing["id"], ComponentType | undefined> = {
+const LOGOS: Record<ContactRing["id"], ComponentType> = {
   email: EnvelopeOpenIcon,
   whatsapp: WhatsAppIcon,
-  linkedin: undefined,
+  linkedin: LinkedInIcon,
   github: GitHubIcon,
   booking: CalendarIcon,
 };
@@ -61,11 +59,9 @@ export default function ContactRings() {
                 centerSpin="opposite"
                 decorative
               >
-                {Logo ? (
-                  <span className="ring-logo">
-                    <Logo />
-                  </span>
-                ) : null}
+                <span className="ring-logo">
+                  <Logo />
+                </span>
               </CircularText>
             </a>
           </div>
