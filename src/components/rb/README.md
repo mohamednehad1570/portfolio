@@ -6,11 +6,11 @@ They are used inside this website only; they are not resold or redistributed as 
 Every file starts with `'use client'` (they use browser APIs). Changes are marked `MODIFIED` in the code.
 No `@hugeicons/*` packages are used.
 `CircularGallery` (the old About carousel) was removed in batch 1b (ADR 0003); it needed no npm package, so nothing else was uninstalled.
-`DecryptedText` and `ScrollReveal` were removed in batch 1c (ADR 0005, one text animation system).
+`DecryptedText` and `ScrollReveal` were removed in batch 1c (ADR 0005, one text animation system); `FlowingMenu` was removed in batch 1c (ADR 0006, Contact rings).
 
 | Component | Used for | Modified? |
 |---|---|---|
-| `FlowingMenu` | Contact rows | Yes: Hugeicons removed; `alwaysOn` prop (all bands visible, `clipPath: none`, marquee always running); per-row `bandColor` / `bandText`; per-row `external` flag adds `target="_blank" rel="noopener noreferrer"`; `data-always` hides the static label visually (still read by screen readers); round image spins (CSS `rotate`, 20 s, off under reduced motion); marquee loop pauses while the menu is off-screen (IntersectionObserver) |
+| `CircularText` | Contact rings | Yes: `centerSpin` prop (`none` / `same` / `opposite`) turns the centre content with (or against) the ring's rotation value; `decorative` prop hides the ring from assistive technology when it sits inside a link that has its own accessible name |
 | `StarBorder` | Button border | No |
 | `Magnet` | Button pull | No |
 | `ClickSpark` | Button click effect | No |

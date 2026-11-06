@@ -22,15 +22,19 @@ export type Project = {
   shot: string; // placeholder text inside the frame until real screenshots exist
 };
 
-export type ContactRow = {
-  label: string; // link text read by screen readers
-  marquee: string; // text that scrolls in the band
+export type ContactRing = {
+  id: "email" | "whatsapp" | "linkedin" | "github" | "booking"; // picks the logo in ContactRings
+  label: string; // the link's accessible name (the ring text itself is decorative)
   href: string;
-  band: "blue" | "clear";
+  ringText: string; // text that runs around the ring
 };
 
 const LINKEDIN_URL = "https://linkedin.com/in/mohdman";
 const GITHUB_URL = "https://github.com/mohamednehad1570";
+
+// Where every "Book a free call" link goes (hero, Projects, Contact ring 5). ADR 0007: a link, no embedded calendar.
+// TODO(batch-4): Cal.com event URL (until then the link only scrolls to Contact).
+export const BOOKING_URL = "#contact";
 
 export const site = {
   name: "Mohammed Nehad",
@@ -57,7 +61,7 @@ export const site = {
     description:
       "I design and build modern websites for businesses around the world. It starts with a free 30-minute call, with no pressure and no commitment.",
     primaryCta: { label: "About me", href: "#about" },
-    secondaryLink: { label: "or book a free call", href: "#contact" },
+    secondaryLink: { label: "or book a free call", href: BOOKING_URL },
     photo: { src: "/images/hero.jpg", alt: "Mohammed Nehad smiling, outdoors" },
   },
 
@@ -119,39 +123,27 @@ export const site = {
       },
     ] satisfies Project[],
     primaryCta: { label: "Contact me", href: "#contact" },
-    secondaryLink: { label: "Book a free call", href: "#book" },
+    secondaryLink: { label: "Book a free call", href: BOOKING_URL },
   },
 
   contact: {
     label: "Contact",
     title: "Let's talk.",
-    intro: "Pick whatever feels easiest. No forms and no pressure.",
-    menuAriaLabel: "Contact options",
-    // Round photo repeated in every band of the menu.
-    image: "/images/avatar.jpg",
-    rows: [
-      // TODO(Mohammed): the Email row stays on #contact until a real mailbox address exists.
-      { label: "Email", marquee: "Email · hello@[your-domain]", href: "#contact", band: "blue" },
+    intro: "Pick whatever feels easiest, or book a free 30-minute intro call. No forms and no pressure.",
+    // Five rings in one line (ADR 0006). Direction and colour alternate by position (see ContactRings).
+    rings: [
+      // TODO(Mohammed): the Email ring stays on #contact until a real mailbox address exists; then it becomes a mailto: link.
+      { id: "email", label: "Email Mohammed", href: "#contact", ringText: "SAY HELLO • SAY HELLO • " },
       {
-        label: "WhatsApp",
-        marquee: "WhatsApp · chat with me",
+        id: "whatsapp",
+        label: "Message Mohammed on WhatsApp",
         href: "https://wa.me/201021282909?text=Hi%20Mohammed%2C%20I%20saw%20your%20website",
-        band: "clear",
+        ringText: "QUICK CHAT • QUICK CHAT • ",
       },
-      { label: "LinkedIn", marquee: "LinkedIn · /in/mohdman", href: LINKEDIN_URL, band: "blue" },
-      {
-        label: "GitHub",
-        marquee: "GitHub · mohamednehad1570",
-        href: GITHUB_URL,
-        band: "clear",
-      },
-      { label: "Book a free call", marquee: "Book a free call · 30 min · no commitment", href: "#book", band: "blue" },
-    ] satisfies ContactRow[],
-    book: {
-      title: "Book a free call",
-      body: "30 minutes, online, no commitment. You only give a first name and an email for the meeting link.",
-      slot: "The Cal.com calendar appears here. Every booking waits for Mohammed's approval.",
-    },
+      { id: "linkedin", label: "Mohammed on LinkedIn", href: LINKEDIN_URL, ringText: "LET’S CONNECT • LET’S CONNECT • " },
+      { id: "github", label: "Mohammed on GitHub", href: GITHUB_URL, ringText: "SEE THE CODE • OPEN WORK • " },
+      { id: "booking", label: "Book a free call", href: BOOKING_URL, ringText: "NO PRESSURE • 30 MIN • FREE • " },
+    ] satisfies ContactRing[],
   },
 
   footer: {

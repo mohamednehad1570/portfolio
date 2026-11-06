@@ -13,7 +13,7 @@ The FlowingMenu was a tall block of five full-width bands with moving marquees a
 - **Five CircularText rings in one line (chosen):** each ring is a link, with the service logo at its centre.
 
 ## Decision
-Five rings in one line, no rows and no backgrounds (the stars show through). Each ring is one link. Neighbouring rings spin in opposite directions. Each ring's centre holds the service logo, white, **counter-rotating** against its ring so the logo stays roughly upright. No names under the rings; the accessible name is the link's `aria-label`. Order: Email, WhatsApp, LinkedIn, GitHub, Book a free call. Sizes: 184 px (desktop), about 140 px (tablet), 104 px (phone, wrapped 3 + 2). Reduced motion: no spin, no tilt, logos upright.
+Five rings in one line, no rows and no backgrounds (the stars show through). Each ring is one link. Neighbouring rings spin in opposite directions. Each ring's centre holds the service logo, white, **counter-rotating**: it turns at the ring's speed but the opposite way, so ring and logo always spin against each other (the logo does not stay upright while motion is on). No names under the rings; the accessible name is the link's `aria-label`. Order: Email, WhatsApp, LinkedIn, GitHub, Book a free call. Sizes: 184 px (desktop), about 140 px (tablet), 104 px (phone, wrapped 3 + 2). Reduced motion: no spin, no tilt, logos upright.
 
 ## Consequences
 - **Logos are not decorative branding of ours.** They are shown white and otherwise unmodified; the marks stay their owners' trademarks. Brand guidelines of most companies discourage rotating or recolouring their logos. The counter-rotation is the owner's choice and the trade-off is accepted. If a company objects, the logo comes out and the ring text stays.

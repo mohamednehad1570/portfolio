@@ -1,65 +1,20 @@
 /**
- * Contact (#contact): "Let's talk." title, then a FlowingMenu with always-on moving bands, then the
- * "Book a free call" panel (a placeholder where the Cal.com embed will go later).
- * Why (D17): rows alternate blue / transparent bands, a round photo spins between the repeated labels.
- * The menu mounts only once Contact is ~25% visible (SiteState), so its intro animation is actually seen.
- * Its code loads lazily (preloaded when the browser is idle); a plain link list is the fallback.
+ * Contact (#contact): "Let's talk." title, an intro line, and the five rotating contact rings (ContactRings).
+ * Why (D17 revised, D6 amended; ADR 0006 and 0007): no menu bands and no booking panel. The call is described in the
+ * intro line; "Book a free call" is the fifth ring and points to BOOKING_URL. The title keeps VariableProximity
+ * (the letters thicken near the pointer) on top of the word-rise.
  */
 "use client";
 
-import { useEffect, useRef } from "react";
-import dynamic from "next/dynamic";
+import { useRef } from "react";
 import { site } from "@/content/site";
-import { ACCENT_STRONG, INK, LINE } from "@/lib/theme";
-import { preloadWhenIdle } from "@/lib/useMotionAllowed";
 import VariableProximity from "./rb/VariableProximity";
-import Reveal from "./Reveal";
-import { Eyebrow, Heading, Intro, RiseWords } from "./sections/SectionText";
-import { useSiteState } from "./SiteState";
-
-const loadMenu = () => import("./rb/FlowingMenu");
-
-/** Plain list of the same links: shown while the animated menu downloads and when JavaScript is off. */
-function ContactList() {
-  return (
-    <ul className="contact-list">
-      {site.contact.rows.map((row) => {
-        const external = /^https?:/.test(row.href);
-        return (
-          <li key={row.label}>
-            <a href={row.href} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
-              {row.label}
-            </a>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-const FlowingMenu = dynamic(loadMenu, { ssr: false, loading: () => <ContactList /> });
-
-const BANDS = {
-  blue: { bandColor: ACCENT_STRONG, bandText: "#ffffff" },
-  clear: { bandColor: "transparent", bandText: INK },
-};
+import ContactRings from "./sections/ContactRings";
+import { Eyebrow, Intro, RiseWords } from "./sections/SectionText";
 
 export default function Contact() {
   const { contact } = site;
-  const { contactSeen } = useSiteState();
   const titleBoxRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => preloadWhenIdle(loadMenu), []);
-
-  // Map content rows to the FlowingMenu item shape; http(s) links open in a new tab.
-  const items = contact.rows.map((row) => ({
-    text: row.label,
-    marquee: row.marquee,
-    link: row.href,
-    image: contact.image,
-    external: /^https?:/.test(row.href),
-    ...BANDS[row.band],
-  }));
 
   return (
     <section id="contact" className="section contact">
@@ -76,37 +31,8 @@ export default function Contact() {
         </RiseWords>
         <Intro text={contact.intro} />
       </div>
-      <div className="menu-box">
-        {contactSeen && (
-          <FlowingMenu
-            items={items}
-            alwaysOn
-            direction="alternate"
-            speed={55}
-            stretch={0.6}
-            magnet={0.25}
-            followCursor={0.4}
-            textColor={INK}
-            bgColor="transparent"
-            marqueeBgColor={ACCENT_STRONG}
-            marqueeTextColor="#ffffff"
-            borderColor={LINE}
-            imageShape="circle"
-            ariaLabel={contact.menuAriaLabel}
-          />
-        )}
-        <noscript>
-          <ContactList />
-        </noscript>
-      </div>
-      <div id="book" className="wrap book">
-        <Reveal className="book-panel">
-          <Heading tag="h3" text={contact.book.title} className="h3" />
-          <Reveal from="fade">
-            <p className="body">{contact.book.body}</p>
-          </Reveal>
-          <div className="book-slot">{contact.book.slot}</div>
-        </Reveal>
+      <div className="wrap">
+        <ContactRings />
       </div>
     </section>
   );
