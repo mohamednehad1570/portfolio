@@ -74,7 +74,7 @@ export default function Contact() {
             toFontVariationSettings="'wght' 800, 'opsz' 96"
           />
         </h2>
-        <ScrollReveal baseOpacity={0.15} enableBlur blurStrength={4} baseRotation={0} containerClassName="intro" textClassName="intro-text">
+        <ScrollReveal baseOpacity={0} enableBlur blurStrength={4} baseRotation={0} containerClassName="intro" textClassName="intro-text">
           {contact.intro}
         </ScrollReveal>
       </div>

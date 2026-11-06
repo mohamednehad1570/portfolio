@@ -18,7 +18,7 @@ export default function Projects() {
       <div className="wrap">
         <p className="eyebrow">{projects.label}</p>
         <SplitText tag="h2" text={projects.title} className="h2" splitType="words" delay={60} textAlign="left" trigger="view" />
-        <ScrollReveal baseOpacity={0.15} enableBlur blurStrength={4} baseRotation={0} containerClassName="intro" textClassName="intro-text">
+        <ScrollReveal baseOpacity={0} enableBlur blurStrength={4} baseRotation={0} containerClassName="intro" textClassName="intro-text">
           {projects.intro}
         </ScrollReveal>
 

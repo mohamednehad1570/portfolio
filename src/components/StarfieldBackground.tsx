@@ -8,7 +8,7 @@
  *  - twinkling stars, about 1 per 3000 px² of screen (capped), a few of them bright;
  *  - fixed constellations: about 45 stars joined to their nearest neighbour by a faint line;
  *  - cursor links: stars near the pointer join each other (a tap does the same on touch screens and fades out);
- *  - shooting stars (meteor streaks) every 5 to 9 seconds, heading towards the bottom-left.
+ *  - shooting stars (meteor streaks) every 2.5 to 3.5 seconds, heading towards the bottom-left.
  *
  * Rules it follows: the loop stops when the tab is hidden; under `prefers-reduced-motion: reduce` it draws ONE
  * static frame (stars + fixed links, no twinkle, no meteors, no cursor links); if the canvas cannot be created
@@ -37,7 +37,7 @@ const CURSOR_REACH = 160; // stars within this distance of the pointer may link
 const CURSOR_LINK_MAX = 90; // ...when they are closer than this to each other
 const CURSOR_LINK_ALPHA = 0.4;
 const TAP_FADE_SECONDS = 1.2;
-const METEOR_GAP_SECONDS: [number, number] = [5, 9];
+const METEOR_GAP_SECONDS: [number, number] = [2.5, 3.5];
 const MAX_PIXEL_RATIO = 2; // cap the canvas resolution so 3x phones do not draw 9x the pixels
 const RESIZE_DEBOUNCE_MS = 150;
 

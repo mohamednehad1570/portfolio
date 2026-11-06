@@ -14,7 +14,7 @@ Batch 1 shipped a fixed WebGL2 field of clear glass cubes as the site's signatur
 - **B, keep the glass cubes (restyled for dark):** keeps WebGL2 and the pause logic; heavier and needs a fallback.
 
 ## Decision
-**A3 "Constellation night".** One fixed full-screen `<canvas>` (Canvas 2D) behind all sections, `aria-hidden`, loaded client-only after the main content. Exact numbers (star density, link distances, shooting-star timing) are in the build prompt of batch 1b and in the header comment of `StarfieldBackground.tsx`. Reduced motion draws one static frame. The loop stops when the tab is hidden. If the canvas fails, the plain `#0a1626` page shows.
+**A3 "Constellation night".** One fixed full-screen `<canvas>` (Canvas 2D) behind all sections, `aria-hidden`, loaded client-only after the main content. Exact numbers (star density, link distances, shooting-star timing) are in the build prompt of batch 1b and in the header comment of `StarfieldBackground.tsx`. Shooting stars appear every 2.5 to 3.5 seconds (tweak D8, batch 1c; first built at 5 to 9). Reduced motion draws one static frame. The loop stops when the tab is hidden. If the canvas fails, the plain `#0a1626` page shows.
 
 ## Consequences
 - `CubesBackground.tsx`, `CubesLayer.tsx` and the "pause background while About is pinned" state are removed. No WebGL is needed for the background.

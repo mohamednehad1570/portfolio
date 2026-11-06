@@ -74,13 +74,30 @@ main,
 }
 
 /* ---------- Navigation ---------- */
+/* Page-colour glass (--color-bg at 88%) with a blur, so text scrolling behind is not readable through it.
+   Browsers without backdrop-filter get a near-solid 97% instead (a blur would be missing, so more opaque).
+   --header-h is the height of the top bar (0 on phones, where the bar is a bottom pill). */
+:root {
+  --nav-bg: rgba(10, 22, 38, 0.88);
+  --header-h: 68px;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root {
+    --nav-bg: rgba(10, 22, 38, 0.97);
+  }
+}
+/* Jumping to a section (menu link, #hash) must not leave its heading under the sticky header; the same
+   offset lets keyboard focus scroll clear of it. */
+section[id] {
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
 .nav {
   position: fixed;
   top: env(safe-area-inset-top, 0px);
   left: 0;
   right: 0;
   z-index: 30;
-  background: rgba(10, 22, 38, 0.8); /* --color-bg at 80% */
+  background: var(--nav-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-line);
@@ -575,6 +592,12 @@ main,
 
 /* ---------- Phones: floating bottom pill, stacked sections ---------- */
 @media (max-width: 760px) {
+  :root {
+    --header-h: 0px; /* no top bar on phones */
+  }
+  html {
+    scroll-padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px)); /* focus scrolls clear of the bottom pill */
+  }
   .nav {
     top: auto;
     bottom: calc(14px + env(safe-area-inset-bottom, 0px));
@@ -582,7 +605,7 @@ main,
     right: 14px;
     border: 1px solid var(--color-line);
     border-radius: 999px;
-    background: rgba(14, 22, 38, 0.9);
+    background: var(--nav-bg);
     box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.6);
   }
   .nav-inner {
@@ -620,7 +643,7 @@ main,
     height: 460px;
   }
   .footer {
-    padding-bottom: 100px; /* room for the floating nav pill */
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); /* pill (54px) + its 14px gap + air: the last line is never behind it */
   }
   .footer-inner {
     flex-direction: row;
