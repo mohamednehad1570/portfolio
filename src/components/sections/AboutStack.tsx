@@ -8,7 +8,7 @@
  * transforms, filter and opacity change, so nothing re-lays-out while scrolling. Nothing is pinned, snapped or
  * captured: the wheel and touch scroll the page as usual.
  *
- *   arrival(i) = clamp(1 - (itemTop - stickyTop) / (0.7 * viewport height), 0, 1)   (0 = far below, 1 = stuck)
+ *   arrival(i) = clamp(1 - (itemTop - stickyTop) / (STEP * viewport height), 0, 1)   (0 = far below, 1 = stuck)
  *   depth(i)   = sum of arrival(j) for every later item j
  *
  * Text: when an item's arrival first passes 0.55 its title and paragraph reveal word by word, once (WordReveal).
@@ -29,7 +29,10 @@ import WordReveal from "./WordReveal";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-const ARRIVAL_SPAN = 0.7; // an item "arrives" over this share of the viewport height
+// Pacing (ADR 0008). Both are shares of the viewport height and are also written to the list as CSS custom
+// properties (see below), so the spacing in sections.css and the arrival maths here cannot drift apart.
+const STEP = 0.6; // scroll distance from one photo arriving to the next (60svh, about 5 to 6 wheel notches at 900px)
+const HOLD = 0.3; // the last photo holds its place this long before the whole stack scrolls away
 const REVEAL_AT = 0.55; // arrival at which the words start to appear
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -52,18 +55,22 @@ export default function AboutStack() {
       let naturalTop: number[] = []; // where each item sits in the page before it sticks (document px)
       let stickyTop: number[] = []; // the `top` each item sticks at (viewport px)
 
-      // Measured on every refresh (resize, font load): no layout reads while scrolling.
+      // Measured on every refresh (resize, font load, mobile toolbar): no layout reads while scrolling.
+      // `span` (px) is the scroll distance between two arrivals. It is read back from the layout (spacing between
+      // two items minus one sticky step) instead of computed from innerHeight, so it matches the CSS `svh` spacing
+      // exactly even where innerHeight and svh differ (phone toolbars).
+      let span = STEP * window.innerHeight;
       const measure = () => {
         const listTop = list.getBoundingClientRect().top + window.scrollY;
-        const gap = parseFloat(getComputedStyle(items[0]).marginBottom) || 0;
-        const step = items[0].offsetHeight + gap; // every item has the same height and gap
-        naturalTop = items.map((_, i) => listTop + i * step);
+        const gap = parseFloat(getComputedStyle(items[0]).marginBottom) || 0; // can be negative
+        const flow = items[0].offsetHeight + gap; // distance between two items in the flow
+        naturalTop = items.map((_, i) => listTop + i * flow);
         stickyTop = items.map((el) => parseFloat(getComputedStyle(el).top) || 0);
+        if (items.length > 1) span = flow - (stickyTop[1] - stickyTop[0]);
       };
 
       const update = () => {
         const scroll = window.scrollY;
-        const span = ARRIVAL_SPAN * window.innerHeight;
         const arrival = items.map((_, i) => clamp01(1 - (naturalTop[i] - scroll - stickyTop[i]) / span));
         let depth = 0; // sum of the arrivals of all later items, built from the last item backwards
         const justPlayed: number[] = [];
@@ -113,7 +120,7 @@ export default function AboutStack() {
         <Heading tag="h2" text={about.title} className="h2" />
       </div>
 
-      <ol ref={listRef} className="wrap stack-list">
+      <ol ref={listRef} className="wrap stack-list" style={{ "--stack-pace": STEP, "--stack-hold": HOLD } as React.CSSProperties}>
         {topics.map((t, i) => (
           <li key={t.title} className="stack-item" style={{ "--i": i } as React.CSSProperties}>
             <div className="stack-card">

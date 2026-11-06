@@ -282,6 +282,10 @@ section[id] {
   --stack-step: 24px;
   --stack-h: 560px;
   --stack-bottom: 0px; /* room kept for the phone's bottom nav pill */
+  /* Pacing (ADR 0008). --stack-pace and --stack-hold are set by AboutStack.tsx from its STEP and HOLD constants,
+     so the CSS and the scroll code always agree. The fallbacks only matter if that ever fails. */
+  --stack-pace: 0.6; /* viewport heights of scrolling from one photo arriving to the next */
+  --stack-hold: 0.3; /* viewport heights the last photo holds before the stack scrolls away */
 }
 @media (max-width: 1024px) {
   .is-stack {
@@ -296,20 +300,32 @@ section[id] {
     --stack-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); /* 54px pill + 14px gap */
   }
 }
-/* flow-root keeps the last item's bottom margin INSIDE the list: a sticky item only stays stuck within its
-   container's content box, so that margin is the 35% "hold" after the last item has arrived. */
+/* A sticky item only travels inside its container's content box, and the item's own bottom margin counts as part
+   of the item. So the last item's margin cannot give it room to stick (batch 1d bug: the 4th photo never stuck).
+   Room comes from an empty block at the END of the list (::after): it extends the content box past the last
+   item, and that block's height is the hold. flow-root makes the list contain its children's margins. */
 .is-stack .stack-list {
   display: flow-root;
 }
+.is-stack .stack-list::after {
+  content: "";
+  display: block;
+  height: calc(var(--stack-hold) * 100svh);
+}
 .is-stack .stack-item {
   --depth: 0; /* set by ScrollTrigger: sum of the arrivals of the items stacked on top of this one */
+  --item-h: min(var(--stack-h), calc(100svh - var(--stack-base) - 3 * var(--stack-step) - var(--stack-bottom)));
   position: sticky;
   top: calc(var(--stack-base) + var(--i) * var(--stack-step));
-  height: min(var(--stack-h), calc(100svh - var(--stack-base) - 3 * var(--stack-step) - var(--stack-bottom)));
-  margin-bottom: 55svh; /* scroll distance between two arrivals */
+  height: var(--item-h);
+  /* Distance between two items in the flow = the pacing plus one sticky step, so the SCROLL distance from one
+     arrival (item at its sticky top) to the next is exactly --stack-pace of the viewport, whatever the item
+     height. The item is taller than that distance on most screens, so this margin is usually negative:
+     the next item then overlaps the end of the previous one, which is what a stack does anyway. */
+  margin-bottom: calc(var(--stack-pace) * 100svh + var(--stack-step) - var(--item-h));
 }
 .is-stack .stack-item:last-child {
-  margin-bottom: 35svh;
+  margin-bottom: 0;
 }
 .is-stack .stack-card {
   height: 100%;
