@@ -35,7 +35,8 @@ const GITHUB_URL = "https://github.com/mohamednehad1570";
 // The one public email address (Proton Mail, ADR 0009). Use this constant wherever an address is needed.
 export const CONTACT_EMAIL = "hello@mohammednehad.com";
 
-// Where every "Book a free call" link goes (hero, Projects, Contact ring 5). ADR 0007: a link, no embedded calendar.
+// Where every "Book a free call" link goes (Hero and Projects buttons, Contact ring 5). ADR 0007: a link, no embedded
+// calendar; ADR 0011: once this is an external URL, those links open it in a new tab (src/lib/links.ts).
 // TODO(batch-4): Cal.com event URL (until then the link only scrolls to Contact).
 export const BOOKING_URL = "#contact";
 
@@ -64,7 +65,7 @@ export const site = {
     description:
       "I design and build modern websites for businesses around the world. It starts with a free 30-minute call, with no pressure and no commitment.",
     primaryCta: { label: "About me", href: "#about" },
-    secondaryLink: { label: "or book a free call", href: BOOKING_URL },
+    secondaryCta: { label: "Book a free call", href: BOOKING_URL },
     photo: { src: "/images/hero.jpg", alt: "Mohammed Nehad smiling, outdoors" },
   },
 
@@ -126,7 +127,7 @@ export const site = {
       },
     ] satisfies Project[],
     primaryCta: { label: "Contact me", href: "#contact" },
-    secondaryLink: { label: "Book a free call", href: BOOKING_URL },
+    secondaryCta: { label: "Book a free call", href: BOOKING_URL },
   },
 
   contact: {

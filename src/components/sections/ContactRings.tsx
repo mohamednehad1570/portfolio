@@ -15,6 +15,7 @@
 import { useRef, type ComponentType, type CSSProperties } from "react";
 import { site, type ContactRing } from "@/content/site";
 import { ACCENT, INK } from "@/lib/theme";
+import { newTabProps } from "@/lib/links";
 import { useEnterOnce } from "@/lib/useEnterOnce";
 import CalendarIcon from "../icons/CalendarIcon";
 import EnvelopeOpenIcon from "../icons/EnvelopeOpenIcon";
@@ -39,10 +40,9 @@ export default function ContactRings() {
     <div ref={rowRef} className="rings">
       {site.contact.rings.map((ring, i) => {
         const Logo = LOGOS[ring.id];
-        const external = /^https?:/.test(ring.href);
         return (
           <div key={ring.id} className="ring-item" style={{ "--i": i } as CSSProperties}>
-            <a className="ring-link" href={ring.href} aria-label={ring.label} {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+            <a className="ring-link" href={ring.href} aria-label={ring.label} {...newTabProps(ring.href)}>
               <CircularText
                 text={ring.ringText}
                 className="ring-text"

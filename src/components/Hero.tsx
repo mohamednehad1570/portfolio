@@ -1,5 +1,6 @@
 /**
- * Hero (#home): label, the one H1, description, two calls to action, and the photo on the other side.
+ * Hero (#home): label, the one H1, description, two buttons ("About me", "Book a free call", ADR 0011), and the
+ * photo on the other side.
  * Why (D14 revised, ADR 0005): the label types first, then the title; the title's cursor is the only blinking
  * cursor on the page. The description blurs in word by word once the title is typed, and the buttons fade up
  * last. The photo slides in from the right. All wording comes from src/content/site.ts.
@@ -61,9 +62,7 @@ export default function Hero() {
           />
           <div className="actions hero-actions" data-ready={titleDone ? "true" : "false"}>
             <CtaButton href={hero.primaryCta.href}>{hero.primaryCta.label}</CtaButton>
-            <a className="text-link" href={hero.secondaryLink.href}>
-              {hero.secondaryLink.label}
-            </a>
+            <CtaButton href={hero.secondaryCta.href}>{hero.secondaryCta.label}</CtaButton>
           </div>
         </div>
         <Reveal from="right" delay={250} className="hero-photo-wrap">

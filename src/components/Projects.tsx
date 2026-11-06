@@ -3,6 +3,7 @@
  * Alignment (D16 final): the cards share five rows through CSS subgrid, so titles, descriptions, tags and links line up.
  * Why (D16): Emaar in a light browser frame, the Kubernetes autoscaling project in a dark terminal frame;
  * the cards slide in from opposite sides. The Emaar link stays "#projects" until the client approves showing it.
+ * Below the cards: two buttons, "Contact me" and "Book a free call" (ADR 0011).
  */
 import { site } from "@/content/site";
 import CtaButton from "./CtaButton";
@@ -55,9 +56,7 @@ export default function Projects() {
 
         <div className="actions actions--end">
           <CtaButton href={projects.primaryCta.href}>{projects.primaryCta.label}</CtaButton>
-          <a className="text-link" href={projects.secondaryLink.href}>
-            {projects.secondaryLink.label}
-          </a>
+          <CtaButton href={projects.secondaryCta.href}>{projects.secondaryCta.label}</CtaButton>
         </div>
       </div>
     </section>
