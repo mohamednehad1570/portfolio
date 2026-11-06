@@ -11,13 +11,13 @@ import { useRef, type ReactNode } from "react";
 import { useEnterOnce } from "@/lib/useEnterOnce";
 
 type Props = {
-  from?: "up" | "left" | "right" | "fade";
+  from?: "left" | "right" | "fade";
   delay?: number; // ms
   className?: string;
   children: ReactNode;
 };
 
-export default function Reveal({ from = "up", delay = 0, className = "", children }: Props) {
+export default function Reveal({ from = "fade", delay = 0, className = "", children }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   useEnterOnce(ref, 0.2);
 

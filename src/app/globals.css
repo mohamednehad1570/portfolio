@@ -14,7 +14,6 @@
   --color-todo: #8a94a1; /* [bracketed] placeholders Mohammed still writes */
   --color-line: rgba(255, 255, 255, 0.14); /* hairlines and borders */
   --color-accent: #6fb0e0; /* links, focus ring, button border, eyebrow labels */
-  --color-accent-strong: #1f5f8b; /* filled areas that carry white text (Contact bands) */
   --color-accent-soft: rgba(111, 176, 224, 0.12); /* tag pills and soft fills */
 }
 

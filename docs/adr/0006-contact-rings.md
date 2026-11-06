@@ -18,4 +18,5 @@ Five rings in one line, no rows and no backgrounds (the stars show through). Eac
 ## Consequences
 - **Logos are not decorative branding of ours.** They are shown white and otherwise unmodified; the marks stay their owners' trademarks. Brand guidelines of most companies discourage rotating or recolouring their logos. The counter-rotation is the owner's choice and the trade-off is accepted. If a company objects, the logo comes out and the ring text stays.
 - GitHub and WhatsApp paths come from Simple Icons (CC0 data); LinkedIn must come from LinkedIn's own brand resources.
+- The `accent-strong` colour token and `ACCENT_STRONG` constant (used only by the Contact bands) are removed with the bands.
 - FlowingMenu, the avatar used only by it, the "contact seen" state and the Tab-press workaround in `SiteState` are removed.

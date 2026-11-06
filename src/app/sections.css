@@ -26,9 +26,6 @@ main,
   }
 }
 
-.intro {
-  margin: 0;
-}
 .intro-text {
   font-size: clamp(17px, 1.5vw, 19px) !important;
   line-height: 1.6 !important;
@@ -621,9 +618,6 @@ section[id] {
 }
 .js .reveal:not(.is-in) {
   opacity: 0;
-}
-.js .reveal--up:not(.is-in) {
-  transform: translateY(28px);
 }
 .js .reveal--left:not(.is-in) {
   transform: translateX(-56px);
