@@ -1,6 +1,6 @@
 # ADR 0004: Dark (night-sky) theme
 
-- Status: Accepted (decision D21, plus colour parts of D16 and D17)
+- Status: Accepted (decision D21, plus colour parts of D16 and D17). The Contact band colours (D17) are superseded by [0006](0006-contact-rings.md); the provisional frame colours (D16) became final in batch 1c.
 - Date: 2026-11-06
 - Related: [0002](0002-night-sky-background.md), [0003](0003-about-scroll-stack.md)
 

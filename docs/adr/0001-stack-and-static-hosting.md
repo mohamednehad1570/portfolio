@@ -14,7 +14,7 @@ The site is a one-page portfolio with no user accounts, no database and no serve
 ## Consequences
 - Any static host works (Cloudflare, GitHub Pages, Netlify); the host choice is a separate decision (D3, still pending).
 - No server features: no API routes, no middleware, no Next image optimiser, no `cacheComponents`. Photos are pre-sized in `public/images/`.
-- The booking widget (Cal.com) and analytics will be added later as client-side embeds.
+- Analytics will be added later as a client-side script. The booking calendar is a link to Cal.com, not an embed (amended by [0007](0007-booking-link-no-embed.md)).
 - `trailingSlash: true` makes `/privacy` build to `out/privacy/index.html`, which works on hosts without rewrite rules.
 
 ## Alternatives considered

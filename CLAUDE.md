@@ -8,6 +8,7 @@ Next.js static export. See `AGENTS.md` for the Next.js version note (read the do
 - Tailwind CSS v4 (tokens in `@theme` in `src/app/globals.css`) + plain CSS files that ship with React Bits components
 - GSAP (+ `@gsap/react`, ScrollTrigger, SplitText) and Motion 12 (`motion/react`)
 - Dark night-sky theme (ADR 0004); background is a Canvas 2D starfield (ADR 0002); About is a native sticky scroll stack (ADR 0003)
+- One text animation system (ADR 0005); Contact is five rotating text rings (ADR 0006); booking is a link to Cal.com, no embed (ADR 0007)
 - Fonts via `next/font/google`: Bricolage Grotesque (display), Instrument Sans (body)
 - Package manager: pnpm. Free / open source only. No tracking, no cookies, no secrets.
 
@@ -21,10 +22,12 @@ Next.js static export. See `AGENTS.md` for the Next.js version note (read the do
 7. The phone number appears only inside the `wa.me` link, never as visible text.
 8. Decisions are recorded as ADRs in `docs/adr/`; never silently reverse one.
 9. Native scrolling only: no Lenis or other smooth-scroll library, no element that captures the mouse wheel, no inner scroll boxes (ADR 0003).
+10. Visible without animation: every animated element is fully visible when JavaScript has not run and under `prefers-reduced-motion: reduce`. Hide pre-animation states only after hydration: a tiny inline script puts a `js` class on `<html>`, and CSS hides under it (`.js [data-reveal]:not(.is-in) { opacity: 0 }`). Never hide in the server HTML.
 
 ## Folder map
 - `src/app/`: routes, layout, global CSS, sitemap, robots
-- `src/components/`: site components; `src/components/sections/` = section components with helpers (About scroll stack); `src/components/rb/` = vendored React Bits (see its README)
+- `src/components/`: site components; `src/components/sections/` = section components with helpers (About scroll stack, section heads, Contact rings); `src/components/icons/` = inline SVG logos (no icon library); `src/components/rb/` = vendored React Bits (see its README)
+- Text animation roles (ADR 0005): eyebrow/hero = `TextType` (via `TypedText`), H2/H3 = `SplitText`, intro line = `BlurText`, body paragraph = `Reveal from="fade"`. Use these; do not add per-section effects.
 - `src/content/site.ts`: all page copy as typed data (no copy hard-coded in components)
 - `src/lib/`: shared helpers (colour constants, site URL, reduced-motion hook)
 - `public/images/`: photos
