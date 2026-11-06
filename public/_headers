@@ -1,0 +1,35 @@
+# _headers: HTTP response headers that Cloudflare adds to the static files (ADR 0012).
+# `next build` copies everything in public/ into out/, so this file ends up at out/_headers, where Cloudflare
+# Workers static assets reads it. Format: a path pattern, then indented "Name: value" lines.
+# If two rules set the same header, Cloudflare joins the values with a comma, so each header is set only once.
+
+# Every response
+/*
+  # Browsers must use the declared file type, never guess it (stops a text file being run as a script).
+  X-Content-Type-Options: nosniff
+  # Other sites see only our origin (https://mohammednehad.com) as referrer, never full page paths.
+  Referrer-Policy: strict-origin-when-cross-origin
+  # No other site may show this page in a frame (clickjacking). Older browsers read this; newer ones use the
+  # CSP frame-ancestors below.
+  X-Frame-Options: DENY
+  # Browser features this site never uses are switched off for it and anything it might embed.
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  # A page opened from here (or that opened us) gets no handle on this window.
+  Cross-Origin-Opener-Policy: same-origin
+  # HSTS: for one year, browsers use only HTTPS for this domain and all its subdomains. No "preload" yet.
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  # Content-Security-Policy: only files from this site may load. 'unsafe-inline' is needed because the static
+  # export uses inline scripts and styles (a hash-based policy is a later hardening task, see ADR 0012).
+  # data: images = small inline images; upgrade-insecure-requests = any http:// link inside the page loads as https.
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+
+# Next.js build files: their names contain a content hash, so a changed file gets a new name. Safe to cache for a
+# year without ever asking the server again (immutable).
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# workers.dev addresses (mohammednehad.<account>.workers.dev and the <version>-mohammednehad.<account>.workers.dev
+# preview URLs) must not appear in search results: only https://mohammednehad.com is indexed.
+# A placeholder (:name) matches one host label and never a dot, so this two-placeholder pattern matches both kinds.
+https://:version.:subdomain.workers.dev/*
+  X-Robots-Tag: noindex
