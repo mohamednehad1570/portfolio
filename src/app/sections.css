@@ -200,18 +200,19 @@ section[id] {
   object-fit: cover;
 }
 
-/* ---------- About (scroll-driven sideways stack, ADR 0010) ---------- */
-/* Base = a plain list of photo + number + title + text, all visible (reduced motion, no JavaScript, before
-   hydration). AboutSideways adds `.is-side` once JavaScript runs and motion is allowed. */
+/* ---------- About (scroll-driven sideways stack, ADR 0010, 0011) ---------- */
+/* Base = a plain list: heading, then photo + number + title + text per topic, all visible (reduced motion, no
+   JavaScript, before hydration). AboutSideways adds `.is-side` once JavaScript runs and motion is allowed. */
 .about-side {
   --side-w: min(1040px, calc(100% - 80px)); /* slide width (percent of the box it is used in) */
   --side-peek: 22px; /* how far each passed slide steps left */
   --side-bottom: 0px; /* room kept for the phone's bottom nav pill */
   padding: 120px 0 0;
 }
+/* the heading lines up with the slides' left edge */
 .about-head {
-  width: 100%;
-  margin-bottom: 40px;
+  width: var(--side-w);
+  margin: 0 auto 40px;
 }
 .side-slides {
   list-style: none;
@@ -234,7 +235,7 @@ section[id] {
 .side-photo {
   flex: none;
   margin: 0;
-  width: 470px;
+  width: 440px;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   border-radius: 22px;
@@ -296,82 +297,98 @@ section[id] {
 }
 
 /*
- * Pinned mode. The pin is a tall box; the stage inside it is `position: sticky`, so the PAGE does the pinning
- * while the visitor scrolls down normally. Pin height = viewH + 3 steps of --side-pace + --side-hold, where
- * viewH is the stage height: the viewport minus the sticky top bar (desktop and tablet) or all of it (phones,
- * where the nav is a bottom pill). --side-pace and --side-hold are set by AboutSideways.tsx from its constants.
+ * Pinned mode. The section is a tall pin box; the stage inside it is `position: sticky`, so the PAGE does the
+ * pinning while the visitor scrolls down normally. Pin height = viewH * (1 + 3 topic segments + a last rest and
+ * hold), viewH being the stage height: the viewport minus the sticky top bar (desktop and tablet) or all of it
+ * (phones, where the nav is a bottom pill). --side-rest/-move/-hold are set by AboutSideways.tsx from its constants.
+ * The stage holds heading, slides and dots in one column, so the heading is on screen for the whole pin.
  */
-.is-side {
+/* two classes: must beat `section[id]` (scroll-margin) and `.about-side` (padding) */
+.about-side.is-side {
   --side-view: calc(100svh - var(--header-h));
-  --side-pace: 0.6;
+  --side-rest: 0.55;
+  --side-move: 0.45;
   --side-hold: 0.3;
+  padding: 0;
+  /* a nav click (#about) scrolls to exactly where the stage sticks: heading and topic 1, no blank band */
+  scroll-margin-top: var(--header-h);
 }
 @media (max-width: 760px) {
   .is-side {
     --side-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); /* 54px pill + 14px gap */
   }
 }
-.is-side .side-pin {
-  height: calc(var(--side-view) * (1 + 3 * var(--side-pace) + var(--side-hold)));
+.is-side.side-pin {
+  height: calc(var(--side-view) * (1 + 3 * (var(--side-rest) + var(--side-move)) + var(--side-rest) + var(--side-hold)));
 }
 .is-side .side-stage {
   position: sticky;
   top: var(--header-h);
   height: var(--side-view);
   overflow: hidden; /* waiting slides are parked past the right edge */
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* desktop and tablet: heading + slides + dots centred */
+  gap: 32px;
+  padding: 24px 0;
 }
+@media (max-width: 760px) {
+  .is-side .side-stage {
+    justify-content: flex-start; /* phones: from the top, the bottom stays clear of the pill */
+    gap: 18px;
+    /* below the dots: the pill plus 44px, so the topic text (which ends 24px above the dots' bottom) always
+       stays above the go-to-top button (46px tall, 84px up, right side); the dots sit beside it on the left */
+    padding: 28px 0 calc(var(--side-bottom) + 44px);
+  }
+}
+.is-side .about-head {
+  flex: none;
+  margin-bottom: 0;
+}
+/* All slides share one grid cell, so the list is as tall as the tallest slide and they sit on top of each
+   other; a later slide is painted over an earlier one (z-index = position). JavaScript moves each with transform. */
 .is-side .side-slides {
-  position: relative;
-  display: block;
+  display: grid;
+  grid-template-areas: "slide";
   width: auto;
-  height: 100%;
   margin: 0;
 }
-/* All slides sit on top of each other; a later slide is painted over an earlier one (z-index = position).
-   JavaScript moves each with transform; the card is centred vertically in the room above the phone pill. */
 .is-side .side-slide {
   --depth: 0; /* set by AboutSideways: how far this slide has been passed (0 = front or waiting) */
-  position: absolute;
-  left: 0;
-  top: 0;
+  grid-area: slide;
+  justify-self: start;
+  align-self: start; /* every photo shares one top edge, so passed photos peek out evenly behind the front one */
   width: var(--side-w);
-  height: 100%;
-  padding-bottom: var(--side-bottom);
-  display: flex;
-  align-items: center;
   transform-origin: 0 50%;
   will-change: transform;
 }
 .is-side .side-card {
   width: 100%;
 }
-/* depth effect: filter and opacity only (cheap to animate) */
+/* depth effect: filter and opacity only (cheap to animate). --side-photo-fit is measured by AboutSideways so
+   heading, photo, the longest text and the dots always fit in the stage. */
 .is-side .side-photo {
   filter: brightness(calc(1 - 0.25 * var(--depth)));
-  /* never taller than the room: leaves space for the number, title and text (a reserve for the longest topic) */
-  width: min(470px, calc(var(--side-view) - 140px));
+  width: min(440px, var(--side-photo-fit, 440px));
 }
 .is-side .side-text {
   opacity: max(0, calc(1 - 1.6 * var(--depth))); /* a passed topic's text is gone, so texts never overlap */
 }
 @media (max-width: 1024px) {
   .is-side .side-photo {
-    width: min(100%, 500px, calc(var(--side-view) - 300px));
+    width: min(100%, 500px, var(--side-photo-fit, 500px));
   }
 }
 @media (max-width: 760px) {
   .is-side .side-photo {
-    width: min(100%, max(160px, calc(var(--side-view) - var(--side-bottom) - 250px)));
+    width: min(100%, var(--side-photo-fit, 100%));
   }
 }
-/* progress dots: aligned with the slide's left edge, 6x6 idle, 28x6 and accent when active */
+/* progress dots: under the slides, aligned with their left edge, 6x6 idle, 28x6 and accent when active */
 .is-side .side-dots {
+  flex: none;
   display: flex;
   gap: 8px;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: calc(var(--side-bottom) + 24px);
   width: var(--side-w);
   margin-inline: auto;
 }
