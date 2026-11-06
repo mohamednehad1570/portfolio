@@ -101,6 +101,7 @@ section[id] {
   /* Prefixed first, standard last: the CSS minifier (Lightning CSS) keeps only the prefixed property when the
      standard one comes first, which silently switched the blur off in Chrome. Check the built CSS if this is edited. */
   -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-line);
 }
 .nav-inner {
@@ -347,16 +348,23 @@ section[id] {
 .section {
   padding: 140px 0;
 }
+/* Two cards that share five rows (frame, title, description, tags, link). Each card spans the 5 rows and takes
+   them over with `subgrid`, so every row is as tall as the taller of the two cards' content in that row: titles,
+   descriptions, tags and links line up across the cards whatever the text length. */
 .projects {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 40px;
+  column-gap: 40px;
+  row-gap: 18px;
   margin-top: 56px;
 }
 .project {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  display: grid;
+  grid-row: span 5;
+  grid-template-rows: subgrid;
+  min-width: 0;
+}
+.project > * {
   min-width: 0;
 }
 .frame-glare {
@@ -476,6 +484,9 @@ section[id] {
 }
 .project .text-link {
   align-self: flex-start;
+}
+.project .h3 {
+  align-self: start; /* the split heading is inline-block: keep it at the top of its row */
 }
 
 /* ---------- Contact ---------- */
@@ -684,9 +695,16 @@ html:not(.js) .blur-text span {
   .section {
     padding: 90px 0;
   }
+  /* phones: the cards stack, so no shared rows are needed */
   .projects {
-    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
     gap: 56px;
+  }
+  .project {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
   }
   .menu-box {
     height: 460px;

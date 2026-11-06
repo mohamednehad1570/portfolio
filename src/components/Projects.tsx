@@ -1,5 +1,6 @@
 /**
  * Projects (#projects): two cards side by side (stacked on phones) with identical frames.
+ * Alignment (D16 final): the cards share five rows through CSS subgrid, so titles, descriptions, tags and links line up.
  * Why (D16): Emaar in a light browser frame, the Kubernetes autoscaling project in a dark terminal frame;
  * the cards slide in from opposite sides. The Emaar link stays "#projects" until the client approves showing it.
  */
@@ -23,27 +24,31 @@ export default function Projects() {
           {projects.items.map((p, i) => {
             const Frame = p.frame === "browser" ? BrowserFrame : TerminalFrame;
             return (
-              <Reveal key={p.title} from={i === 0 ? "left" : "right"} delay={i === 0 ? 0 : 120} className="project">
-                <Frame href={p.href} external={p.external} ariaLabel={p.ariaLabel} address={p.address} shot={p.shot} />
+              // One card = five grid rows (frame, title, description, tags, link) shared with the other card
+              // through CSS subgrid, so those rows line up across the cards whatever the text length (D16).
+              <article key={p.title} className="project">
+                <Reveal from={i === 0 ? "left" : "right"} delay={i === 0 ? 0 : 120}>
+                  <Frame href={p.href} external={p.external} ariaLabel={p.ariaLabel} address={p.address} shot={p.shot} />
+                </Reveal>
                 <Heading tag="h3" text={p.title} className="h3" />
                 <Reveal from="fade">
                   <p className="body">
                     <TodoText text={p.body} />
                   </p>
                 </Reveal>
-                <ul className="tags">
-                  {p.tags.map((tag) => (
-                    <li key={tag}>{tag}</li>
-                  ))}
-                </ul>
-                <a
-                  className="text-link"
-                  href={p.href}
-                  {...(p.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                >
-                  {p.linkLabel}
-                </a>
-              </Reveal>
+                <Reveal from="fade">
+                  <ul className="tags">
+                    {p.tags.map((tag) => (
+                      <li key={tag}>{tag}</li>
+                    ))}
+                  </ul>
+                </Reveal>
+                <Reveal from="fade">
+                  <a className="text-link" href={p.href} {...(p.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
+                    {p.linkLabel}
+                  </a>
+                </Reveal>
+              </article>
             );
           })}
         </div>
