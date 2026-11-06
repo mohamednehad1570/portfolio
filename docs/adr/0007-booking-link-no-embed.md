@@ -1,6 +1,6 @@
 # ADR 0007: Booking is a link, not an embedded calendar
 
-- Status: Accepted (decision D6, amended). Amends the "booking widget will be added as a client-side embed" note in [0001](0001-stack-and-static-hosting.md).
+- Status: Accepted (decision D6, amended). Link style (buttons, new tab) amended by [0011](0011-about-rest-pacing-and-booking-buttons.md). Amends the "booking widget will be added as a client-side embed" note in [0001](0001-stack-and-static-hosting.md).
 - Date: 2026-11-06
 - Related: [0006](0006-contact-rings.md)
 

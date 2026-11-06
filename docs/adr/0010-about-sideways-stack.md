@@ -1,6 +1,6 @@
 # ADR 0010: About as a scroll-driven sideways stack on every screen size
 
-- Status: Accepted (decision D15, revised 2026-11-06, approved on samples as "About options (3B)"). Supersedes the vertical sticky stack of [0003](0003-about-scroll-stack.md) and the vertical pacing of [0008](0008-about-scroll-pacing-and-replay.md). Keeps 0008's `STEP`, `HOLD` and replay.
+- Status: Accepted (decision D15, revised 2026-11-06, approved on samples as "About options (3B)"). Pacing and heading placement amended by [0011](0011-about-rest-pacing-and-booking-buttons.md). Supersedes the vertical sticky stack of [0003](0003-about-scroll-stack.md) and the vertical pacing of [0008](0008-about-scroll-pacing-and-replay.md). Keeps 0008's `STEP`, `HOLD` and replay.
 - Date: 2026-11-06
 - Related: [0003](0003-about-scroll-stack.md), [0005](0005-text-animation-system.md), [0008](0008-about-scroll-pacing-and-replay.md)
 
