@@ -200,49 +200,64 @@ section[id] {
   object-fit: cover;
 }
 
-/* ---------- About (native sticky scroll stack, ADR 0003) ---------- */
-/* Base = a plain list of photo + text, all visible (reduced motion, no JavaScript, before hydration). */
-.about-stack {
-  padding: 120px 0 40px;
+/* ---------- About (scroll-driven sideways stack, ADR 0010) ---------- */
+/* Base = a plain list of photo + number + title + text, all visible (reduced motion, no JavaScript, before
+   hydration). AboutSideways adds `.is-side` once JavaScript runs and motion is allowed. */
+.about-side {
+  --side-w: min(1040px, calc(100% - 80px)); /* slide width (percent of the box it is used in) */
+  --side-peek: 22px; /* how far each passed slide steps left */
+  --side-bottom: 0px; /* room kept for the phone's bottom nav pill */
+  padding: 120px 0 0;
 }
 .about-head {
   width: 100%;
   margin-bottom: 40px;
 }
-.stack-list {
+.side-slides {
   list-style: none;
-  margin-block: 0;
-  padding-block: 0;
-}
-.stack-item {
-  margin-bottom: 64px;
-}
-.stack-item:last-child {
-  margin-bottom: 0;
-}
-/* No box: no background, border, radius or shadow on the item or card; the stars show through. */
-.stack-card {
+  margin: 0 auto;
+  padding: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 16px;
+  gap: 72px;
+  width: var(--side-w);
 }
-.stack-photo {
+.side-dots {
+  display: none; /* progress dots exist only in the pinned version */
+}
+/* No box: no background, border, radius or shadow on the slide or card; the stars show through. */
+.side-card {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+}
+/* square photo; the shadow lifts it off the night sky */
+.side-photo {
+  flex: none;
   margin: 0;
+  width: 470px;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
-  border-radius: 16px;
-  aspect-ratio: 4 / 3;
+  border-radius: 22px;
   background: var(--color-accent-soft); /* only visible while the image loads */
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
 }
-.stack-photo img {
+.side-photo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.stack-text {
-  align-self: center;
-  padding: 8px 4px;
+.side-text {
+  flex: 1 1 0;
+  min-width: 0;
 }
-.stack-title {
+.side-num {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--color-accent);
+}
+.side-title {
   font-family: var(--font-display);
   font-size: clamp(26px, 3.2vw, 40px);
   line-height: 1.1;
@@ -250,111 +265,126 @@ section[id] {
   font-weight: 650;
   margin: 0 0 14px;
 }
-.stack-body {
+.side-body {
   font-size: clamp(16px, 1.4vw, 18px);
   max-width: 34em;
 }
-@media (min-width: 761px) {
-  .stack-photo {
-    border-radius: 20px;
+/* Tablet and phone: photo on top, text below */
+@media (max-width: 1024px) {
+  .side-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+  }
+  .side-photo {
+    width: min(100%, 500px);
   }
 }
-@media (min-width: 1025px) {
-  .stack-card {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: center;
+@media (max-width: 760px) {
+  .about-side {
+    --side-w: calc(100% - 32px);
+    --side-peek: 10px;
+    padding-top: 72px;
   }
-  .stack-photo {
-    aspect-ratio: 1 / 1;
+  .side-card {
+    gap: 18px;
   }
-  .stack-text {
-    padding: 40px 48px;
+  .side-photo {
+    width: 100%;
+    border-radius: 16px;
   }
 }
 
 /*
- * Stack mode: AboutStack adds `.is-stack` once JavaScript runs and motion is allowed.
- * Item i sticks at  base + i * step  from the top; later items are painted on top of earlier ones.
- * Height is capped so the whole pile (3 further steps) and the phone's bottom nav still fit on screen.
+ * Pinned mode. The pin is a tall box; the stage inside it is `position: sticky`, so the PAGE does the pinning
+ * while the visitor scrolls down normally. Pin height = viewH + 3 steps of --side-pace + --side-hold, where
+ * viewH is the stage height: the viewport minus the sticky top bar (desktop and tablet) or all of it (phones,
+ * where the nav is a bottom pill). --side-pace and --side-hold are set by AboutSideways.tsx from its constants.
  */
-.is-stack {
-  --stack-base: 108px; /* 68px top bar + 40px */
-  --stack-step: 24px;
-  --stack-h: 560px;
-  --stack-bottom: 0px; /* room kept for the phone's bottom nav pill */
-  /* Pacing (ADR 0008). --stack-pace and --stack-hold are set by AboutStack.tsx from its STEP and HOLD constants,
-     so the CSS and the scroll code always agree. The fallbacks only matter if that ever fails. */
-  --stack-pace: 0.6; /* viewport heights of scrolling from one photo arriving to the next */
-  --stack-hold: 0.3; /* viewport heights the last photo holds before the stack scrolls away */
-}
-@media (max-width: 1024px) {
-  .is-stack {
-    --stack-h: 720px;
-  }
+.is-side {
+  --side-view: calc(100svh - var(--header-h));
+  --side-pace: 0.6;
+  --side-hold: 0.3;
 }
 @media (max-width: 760px) {
-  .is-stack {
-    --stack-base: 20px; /* the nav is a bottom pill on phones */
-    --stack-step: 14px;
-    --stack-h: 600px;
-    --stack-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); /* 54px pill + 14px gap */
+  .is-side {
+    --side-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); /* 54px pill + 14px gap */
   }
 }
-/* A sticky item only travels inside its container's content box, and the item's own bottom margin counts as part
-   of the item. So the last item's margin cannot give it room to stick (batch 1d bug: the 4th photo never stuck).
-   Room comes from an empty block at the END of the list (::after): it extends the content box past the last
-   item, and that block's height is the hold. flow-root makes the list contain its children's margins. */
-.is-stack .stack-list {
-  display: flow-root;
+.is-side .side-pin {
+  height: calc(var(--side-view) * (1 + 3 * var(--side-pace) + var(--side-hold)));
 }
-.is-stack .stack-list::after {
-  content: "";
-  display: block;
-  height: calc(var(--stack-hold) * 100svh);
-}
-.is-stack .stack-item {
-  --depth: 0; /* set by ScrollTrigger: sum of the arrivals of the items stacked on top of this one */
-  --item-h: min(var(--stack-h), calc(100svh - var(--stack-base) - 3 * var(--stack-step) - var(--stack-bottom)));
+.is-side .side-stage {
   position: sticky;
-  top: calc(var(--stack-base) + var(--i) * var(--stack-step));
-  height: var(--item-h);
-  /* Distance between two items in the flow = the pacing plus one sticky step, so the SCROLL distance from one
-     arrival (item at its sticky top) to the next is exactly --stack-pace of the viewport, whatever the item
-     height. The item is taller than that distance on most screens, so this margin is usually negative:
-     the next item then overlaps the end of the previous one, which is what a stack does anyway. */
-  margin-bottom: calc(var(--stack-pace) * 100svh + var(--stack-step) - var(--item-h));
+  top: var(--header-h);
+  height: var(--side-view);
+  overflow: hidden; /* waiting slides are parked past the right edge */
 }
-.is-stack .stack-item:last-child {
-  margin-bottom: 0;
-}
-.is-stack .stack-card {
+.is-side .side-slides {
+  position: relative;
+  display: block;
+  width: auto;
   height: 100%;
-  grid-template-rows: minmax(0, 1fr); /* desktop: one row, photo left and text right */
-  /* depth effect: transforms, filter and opacity only (cheap to animate) */
-  transform: scale(calc(1 - 0.05 * var(--depth)));
-  transform-origin: 50% 0;
+  margin: 0;
+}
+/* All slides sit on top of each other; a later slide is painted over an earlier one (z-index = position).
+   JavaScript moves each with transform; the card is centred vertically in the room above the phone pill. */
+.is-side .side-slide {
+  --depth: 0; /* set by AboutSideways: how far this slide has been passed (0 = front or waiting) */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--side-w);
+  height: 100%;
+  padding-bottom: var(--side-bottom);
+  display: flex;
+  align-items: center;
+  transform-origin: 0 50%;
   will-change: transform;
 }
-.is-stack .stack-photo {
-  height: 100%;
-  aspect-ratio: auto;
-  filter: brightness(calc(1 - 0.25 * var(--depth)));
+.is-side .side-card {
+  width: 100%;
 }
-.is-stack .stack-text {
-  opacity: max(0, calc(1 - 1.6 * var(--depth))); /* older text is gone, so texts never overlap */
+/* depth effect: filter and opacity only (cheap to animate) */
+.is-side .side-photo {
+  filter: brightness(calc(1 - 0.25 * var(--depth)));
+  /* never taller than the room: leaves space for the number, title and text (a reserve for the longest topic) */
+  width: min(470px, calc(var(--side-view) - 140px));
+}
+.is-side .side-text {
+  opacity: max(0, calc(1 - 1.6 * var(--depth))); /* a passed topic's text is gone, so texts never overlap */
 }
 @media (max-width: 1024px) {
-  .is-stack .stack-card {
-    grid-template-rows: minmax(0, 1fr) auto; /* photo on top (takes the free height), text below */
-  }
-  .is-stack .stack-text {
-    padding: 8px 4px 0;
+  .is-side .side-photo {
+    width: min(100%, 500px, calc(var(--side-view) - 300px));
   }
 }
 @media (max-width: 760px) {
-  .about-stack {
-    padding: 72px 0 40px;
+  .is-side .side-photo {
+    width: min(100%, max(160px, calc(var(--side-view) - var(--side-bottom) - 250px)));
   }
+}
+/* progress dots: aligned with the slide's left edge, 6x6 idle, 28x6 and accent when active */
+.is-side .side-dots {
+  display: flex;
+  gap: 8px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--side-bottom) + 24px);
+  width: var(--side-w);
+  margin-inline: auto;
+}
+.side-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.28);
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+.side-dot.is-active {
+  width: 28px;
+  background: var(--color-accent);
 }
 
 /* ---------- Projects ---------- */
