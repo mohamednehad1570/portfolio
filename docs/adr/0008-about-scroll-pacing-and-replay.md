@@ -2,6 +2,7 @@
 
 - Status: Accepted (decision D15, amended 2026-11-06). Amends [0003](0003-about-scroll-stack.md) (pacing and the last photo) and the "plays once" rule of [0005](0005-text-animation-system.md) **for About only**.
 - Date: 2026-11-06
+- The vertical pacing is superseded by [0010](0010-about-sideways-stack.md); `STEP`, `HOLD` and the replay rule are kept.
 - Related: [0003](0003-about-scroll-stack.md), [0005](0005-text-animation-system.md)
 
 ## Context

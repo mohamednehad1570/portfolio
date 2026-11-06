@@ -2,7 +2,7 @@
 
 - Status: Accepted (decision D15, revised). Supersedes the React Bits `CircularGallery` pinned About (D15 as first built in batch 1).
 - Date: 2026-11-06
-- Amended by [0008](0008-about-scroll-pacing-and-replay.md): scroll pacing, a last photo that lands and holds, and a text reveal that replays.
+- Superseded by [0010](0010-about-sideways-stack.md) (a sideways stack on every screen size). Earlier note: amended by [0008](0008-about-scroll-pacing-and-replay.md): scroll pacing, a last photo that lands and holds, and a text reveal that replays.
 - Related: [0001](0001-stack-and-static-hosting.md), [0002](0002-night-sky-background.md) (the stars show through), [0004](0004-dark-theme.md)
 
 ## Context
