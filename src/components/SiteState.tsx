@@ -55,7 +55,9 @@ export function SiteStateProvider({ children }: { children: ReactNode }) {
         setActive(best);
         if ((seen.contact ?? 0) > window.innerHeight * 0.25) setContactSeen(true);
       },
-      { threshold: Array.from({ length: 21 }, (_, i) => i / 20) },
+      // Fine steps (1%): About is several screens tall, so its visible share changes slowly and a coarse
+      // 5% step would report the wrong section for hundreds of pixels.
+      { threshold: Array.from({ length: 101 }, (_, i) => i / 100) },
     );
     SECTION_IDS.forEach((id) => {
       const el = document.getElementById(id);

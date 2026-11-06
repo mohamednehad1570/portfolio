@@ -3,12 +3,12 @@
  * only the sections that need the browser are client components.
  * Order (D13): Hero · About · Projects · Contact · Footer.
  */
-import About from "@/components/About";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Projects from "@/components/Projects";
+import AboutStack from "@/components/sections/AboutStack";
 import { SiteStateProvider } from "@/components/SiteState";
 import ToTop from "@/components/ToTop";
 
@@ -19,7 +19,7 @@ export default function Home() {
         <Header />
         <main>
           <Hero />
-          <About />
+          <AboutStack />
           <Projects />
           <Contact />
         </main>

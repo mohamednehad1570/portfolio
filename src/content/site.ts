@@ -64,8 +64,6 @@ export const site = {
   about: {
     label: "About",
     title: "A little about me",
-    hint: "Scroll to turn the photos. Dragging or swiping works too.",
-    dotsAriaLabel: "About topics",
     topics: [
       {
         title: "Who I am",

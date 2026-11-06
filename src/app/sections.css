@@ -184,63 +184,145 @@ main,
   object-fit: cover;
 }
 
-/* ---------- About (pinned) ---------- */
-.about {
-  height: 100svh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 90px 0 30px;
-  background: transparent;
+/* ---------- About (native sticky scroll stack, ADR 0003) ---------- */
+/* Base = a plain list of photo + text, all visible (reduced motion, no JavaScript, before hydration). */
+.about-stack {
+  padding: 120px 0 40px;
 }
 .about-head {
   width: 100%;
+  margin-bottom: 40px;
 }
-.gallery {
-  position: relative;
-  height: min(52vh, 520px);
-  width: 100%;
-}
-.about-copy {
-  width: 100%;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  min-height: 120px;
-}
-.about-body {
-  justify-content: center;
-  font-size: clamp(16px, 1.4vw, 18px);
-  line-height: 1.6;
-  color: var(--color-muted);
-  max-width: 40em;
-  margin: 0;
-}
-.hint {
-  margin: 4px 0 0;
-  font-size: 13px;
-  color: var(--color-todo);
-}
-/* progress dots: one per topic, the current one is long and blue */
-.dots {
-  display: flex;
-  gap: 8px;
+.stack-list {
   list-style: none;
-  margin: 6px 0 0;
-  padding: 0;
+  margin-block: 0;
+  padding-block: 0;
 }
-.dots li {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--color-line);
-  transition: width 0.3s ease, background 0.3s ease;
+.stack-item {
+  margin-bottom: 64px;
 }
-.dots li.is-on {
-  width: 26px;
-  background: var(--color-accent);
+.stack-item:last-child {
+  margin-bottom: 0;
+}
+/* No box: no background, border, radius or shadow on the item or card; the stars show through. */
+.stack-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.stack-photo {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  aspect-ratio: 4 / 3;
+  background: var(--color-accent-soft); /* only visible while the image loads */
+}
+.stack-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.stack-text {
+  align-self: center;
+  padding: 8px 4px;
+}
+.stack-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.2vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 650;
+  margin: 0 0 14px;
+}
+.stack-body {
+  font-size: clamp(16px, 1.4vw, 18px);
+  max-width: 34em;
+}
+@media (min-width: 761px) {
+  .stack-photo {
+    border-radius: 20px;
+  }
+}
+@media (min-width: 1025px) {
+  .stack-card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+  }
+  .stack-photo {
+    aspect-ratio: 1 / 1;
+  }
+  .stack-text {
+    padding: 40px 48px;
+  }
+}
+
+/*
+ * Stack mode: AboutStack adds `.is-stack` once JavaScript runs and motion is allowed.
+ * Item i sticks at  base + i * step  from the top; later items are painted on top of earlier ones.
+ * Height is capped so the whole pile (3 further steps) and the phone's bottom nav still fit on screen.
+ */
+.is-stack {
+  --stack-base: 108px; /* 68px top bar + 40px */
+  --stack-step: 24px;
+  --stack-h: 560px;
+  --stack-bottom: 0px; /* room kept for the phone's bottom nav pill */
+}
+@media (max-width: 1024px) {
+  .is-stack {
+    --stack-h: 720px;
+  }
+}
+@media (max-width: 760px) {
+  .is-stack {
+    --stack-base: 20px; /* the nav is a bottom pill on phones */
+    --stack-step: 14px;
+    --stack-h: 600px;
+    --stack-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); /* 54px pill + 14px gap */
+  }
+}
+/* flow-root keeps the last item's bottom margin INSIDE the list: a sticky item only stays stuck within its
+   container's content box, so that margin is the 35% "hold" after the last item has arrived. */
+.is-stack .stack-list {
+  display: flow-root;
+}
+.is-stack .stack-item {
+  --depth: 0; /* set by ScrollTrigger: sum of the arrivals of the items stacked on top of this one */
+  position: sticky;
+  top: calc(var(--stack-base) + var(--i) * var(--stack-step));
+  height: min(var(--stack-h), calc(100svh - var(--stack-base) - 3 * var(--stack-step) - var(--stack-bottom)));
+  margin-bottom: 55svh; /* scroll distance between two arrivals */
+}
+.is-stack .stack-item:last-child {
+  margin-bottom: 35svh;
+}
+.is-stack .stack-card {
+  height: 100%;
+  grid-template-rows: minmax(0, 1fr); /* desktop: one row, photo left and text right */
+  /* depth effect: transforms, filter and opacity only (cheap to animate) */
+  transform: scale(calc(1 - 0.05 * var(--depth)));
+  transform-origin: 50% 0;
+  will-change: transform;
+}
+.is-stack .stack-photo {
+  height: 100%;
+  aspect-ratio: auto;
+  filter: brightness(calc(1 - 0.25 * var(--depth)));
+}
+.is-stack .stack-text {
+  opacity: max(0, calc(1 - 1.6 * var(--depth))); /* older text is gone, so texts never overlap */
+}
+@media (max-width: 1024px) {
+  .is-stack .stack-card {
+    grid-template-rows: minmax(0, 1fr) auto; /* photo on top (takes the free height), text below */
+  }
+  .is-stack .stack-text {
+    padding: 8px 4px 0;
+  }
+}
+@media (max-width: 760px) {
+  .about-stack {
+    padding: 72px 0 40px;
+  }
 }
 
 /* ---------- Projects ---------- */
@@ -520,12 +602,6 @@ main,
     justify-self: center;
     max-width: 280px;
   }
-  .about {
-    padding: 40px 0 90px;
-  }
-  .gallery {
-    height: 46vh;
-  }
   .section {
     padding: 90px 0;
   }
@@ -564,7 +640,6 @@ main,
     animation: none;
   }
   .nav-link::after,
-  .dots li,
   .frame-glare,
   .to-top {
     transition: none;
@@ -585,37 +660,7 @@ main,
   margin-bottom: 12px;
 }
 
-/* ---------- Lazy-loading fallbacks and the reduced-motion About ---------- */
-/* Static stand-in for the gallery: one photo and its title */
-.gallery-fallback {
-  margin: 0;
-  height: 100%;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  justify-items: center;
-  gap: 10px;
-}
-.gallery-fallback img {
-  height: 100%;
-  width: auto;
-  aspect-ratio: 4 / 5;
-  object-fit: cover;
-  border-radius: 12px;
-}
-.gallery-fallback figcaption {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 18px;
-}
-
-/* the pinned block is transparent to layout, so the About section lays out exactly as before */
-.about-pinned {
-  display: contents;
-}
-.about-list {
-  display: none;
-}
-
+/* ---------- Lazy-loading fallbacks ---------- */
 /* Plain contact links (menu loading, or no JavaScript) */
 .contact-list {
   display: grid;
@@ -639,43 +684,4 @@ main,
 a.cta.star-border:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 4px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  /* no pin, no gallery: the 4 topics become a simple list */
-  .about {
-    height: auto;
-    padding: 120px 0 90px;
-  }
-  .about-pinned {
-    display: none;
-  }
-  .about-list {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 48px 40px;
-    margin-top: 40px;
-    margin-bottom: 0;
-    padding-block: 0;
-    list-style: none;
-  }
-  .about-list li {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    min-width: 0;
-  }
-  .about-list img {
-    width: 100%;
-    max-width: 320px;
-    height: auto;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    border-radius: 18px;
-  }
-}
-@media (prefers-reduced-motion: reduce) and (max-width: 760px) {
-  .about-list {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
