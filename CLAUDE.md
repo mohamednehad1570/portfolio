@@ -7,6 +7,7 @@ Next.js static export. See `AGENTS.md` for the Next.js version note (read the do
 - Next.js 16 (App Router, `src/`, `output: 'export'`, `trailingSlash: true`, `images.unoptimized: true`), React 19, TypeScript strict
 - Tailwind CSS v4 (tokens in `@theme` in `src/app/globals.css`) + plain CSS files that ship with React Bits components
 - GSAP (+ `@gsap/react`, ScrollTrigger, SplitText) and Motion 12 (`motion/react`)
+- Dark night-sky theme (ADR 0004); background is a Canvas 2D starfield (ADR 0002); About is a native sticky scroll stack (ADR 0003)
 - Fonts via `next/font/google`: Bricolage Grotesque (display), Instrument Sans (body)
 - Package manager: pnpm. Free / open source only. No tracking, no cookies, no secrets.
 
@@ -19,10 +20,11 @@ Next.js static export. See `AGENTS.md` for the Next.js version note (read the do
 6. Add every new technical term to `docs/glossary.md` (Term | Discipline | Meaning | Where in this project).
 7. The phone number appears only inside the `wa.me` link, never as visible text.
 8. Decisions are recorded as ADRs in `docs/adr/`; never silently reverse one.
+9. Native scrolling only: no Lenis or other smooth-scroll library, no element that captures the mouse wheel, no inner scroll boxes (ADR 0003).
 
 ## Folder map
 - `src/app/`: routes, layout, global CSS, sitemap, robots
-- `src/components/`: site components; `src/components/rb/` = vendored React Bits (see its README)
+- `src/components/`: site components; `src/components/sections/` = section components with helpers (About scroll stack); `src/components/rb/` = vendored React Bits (see its README)
 - `src/content/site.ts`: all page copy as typed data (no copy hard-coded in components)
 - `src/lib/`: shared helpers (colour constants, site URL, reduced-motion hook)
 - `public/images/`: photos
