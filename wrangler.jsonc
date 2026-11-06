@@ -1,0 +1,43 @@
+// wrangler.jsonc: how Cloudflare serves this site (ADR 0012). Read by `wrangler deploy` / `wrangler dev`,
+// locally and in Cloudflare Workers Builds. There is no Worker script (no "main"): Cloudflare serves the files in
+// out/ directly from its edge, which is free and does not count as Worker requests.
+{
+  // Lets editors check and autocomplete every key against the installed Wrangler version.
+  "$schema": "./node_modules/wrangler/config-schema.json",
+
+  // The Worker's name in the Cloudflare dashboard. Workers Builds deploys to the Worker with this name, so the
+  // dashboard Worker and this value must stay identical. Also the first part of the workers.dev URL.
+  "name": "mohammednehad",
+
+  // Which version of the Workers runtime behaviour to use. Set once to the day the project went live (in UTC:
+  // Cloudflare rejects a date that is still in the future in UTC); raise it deliberately, never automatically.
+  "compatibility_date": "2026-11-06",
+
+  "assets": {
+    // The static export written by `pnpm build` (next build with output: "export").
+    "directory": "./out",
+    // An unknown path gets our own out/404.html with a real 404 status (good for visitors and search engines).
+    "not_found_handling": "404-page",
+    // Folder pages keep their trailing slash (/privacy/ serves out/privacy/index.html), matching
+    // `trailingSlash: true` in next.config.ts; /privacy is redirected to /privacy/.
+    "html_handling": "auto-trailing-slash"
+  },
+
+  // Custom Domains: Cloudflare attaches the Worker to these hostnames and creates their proxied DNS records and
+  // TLS certificates itself. The apex is the canonical address; www gets a 301 to the apex from a Redirect Rule
+  // in the dashboard (the rule runs before the Worker, so www requests never reach it).
+  // zone_name names the DNS zone (the domain in this Cloudflare account) the records go into; Wrangler could not
+  // work it out from the hostname alone (API error 10082 "Can't infer zone from route").
+  "routes": [
+    { "pattern": "mohammednehad.com", "zone_name": "mohammednehad.com", "custom_domain": true },
+    { "pattern": "www.mohammednehad.com", "zone_name": "mohammednehad.com", "custom_domain": true }
+  ],
+
+  // Keep the mohammednehad.<account>.workers.dev URL (it is off by default once routes exist). It answers with
+  // X-Robots-Tag: noindex (public/_headers), so it never competes with the real domain in search results.
+  "workers_dev": true,
+
+  // Version and preview URLs: every uploaded version (including Workers Builds previews of non-main branches) gets
+  // its own <prefix>-mohammednehad.<account>.workers.dev URL, also noindex.
+  "preview_urls": true
+}

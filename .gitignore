@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# wrangler (Cloudflare deploy tool): local dev state and cache, never committed
+/.wrangler/

@@ -1,3 +1,8 @@
+# pnpm 12 runs no dependency install scripts unless listed here (supply-chain safety).
+# false = known and deliberately not run (the package works without it), so installs do not stop with
+# ERR_PNPM_IGNORED_BUILDS (locally and in Cloudflare Workers Builds).
 allowBuilds:
   sharp: false
   unrs-resolver: false
+  esbuild: false # wrangler's bundler: its native binary comes as a platform package (@esbuild/linux-x64)
+  workerd: false # wrangler's local runtime: its binary comes as a platform package (@cloudflare/workerd-linux-64)

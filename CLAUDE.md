@@ -12,6 +12,7 @@ Next.js static export. See `AGENTS.md` for the Next.js version note (read the do
 - One text animation system (ADR 0005); Contact is five rotating text rings (ADR 0006); booking is a link to Cal.com, no embed, shown as buttons that open a new tab once the URL is external (ADR 0007, 0011)
 - Fonts via `next/font/google`: Bricolage Grotesque (display), Instrument Sans (body)
 - Package manager: pnpm. Free / open source only. No tracking, no cookies, no secrets.
+- Hosting (ADR 0012): Cloudflare Workers static assets serving `out/` (config `wrangler.jsonc`, headers `public/_headers`), live at https://mohammednehad.com (`www` 301s to the apex). Cloudflare Workers Builds deploys from GitHub: push to `main` = production deploy; push to any other branch = preview version with its own `*.workers.dev` preview URL (noindex). Never touch the Proton Mail DNS records in the Cloudflare zone.
 
 ## Rules
 1. Scope: do only what was asked. If something is unclear or a decision is missing, stop and ask.
@@ -43,4 +44,4 @@ pnpm build               # static export into out/
 ```
 
 ## Git
-`main` = production. Work on `feat/site-v1`. One commit per part, Conventional Commits (`type(scope): description`). Do not push unless asked.
+`main` = production: every push to `main` deploys the live site (ADR 0012). Work on a feature branch (its pushes get preview URLs) and merge into `main` with `--no-ff`. One commit per part, Conventional Commits (`type(scope): description`). Do not push unless asked. GitHub: `mohamednehad1570/portfolio` (public).
