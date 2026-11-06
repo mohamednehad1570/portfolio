@@ -5,17 +5,17 @@ Copied from the approved prototype (`reference/prototype/src/rb/`), which took t
 They are used inside this website only; they are not resold or redistributed as components.
 Every file starts with `'use client'` (they use browser APIs). Changes are marked `MODIFIED` in the code.
 No `@hugeicons/*` packages are used.
+`CircularGallery` (the old About carousel) was removed in batch 1b (ADR 0003); it needed no npm package, so nothing else was uninstalled.
 
 | Component | Used for | Modified? |
 |---|---|---|
-| `CircularGallery` | About photo carousel | Yes: vertical wheel is ignored (only horizontal deltas turn it); engine exposes `goTo(index)`; new `activeIndex` prop drives it; `loseContext()` removed from cleanup (it broke the Strict Mode remount in dev) |
 | `FlowingMenu` | Contact rows | Yes: Hugeicons removed; `alwaysOn` prop (all bands visible, `clipPath: none`, marquee always running); per-row `bandColor` / `bandText`; per-row `external` flag adds `target="_blank" rel="noopener noreferrer"`; `data-always` hides the static label visually (still read by screen readers); round image spins (CSS `rotate`, 20 s, off under reduced motion); marquee loop pauses while the menu is off-screen (IntersectionObserver) |
 | `StarBorder` | Button border | No |
 | `Magnet` | Button pull | No |
 | `ClickSpark` | Button click effect | No |
 | `GlareHover` | Project frames | No |
 | `SplitText` | H1 and section H2 | No |
-| `BlurText` | Hero description, About paragraph | No |
+| `BlurText` | Hero description | No |
 | `DecryptedText` | Hero label | No |
 | `ScrollReveal` | Section intro lines | No |
 | `VariableProximity` | "Let's talk." | No |

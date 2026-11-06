@@ -21,7 +21,7 @@
 /*
  * Fonts: next/font self-hosts the font files and sets --font-bricolage / --font-instrument on <html>
  * (see layout.tsx). `inline` makes Tailwind copy these values as they are, so --font-display and --font-body
- * are plain variables usable from CSS, from JS strings (gallery, VariableProximity) and as font-display / font-body.
+ * are plain variables usable from CSS, from JS strings (VariableProximity) and as font-display / font-body.
  */
 @theme inline {
   --font-display: var(--font-bricolage), "Segoe UI", system-ui, sans-serif;

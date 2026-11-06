@@ -20,20 +20,14 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | Client Component | Frontend framework | React component that is hydrated and runs in the browser, as opposed to a server component that only renders HTML at build time | `src/components/rb/`, interactive sections |
 | IntersectionObserver | Browser API | Tells you when an element enters or leaves the visible screen area, without polling scroll position | `FlowingMenu.jsx` (pauses the marquee off-screen) |
 | Marquee | UI pattern | Text strip that scrolls endlessly in one direction | `FlowingMenu` bands |
-| requestAnimationFrame | Browser API | Runs a function before the next screen repaint; the standard way to drive animation loops | `FlowingMenu.jsx`, `CircularGallery.jsx` |
+| requestAnimationFrame | Browser API | Runs a function before the next screen repaint; the standard way to drive animation loops | `FlowingMenu.jsx`, `StarfieldBackground.tsx` |
 | ESLint override | Code quality | Config block that changes lint rules for chosen files only | `eslint.config.mjs` (rule relaxations for `src/components/rb/`) |
 | React Compiler lint rules | Code quality | `react-hooks` checks (refs, purity) that assume code is compiler-safe; flag patterns vendored components use on purpose | `eslint.config.mjs` |
-| WebGL2 | Graphics | Browser API for drawing hardware-accelerated 2D/3D graphics on a canvas | `CubesBackground.tsx`, `CircularGallery.jsx` |
-| Shader (vertex / fragment) | Graphics | Small GPU programs: the vertex shader positions each corner, the fragment shader colours each pixel | `CubesBackground.tsx` |
-| Instanced rendering | Graphics | Drawing many copies of one mesh in a single GPU call, each with its own data (here: one cube per grid cell) | `CubesBackground.tsx` (`drawElementsInstanced`) |
-| Quaternion | Maths / graphics | Four-number way to store a 3D rotation without gimbal lock | `CubesBackground.tsx` (cube tilt) |
-| Orthographic projection | Graphics | Projection with no perspective: parallel lines stay parallel, so the grid looks flat | `CubesBackground.tsx` (`uM` matrix) |
-| devicePixelRatio | Browser API | How many real screen pixels make one CSS pixel; capped at 2 to save GPU work | `CubesBackground.tsx` |
-| Spring simulation | Animation | Motion where a value is pulled toward a target with stiffness and damping, so it overshoots and settles | `CubesBackground.tsx` (`step`) |
-| `next/dynamic` | Frontend framework | Loads a component as a separate JavaScript chunk, on demand | `CubesLayer.tsx` |
-| `ssr: false` | Frontend framework | Skips rendering a component on the server/at build time; it exists only in the browser | `CubesLayer.tsx` |
-| Layout shift | Performance | Content jumping when something loads late; the canvas is `position: fixed` so it causes none | `CubesBackground.tsx` |
-| Decorative (`aria-hidden`) | Accessibility | Marks an element as invisible to screen readers because it carries no information | `CubesBackground.tsx` |
+| devicePixelRatio | Browser API | How many real screen pixels make one CSS pixel; capped at 2 to save drawing work | `StarfieldBackground.tsx` |
+| `next/dynamic` | Frontend framework | Loads a component as a separate JavaScript chunk, on demand | `SiteState.tsx`, `Contact.tsx` |
+| `ssr: false` | Frontend framework | Skips rendering a component on the server/at build time; it exists only in the browser | `SiteState.tsx`, `Contact.tsx` |
+| Layout shift | Performance | Content jumping when something loads late; the canvas is `position: fixed` so it causes none | `StarfieldBackground.tsx` |
+| Decorative (`aria-hidden`) | Accessibility | Marks an element as invisible to screen readers because it carries no information | `StarfieldBackground.tsx`, `WordReveal.tsx` (animated words) |
 | Design tokens | Design systems | Named design values (colours, fonts) defined once and reused everywhere | `src/app/globals.css` (`@theme`) |
 | `@theme` | Styling (Tailwind v4) | Tailwind v4 block where tokens are declared; each becomes a CSS variable and a utility class | `src/app/globals.css` |
 | `next/font` | Performance | Next.js tool that downloads Google Fonts at build time and self-hosts them, so no request goes to Google at runtime | `src/app/layout.tsx` |
@@ -46,17 +40,17 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | `satisfies` | TypeScript | Checks a value against a type without widening the value's own type | `src/content/site.ts` |
 | Content as data | Architecture | Page copy kept in typed data files, separate from components | `src/content/site.ts` |
 | `wa.me` link | Messaging | WhatsApp's click-to-chat URL; the phone number lives only inside it, never as visible text | `src/content/site.ts` (WhatsApp row) |
-| GSAP | Animation | JavaScript animation library (free since 3.13, includes ScrollTrigger and SplitText) | `About.tsx`, `rb/SplitText.jsx`, `rb/ScrollReveal.jsx` |
-| ScrollTrigger | Animation | GSAP plugin that ties animation or pinning to scroll position | `About.tsx`, `SiteState.tsx` |
-| Pinning | Animation / UX | Holding a section fixed on screen while the page scroll "pays" for an animation | `About.tsx` |
-| Snap (scroll snap) | UX | Scroll position settles on defined stops (here each of the 4 photos) | `About.tsx` (`snap: 1/(n-1)`) |
-| `useGSAP` | Frontend framework | React hook that runs GSAP code and cleans it up on unmount | `About.tsx` |
+| GSAP | Animation | JavaScript animation library (free since 3.13, includes ScrollTrigger and SplitText) | `sections/AboutStack.tsx`, `rb/SplitText.jsx`, `rb/ScrollReveal.jsx` |
+| ScrollTrigger | Animation | GSAP plugin that ties animation or pinning to scroll position | `sections/AboutStack.tsx`, `SiteState.tsx` |
+| Pinning | Animation / UX | Holding a section fixed on screen while the page scroll "pays" for an animation | Not used since ADR 0003 (it was the old pinned About gallery) |
+| Snap (scroll snap) | UX | Scroll position settles on defined stops (here each of the 4 photos) | Not used since ADR 0003 (it was the old pinned About gallery) |
+| `useGSAP` | Frontend framework | React hook that runs GSAP code and cleans it up on unmount | `sections/AboutStack.tsx` |
 | Scrollspy | UX | Highlights the nav link of the section currently on screen | `SiteState.tsx`, `Header.tsx` |
 | React Context | Frontend framework | Way to share state with many components without passing props down | `SiteState.tsx` |
 | Server Component | Frontend framework | Component rendered to HTML at build time; ships no JavaScript | `page.tsx`, `Projects.tsx`, `Hero.tsx`, `Footer.tsx` |
 | `next/image` | Performance | Next.js `<Image>`: lazy loading, size attributes, no layout shift (unoptimized in a static export) | `Hero.tsx` |
 | `<noscript>` | Robustness | Content shown only when JavaScript is off | `layout.tsx` (reveal fallback) |
-| `100svh` | CSS | "Small viewport height": 100% of the visible height with mobile browser bars shown | `sections.css` (`.hero`, `.about`) |
+| `100svh` | CSS | "Small viewport height": 100% of the visible height with mobile browser bars shown | `sections.css` (`.hero`, `.is-stack`) |
 | Safe-area inset | CSS | Space reserved for notches and home bars on phones (`env(safe-area-inset-*)`) | `sections.css` |
 | Touch target | Accessibility | Minimum tappable size (44px) for links and buttons | `sections.css` |
 | Landmark | Accessibility | Semantic region (`header`, `nav`, `main`, `footer`) that screen readers can jump between | `Header.tsx`, `page.tsx`, `Footer.tsx` |
@@ -74,12 +68,28 @@ Technical terms used in this project. Columns: Term | Discipline | Meaning | Whe
 | schema.org `Person` | SEO | Standard vocabulary describing a person (name, url, profiles) | `PersonJsonLd.tsx` |
 | `NEXT_PUBLIC_*` | Configuration | Environment variables that Next.js copies into the browser code at build time (never put secrets in them) | `src/lib/siteUrl.ts`, `.env.example` |
 | `force-static` | Web architecture | Route setting that makes a generated file (sitemap, robots) build to a plain file | `sitemap.ts`, `robots.ts` |
-| Lazy loading (code splitting) | Performance | Downloading a chunk of JavaScript only when needed, so first paint is not blocked | `About.tsx`, `Contact.tsx`, `CubesLayer.tsx` |
-| Fallback (loading state) | UX / robustness | Simple stand-in shown while the real component loads or when it cannot run | `GalleryFallback`, `ContactList` |
+| Lazy loading (code splitting) | Performance | Downloading a chunk of JavaScript only when needed, so first paint is not blocked | `SiteState.tsx` (starfield), `Contact.tsx` |
+| Fallback (loading state) | UX / robustness | Simple stand-in shown while the real component loads or when it cannot run | `ContactList` |
 | `requestIdleCallback` | Browser API | Runs work when the browser is idle; used to pre-download the lazy chunks | `src/lib/useMotionAllowed.ts` |
 | `useSyncExternalStore` | Frontend framework | React hook that reads an outside value (here the OS reduced-motion setting) and re-renders when it changes | `src/lib/useMotionAllowed.ts` |
 | Hydration | Frontend framework | React attaching to server-made HTML in the browser; the first client render must match the HTML | `useMotionAllowed.ts` (server snapshot = false) |
-| Progressive enhancement | Architecture | Page works in its simple form first and gains animation only where the browser allows | About (list vs pinned gallery), cubes |
-| Roving tabindex | Accessibility | Only one item of a widget is in the tab order; arrow keys move inside it | `CircularGallery` hidden buttons |
+| Progressive enhancement | Architecture | Page works in its simple form first and gains animation only where the browser allows | About (plain list vs sticky stack), starfield (static frame vs animated) |
 | Focus ring contrast | Accessibility | The visible keyboard-focus outline must stand out from its surroundings (WCAG 2.4.7 / 1.4.11) | `sections.css` (`a.cta.star-border:focus-visible`) |
-| `display: contents` | CSS | Makes a wrapper disappear from layout while keeping its children; used so one block can be hidden by media query without changing layout | `.about-pinned` |
+| Canvas 2D | Graphics | Browser API (`getContext("2d")`) for drawing shapes, lines and gradients on a `<canvas>` with plain JavaScript; no GPU programming needed | `StarfieldBackground.tsx` |
+| Constellation link | Graphics / UX | A thin line joining two nearby stars; some are fixed, others appear around the pointer or a tap and fade with distance | `StarfieldBackground.tsx` |
+| Shooting star (meteor streak) | Graphics | A short-lived bright head with a fading tail that crosses the sky; here every 5 to 9 seconds, towards the bottom-left | `StarfieldBackground.tsx` (`spawnMeteor`) |
+| Delta time (frame-rate independence) | Animation | Scaling movement by the time since the last frame, so speed is the same on 60 Hz and 144 Hz screens | `StarfieldBackground.tsx` (`step`) |
+| Debounce | Performance | Waiting until events (here window resizing) stop for a moment before doing costly work | `StarfieldBackground.tsx` (`RESIZE_DEBOUNCE_MS`) |
+| `position: sticky` | CSS | Element scrolls normally until it reaches a given offset, then stays there until its container ends | `sections.css` (`.is-stack .stack-item`) |
+| Sticky stacking | UX / CSS | Several sticky items with growing offsets pile up one under the other as you scroll, newer ones painted on top | `sections/AboutStack.tsx`, `sections.css` |
+| Scrubbed animation | Animation | Animation whose progress follows the scroll position exactly (scroll back and it plays back), instead of playing by time | `sections/AboutStack.tsx` (`--depth`) |
+| Scroll hijacking | UX / Accessibility | Taking control of the page scroll (pinning, snapping, smooth-scroll libraries, wheel-capturing boxes), which makes scrolling feel stuck or unfamiliar; banned by ADR 0003 | `CLAUDE.md` rule 9 |
+| Lenis | Tooling | Smooth-scroll JavaScript library that replaces native scrolling; used inside React Bits ScrollStack and therefore not used here | Rejected in ADR 0003 |
+| `color-scheme` | CSS | Tells the browser the page is dark (or light) so native parts such as scrollbars and form controls match | `globals.css` (`:root`), `layout.tsx` (`viewport`) |
+| `theme-color` | Web platform | `<meta>` tag that tints the mobile browser's address bar; set through the Next.js `viewport` export | `layout.tsx` |
+| CSS custom property (variable) | CSS | A `--name` value set once and read with `var()`; here JavaScript sets `--depth` and CSS turns it into scale, brightness and opacity | `sections.css`, `sections/AboutStack.tsx` |
+| `display: flow-root` | CSS | Makes a box contain its children's margins, so a last child's bottom margin counts inside the box (it keeps the last About item stuck for the final hold) | `sections.css` (`.is-stack .stack-list`) |
+| Word reveal | Animation | Text appearing word by word, each from transparent, blurred and slightly low to normal; the sentence stays readable to screen readers | `sections/WordReveal.tsx` |
+| `sr-only` | Accessibility | CSS class that hides text visually but keeps it for screen readers | `globals.css`, `WordReveal.tsx` |
+| Contrast ratio (WCAG AA) | Accessibility | Brightness difference between text and background; AA needs at least 4.5:1 for body text | Dark theme tokens (ADR 0004) |
+| Lighthouse | Quality | Google's free tool that scores a page for performance, accessibility and more (it runs the axe contrast checks) | Part 7 of batch 1b |
