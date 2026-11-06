@@ -1,6 +1,6 @@
 /**
  * useMotionAllowed: true when the visitor has NOT asked the system to reduce motion.
- * Why: the pinned About gallery, the cubes and similar effects must be skipped for `prefers-reduced-motion: reduce`.
+ * Why: the About scroll stack, the starfield's motion and similar effects must be skipped for `prefers-reduced-motion: reduce`.
  * Returns false on the server and during hydration, so the page first renders in its calm, static form and
  * only upgrades to the animated one in the browser (no mismatch between server HTML and client).
  */
@@ -22,8 +22,8 @@ export function useMotionAllowed(): boolean {
   );
 }
 
-/** Starts downloading a lazy chunk when the browser is idle, so the fallback is rarely seen. */
-export function preloadWhenIdle(load: () => Promise<unknown>): () => void {
+/** Runs `load` (e.g. starts downloading a lazy chunk, or mounts a decorative layer) when the browser is idle. */
+export function preloadWhenIdle(load: () => unknown): () => void {
   if (typeof window === "undefined") return () => {};
   const run = () => void load();
   if ("requestIdleCallback" in window) {

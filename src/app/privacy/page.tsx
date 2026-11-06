@@ -1,7 +1,7 @@
 /**
  * /privacy: the privacy page. Headings with bracketed placeholder paragraphs for Mohammed to fill in.
  * Why: the footer links here; a booking form and analytics (later) will process personal data, so the
- * page must exist from day one. A simple standalone page: no section nav, no cubes.
+ * page must exist from day one. A simple standalone page: no section nav, no starfield.
  */
 import type { Metadata } from "next";
 import Link from "next/link";

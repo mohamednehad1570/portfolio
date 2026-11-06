@@ -3,7 +3,6 @@
  * Why (D15): scrolling turns the gallery one photo at a time, snapping on each of the 4 photos
  * (progress 0, 1/3, 2/3, 1), then releases the page. The paragraph for the centred photo sits underneath.
  * Horizontal drag/swipe also turns the gallery; a vertical wheel is never trapped (see rb/README.md).
- * While pinned the cubes background pauses (state in SiteState).
  *
  * Quality pass: the gallery chunk loads lazily with a static photo as fallback. With
  * `prefers-reduced-motion: reduce` nothing is pinned or animated: the pinned block is hidden by CSS and the
@@ -23,7 +22,6 @@ import { preloadWhenIdle, useMotionAllowed } from "@/lib/useMotionAllowed";
 import BlurText from "./rb/BlurText";
 import SplitText from "./rb/SplitText";
 import TodoText from "./TodoText";
-import { useSiteState } from "./SiteState";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -46,7 +44,6 @@ export default function About() {
   const { about } = site;
   const topics = about.topics;
   const sectionRef = useRef<HTMLElement>(null);
-  const { setAboutPinned } = useSiteState();
   const motionAllowed = useMotionAllowed();
   const [slide, setSlide] = useState(0); // gallery position driven by page scroll
   const [shown, setShown] = useState(0); // topic whose paragraph is shown (follows the gallery)
@@ -68,10 +65,8 @@ export default function About() {
           const i = Math.min(n - 1, Math.round(self.progress * (n - 1)));
           setSlide((prev) => (prev === i ? prev : i));
         },
-        onToggle: (self) => setAboutPinned(self.isActive),
       });
-      // useGSAP kills the trigger on cleanup; also tell the cubes they may run again
-      return () => setAboutPinned(false);
+      return undefined; // useGSAP kills the trigger on cleanup
     },
     { scope: sectionRef, dependencies: [motionAllowed], revertOnUpdate: true },
   );
