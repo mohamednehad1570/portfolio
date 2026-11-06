@@ -1,18 +1,21 @@
 /*
  * Global styles: design tokens (Tailwind v4 @theme), base rules, type scale, focus and reduced-motion rules.
- * Why here: one place for the approved look from the prototype (reference/prototype/src/styles.css).
+ * Why here: one place for the look. Dark night-sky theme (ADR 0004); layout from the approved prototype
+ * (reference/prototype/src/styles.css).
  * Section and component styles are appended below by the parts that build them.
  */
 @import "tailwindcss";
 
 /* ---------- Tokens: Tailwind turns these into utilities (bg-bg, text-ink, ...) and CSS variables ---------- */
 @theme {
-  --color-bg: #ffffff;
-  --color-ink: #14171c;
-  --color-muted: #535a65;
-  --color-line: #e2e6eb;
-  --color-accent: #1f5f8b;
-  --color-accent-soft: #e9f1f7;
+  --color-bg: #0a1626; /* night sky */
+  --color-ink: #e9eef4; /* main text */
+  --color-muted: #a3adba; /* secondary text */
+  --color-todo: #8a94a1; /* [bracketed] placeholders Mohammed still writes */
+  --color-line: rgba(255, 255, 255, 0.14); /* hairlines and borders */
+  --color-accent: #6fb0e0; /* links, focus ring, button border, eyebrow labels */
+  --color-accent-strong: #1f5f8b; /* filled areas that carry white text (Contact bands) */
+  --color-accent-soft: rgba(111, 176, 224, 0.12); /* tag pills and soft fills */
 }
 
 /*
@@ -27,7 +30,7 @@
 
 /* ---------- Base ---------- */
 :root {
-  color-scheme: light;
+  color-scheme: dark; /* native controls, scrollbars and form fields render dark */
 }
 
 * {
@@ -57,7 +60,7 @@ a {
 
 /* Visible keyboard focus everywhere (WCAG 2.4.7); only for keyboard users, so clicks stay clean */
 :focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 2px solid var(--color-accent);
   outline-offset: 3px;
 }
 
@@ -84,7 +87,7 @@ a {
   }
   /* characters still scrambled in the DecryptedText label */
   .eyebrow-enc {
-    color: #9aa3ad;
+    color: var(--color-todo);
   }
   .h1 {
     font-family: var(--font-display);
@@ -120,13 +123,13 @@ a {
   .body {
     font-size: 16px;
     line-height: 1.65;
-    color: #3a404a;
+    color: var(--color-muted);
     margin: 0;
     max-width: 36em;
   }
   /* Placeholder text Mohammed will write: always visibly grey */
   .todo {
-    color: #8a919b;
+    color: var(--color-todo);
   }
 }
 

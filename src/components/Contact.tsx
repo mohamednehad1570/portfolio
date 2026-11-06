@@ -10,7 +10,7 @@
 import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import { site } from "@/content/site";
-import { ACCENT, INK, LINE } from "@/lib/theme";
+import { ACCENT_STRONG, INK, LINE } from "@/lib/theme";
 import { preloadWhenIdle } from "@/lib/useMotionAllowed";
 import ScrollReveal from "./rb/ScrollReveal";
 import VariableProximity from "./rb/VariableProximity";
@@ -40,7 +40,7 @@ function ContactList() {
 const FlowingMenu = dynamic(loadMenu, { ssr: false, loading: () => <ContactList /> });
 
 const BANDS = {
-  blue: { bandColor: ACCENT, bandText: "#ffffff" },
+  blue: { bandColor: ACCENT_STRONG, bandText: "#ffffff" },
   clear: { bandColor: "transparent", bandText: INK },
 };
 
@@ -90,7 +90,7 @@ export default function Contact() {
             followCursor={0.4}
             textColor={INK}
             bgColor="transparent"
-            marqueeBgColor={ACCENT}
+            marqueeBgColor={ACCENT_STRONG}
             marqueeTextColor="#ffffff"
             borderColor={LINE}
             imageShape="circle"

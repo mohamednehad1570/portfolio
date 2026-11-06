@@ -3,12 +3,13 @@
  * Why: next/font downloads the fonts at build time and serves them from our own domain (no runtime
  * stylesheet link, no request to Google from the visitor's browser, no layout jump).
  */
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import "./sections.css";
 import PersonJsonLd from "@/components/PersonJsonLd";
 import { site } from "@/content/site";
+import { BG } from "@/lib/theme";
 import { SITE_URL } from "@/lib/siteUrl";
 
 // Display font. Variable font with weight + optical-size axes: VariableProximity animates both.
@@ -41,6 +42,9 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary", title: site.seo.title, description: site.seo.description, images: [site.seo.ogImage] },
 };
+
+// Dark theme (ADR 0004): <meta name="theme-color"> tints the mobile browser bar, color-scheme darkens native UI.
+export const viewport: Viewport = { themeColor: BG, colorScheme: "dark" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

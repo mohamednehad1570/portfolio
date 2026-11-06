@@ -2,7 +2,8 @@
  * Section and component styles, ported from the approved prototype (reference/prototype/src/styles.css).
  * Why a plain CSS file: the layout is shared by several components and by the React Bits parts that ship
  * their own CSS; tokens come from globals.css.
- * Layout idea: one white page, content in a 1200px column, glass cubes fixed behind everything.
+ * Layout idea: one dark night-sky page (ADR 0004), content in a 1200px column, the starfield canvas fixed behind
+ * everything (ADR 0002).
  */
 
 .page {
@@ -12,7 +13,7 @@
 main,
 .footer {
   position: relative;
-  z-index: 1; /* above the fixed cubes canvas */
+  z-index: 1; /* above the fixed starfield canvas */
 }
 .wrap {
   max-width: 1200px;
@@ -79,7 +80,7 @@ main,
   left: 0;
   right: 0;
   z-index: 30;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(10, 22, 38, 0.8); /* --color-bg at 80% */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-line);
@@ -156,13 +157,13 @@ main,
 .hero-text {
   position: relative;
 }
-/* soft white glow so the cubes never compete with the headline */
+/* soft night-sky glow so the stars never compete with the headline */
 .hero-text::before {
   content: "";
   position: absolute;
   inset: -80px -100px;
   z-index: -1;
-  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.97), rgba(255, 255, 255, 0.8) 60%, rgba(255, 255, 255, 0));
+  background: radial-gradient(closest-side, rgba(10, 22, 38, 0.85), rgba(10, 22, 38, 0.55) 60%, rgba(10, 22, 38, 0));
 }
 .hero-photo-wrap {
   justify-self: end;
@@ -174,8 +175,8 @@ main,
   aspect-ratio: 4 / 5;
   border-radius: 24px; /* rounded rectangle, no arch (D14) */
   overflow: hidden;
-  background: #eef1f4;
-  box-shadow: 0 30px 60px -32px rgba(20, 23, 28, 0.4);
+  background: var(--color-accent-soft);
+  box-shadow: 0 30px 60px -32px rgba(0, 0, 0, 0.6);
 }
 .hero-photo img {
   width: 100%;
@@ -213,14 +214,14 @@ main,
   justify-content: center;
   font-size: clamp(16px, 1.4vw, 18px);
   line-height: 1.6;
-  color: #3a404a;
+  color: var(--color-muted);
   max-width: 40em;
   margin: 0;
 }
 .hint {
   margin: 4px 0 0;
   font-size: 13px;
-  color: #8a919b;
+  color: var(--color-todo);
 }
 /* progress dots: one per topic, the current one is long and blue */
 .dots {
@@ -234,7 +235,7 @@ main,
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: #c9d0d8;
+  background: var(--color-line);
   transition: width 0.3s ease, background 0.3s ease;
 }
 .dots li.is-on {
@@ -260,7 +261,7 @@ main,
 }
 .frame-glare {
   width: 100%;
-  box-shadow: 0 24px 50px -30px rgba(20, 23, 28, 0.4);
+  box-shadow: 0 24px 50px -30px rgba(0, 0, 0, 0.7);
   transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.2, 1);
 }
 .frame-glare:hover {
@@ -364,7 +365,7 @@ main,
   padding: 6px 12px;
   border-radius: 999px;
   background: var(--color-accent-soft);
-  color: #234a66;
+  color: var(--color-accent);
 }
 .project .text-link {
   align-self: flex-start;
@@ -398,22 +399,22 @@ main,
   padding: 28px;
   border: 1px solid var(--color-line);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(14, 22, 38, 0.72);
 }
 .book-slot {
   margin-top: 6px;
   padding: 36px 20px;
-  border: 1px dashed #c3cbd4;
+  border: 1px dashed rgba(255, 255, 255, 0.28);
   border-radius: 14px;
   text-align: center;
   color: var(--color-muted);
   font-size: 14px;
-  background: #f7f9fb;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 /* ---------- Footer and go-to-top ---------- */
 .footer {
-  background: #fff;
+  background: transparent; /* the stars show through */
   border-top: 1px solid var(--color-line);
   padding: 28px 0 32px;
   font-size: 14px;
@@ -447,10 +448,10 @@ main,
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #fff;
+  background: rgba(14, 22, 38, 0.9);
   border: 1px solid var(--color-line);
   color: var(--color-ink);
-  box-shadow: 0 10px 24px -12px rgba(20, 23, 28, 0.35);
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.6);
   opacity: 0;
   pointer-events: none;
   transform: translateY(12px);
@@ -492,7 +493,8 @@ main,
     right: 14px;
     border: 1px solid var(--color-line);
     border-radius: 999px;
-    box-shadow: 0 12px 30px -14px rgba(20, 23, 28, 0.35);
+    background: rgba(14, 22, 38, 0.9);
+    box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.6);
   }
   .nav-inner {
     height: 54px;
@@ -635,7 +637,7 @@ main,
 
 /* Visible focus on the main button (the vendored StarBorder only draws a faint outline) */
 a.cta.star-border:focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 2px solid var(--color-accent);
   outline-offset: 4px;
 }
 
