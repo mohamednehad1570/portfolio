@@ -1,6 +1,6 @@
 /**
  * SiteState: small shared state for the one-page site (which section is on screen, whether Contact has been
- * reached) plus the night-sky background layer.
+ * reached, or the visitor is using the keyboard) plus the night-sky background layer.
  * Why: the header underline, the go-to-top button and the contact menu all depend on where the visitor is,
  * so one observer feeds them all instead of each section watching the scroll. The background lives here
  * because it is one fixed layer behind every section; it loads client-only, after the page text.
@@ -64,6 +64,17 @@ export function SiteStateProvider({ children }: { children: ReactNode }) {
       if (el) io.observe(el);
     });
     return () => io.disconnect();
+  }, []);
+
+  // Keyboard users: the contact menu is only mounted once Contact is on screen, so without this the first Tab
+  // press would skip its rows (the focus would jump from the Projects buttons straight to the footer).
+  // Pressing Tab even once mounts it, so every row is in the tab order.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Tab") setContactSeen(true);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
 
   // Start the sky after the main content has painted (idle time), so it never competes with the headline.
