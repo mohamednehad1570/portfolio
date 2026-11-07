@@ -9,6 +9,7 @@ import "./globals.css";
 import "./sections.css";
 import PersonJsonLd from "@/components/PersonJsonLd";
 import { site } from "@/content/site";
+import { OG_IMAGE } from "@/lib/images";
 import { BG } from "@/lib/theme";
 import { SITE_URL } from "@/lib/siteUrl";
 
@@ -38,9 +39,15 @@ export const metadata: Metadata = {
     title: site.seo.title,
     description: site.seo.description,
     url: "/",
-    images: [{ url: site.seo.ogImage, width: 340, height: 425, alt: site.seo.ogImageAlt }],
+    images: [{ url: OG_IMAGE.src, width: OG_IMAGE.width, height: OG_IMAGE.height, alt: site.seo.ogImageAlt }],
   },
-  twitter: { card: "summary", title: site.seo.title, description: site.seo.description, images: [site.seo.ogImage] },
+  // summary_large_image: the wide 1200 x 630 card (a plain "summary" card would crop it to a small square)
+  twitter: {
+    card: "summary_large_image",
+    title: site.seo.title,
+    description: site.seo.description,
+    images: [{ url: OG_IMAGE.src, alt: site.seo.ogImageAlt }],
+  },
 };
 
 // Dark theme (ADR 0004): <meta name="theme-color"> tints the mobile browser bar, color-scheme darkens native UI.

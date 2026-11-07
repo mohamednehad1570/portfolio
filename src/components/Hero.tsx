@@ -3,18 +3,23 @@
  * photo on the other side.
  * Why (D14 revised, ADR 0005): the label types first, then the title; the title's cursor is the only blinking
  * cursor on the page. The description blurs in word by word once the title is typed, and the buttons fade up
- * last. The photo slides in from the right. All wording comes from src/content/site.ts.
+ * last. All wording comes from src/content/site.ts.
  * The page waits for nothing visible to be laid out: typed text reserves its final box, so nothing shifts.
  * Rule 8: without JavaScript or with reduced motion everything is simply visible (see TextType.css, sections.css).
+ *
+ * Photo (D14 as amended by ADR 0013): a frameless transparent cutout standing directly on the starfield. It is the
+ * page's LCP element, so it is never hidden: it is opaque in the server HTML (its CSS entrance only slides it, see
+ * .hero-photo in sections.css), loads eagerly with high priority, and is preloaded from <head> (`preload` below).
  */
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import { preload } from "react-dom";
 import { site } from "@/content/site";
+import { HERO_IMAGE, HERO_PRELOAD_HREF, HERO_SIZES } from "@/lib/images";
 import BlurText from "./rb/BlurText";
 import CtaButton from "./CtaButton";
-import Reveal from "./Reveal";
+import Picture from "./Picture";
 import TypedText from "./TypedText";
 
 // Constants so the vendored BlurText does not see new props on every render.
@@ -26,6 +31,17 @@ export default function Hero() {
   const { hero } = site;
   const [labelDone, setLabelDone] = useState(false);
   const [titleDone, setTitleDone] = useState(false);
+  // <link rel="preload" as="image"> in <head> (React hoists it into the static HTML): the photo starts downloading
+  // before the body is parsed. type=avif: browsers without AVIF skip it and take WebP from <picture> instead.
+  // The href is only React's de-duplication key: with imageSrcSet React leaves it out of the tag, so a browser
+  // without imagesrcset support skips the preload (and never fetches the large PNG fallback through it).
+  preload(HERO_PRELOAD_HREF, {
+    as: "image",
+    type: "image/avif",
+    imageSrcSet: HERO_IMAGE.avifSrcSet,
+    imageSizes: HERO_SIZES,
+    fetchPriority: "high",
+  });
   return (
     <section id="home" className="hero">
       <div className="wrap hero-grid">
@@ -65,11 +81,9 @@ export default function Hero() {
             <CtaButton href={hero.secondaryCta.href}>{hero.secondaryCta.label}</CtaButton>
           </div>
         </div>
-        <Reveal from="right" delay={250} className="hero-photo-wrap">
-          <figure className="hero-photo">
-            <Image src={hero.photo.src} alt={hero.photo.alt} width={340} height={425} priority sizes="(max-width: 760px) 280px, 420px" />
-          </figure>
-        </Reveal>
+        <div className="hero-photo-wrap">
+          <Picture className="hero-photo" image={HERO_IMAGE} alt={hero.photo.alt} sizes={HERO_SIZES} priority />
+        </div>
       </div>
     </section>
   );

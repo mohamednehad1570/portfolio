@@ -84,12 +84,13 @@ for (const img of jobs) {
   // fit "fill" with the rounded height: no crop at all (the 4:5 source is 1325 x 1656, so the stretch is < 0.02 %).
   const resized = (w) => sharp(img.src).resize(w, heightFor(w), { fit: "fill", kernel: "lanczos3" });
 
-  const avif = [];
-  const webp = [];
+  const variants = [];
   for (const w of img.widths) {
-    avif.push(`${await out(resized(w).avif(AVIF), `${img.id}-${w}.avif`)} ${w}w`);
-    webp.push(`${await out(resized(w).webp(WEBP), `${img.id}-${w}.webp`)} ${w}w`);
+    const avif = await out(resized(w).avif(AVIF), `${img.id}-${w}.avif`);
+    const webp = await out(resized(w).webp(WEBP), `${img.id}-${w}.webp`);
+    variants.push({ width: w, height: heightFor(w), avif, webp });
   }
+  const srcSet = (fmt) => variants.map((v) => `${v[fmt]} ${v.width}w`).join(", ");
   const fw = img.fallbackWidth;
   const fallback =
     img.kind === "cutout"
@@ -100,8 +101,9 @@ for (const img of jobs) {
     width: fw,
     height: heightFor(fw),
     src: fallback,
-    avifSrcSet: avif.join(", "),
-    webpSrcSet: webp.join(", "),
+    avifSrcSet: srcSet("avif"),
+    webpSrcSet: srcSet("webp"),
+    variants, // one entry per width, e.g. for a single absolute URL (structured data)
   };
 
   // Open Graph card: the cutout standing on the right of a plain navy canvas, bottom-aligned so the fade meets the edge.
@@ -133,6 +135,7 @@ export type GeneratedImage = {
   src: string; // fallback (PNG for cutouts, JPEG for photos)
   avifSrcSet: string;
   webpSrcSet: string;
+  variants: { width: number; height: number; avif: string; webp: string }[]; // smallest to largest
   og?: { src: string; width: number; height: number };
 };
 

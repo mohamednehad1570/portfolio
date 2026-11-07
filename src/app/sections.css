@@ -167,7 +167,9 @@ section[id] {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   gap: 64px;
-  align-items: center;
+  /* bottom-aligned (ADR 0013): the cutout's faded suit ends on the same line as the buttons. The photo is the
+     taller item, so it keeps its place and the text block sits on its baseline. */
+  align-items: end;
   width: 100%;
 }
 .hero-text {
@@ -186,18 +188,22 @@ section[id] {
   width: 100%;
   max-width: 420px;
 }
+/* Frameless transparent cutout (D14 as amended by ADR 0013): no radius, border, shadow, background or glow, so the
+   stars show around the person and through the faded suit. It is the LCP element, so it is never hidden: the
+   entrance is a CSS-only slide (transform, no opacity) that starts with the first paint, not after hydration. */
 .hero-photo {
-  margin: 0;
-  aspect-ratio: 4 / 5;
-  border-radius: 24px; /* rounded rectangle, no arch (D14) */
-  overflow: hidden;
-  background: var(--color-accent-soft);
-  box-shadow: 0 30px 60px -32px rgba(0, 0, 0, 0.6);
+  display: block;
+  animation: hero-photo-in 0.9s cubic-bezier(0.2, 0.9, 0.2, 1) both;
 }
 .hero-photo img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto; /* the width/height attributes give the 4:5 box before the file arrives: no layout shift */
+}
+@keyframes hero-photo-in {
+  from {
+    transform: translateX(40px);
+  }
 }
 
 /* ---------- About (scroll-driven sideways stack, ADR 0010, 0011) ---------- */
@@ -241,6 +247,10 @@ section[id] {
   border-radius: 22px;
   background: var(--color-accent-soft); /* only visible while the image loads */
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+.side-photo picture {
+  display: block; /* generated photos (ADR 0013) come wrapped in <picture>: let the img fill the square */
+  height: 100%;
 }
 .side-photo img {
   width: 100%;
@@ -865,6 +875,9 @@ html:not(.js) .blur-text span {
   .frame-glare,
   .to-top {
     transition: none;
+  }
+  .hero-photo {
+    animation: none;
   }
 }
 

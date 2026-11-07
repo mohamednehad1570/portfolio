@@ -10,6 +10,7 @@ export type GeneratedImage = {
   src: string; // fallback (PNG for cutouts, JPEG for photos)
   avifSrcSet: string;
   webpSrcSet: string;
+  variants: { width: number; height: number; avif: string; webp: string }[]; // smallest to largest
   og?: { src: string; width: number; height: number };
 };
 
@@ -20,6 +21,26 @@ export const generatedImages: Record<string, GeneratedImage | undefined> = {
     "src": "/images/generated/hero-840.png",
     "avifSrcSet": "/images/generated/hero-480.avif 480w, /images/generated/hero-840.avif 840w, /images/generated/hero-1200.avif 1200w",
     "webpSrcSet": "/images/generated/hero-480.webp 480w, /images/generated/hero-840.webp 840w, /images/generated/hero-1200.webp 1200w",
+    "variants": [
+      {
+        "width": 480,
+        "height": 600,
+        "avif": "/images/generated/hero-480.avif",
+        "webp": "/images/generated/hero-480.webp"
+      },
+      {
+        "width": 840,
+        "height": 1050,
+        "avif": "/images/generated/hero-840.avif",
+        "webp": "/images/generated/hero-840.webp"
+      },
+      {
+        "width": 1200,
+        "height": 1500,
+        "avif": "/images/generated/hero-1200.avif",
+        "webp": "/images/generated/hero-1200.webp"
+      }
+    ],
     "og": {
       "src": "/images/generated/og-image.jpg",
       "width": 1200,

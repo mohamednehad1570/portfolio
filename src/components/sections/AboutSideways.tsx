@@ -38,6 +38,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { site } from "@/content/site";
+import { generatedImages } from "@/content/images.generated";
+import Picture from "../Picture";
 import { useMotionAllowed } from "@/lib/useMotionAllowed";
 import { Eyebrow, Heading } from "./SectionText";
 import WordReveal from "./WordReveal";
@@ -60,6 +62,8 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const smoothstep = (t: number) => t * t * (3 - 2 * t); // eases in and out, flat at both ends: no jolt at rest edges
 const MIN_PHOTO = 96; // px: the photo never shrinks below this, even on very short screens
 const pad2 = (n: number) => String(n).padStart(2, "0");
+// Rendered photo width (sections.css .side-photo): full slide width on phones, up to 500px on tablet, 440px on desktop.
+const ABOUT_SIZES = "(max-width: 760px) calc(100vw - 32px), (max-width: 1024px) 500px, 440px";
 
 export default function AboutSideways() {
   const { about } = site;
@@ -219,8 +223,13 @@ export default function AboutSideways() {
             <li key={t.title} className="side-slide" style={{ zIndex: i }}>
               <div className="side-card">
                 <figure className="side-photo">
-                  {/* "Who I am" reuses the hero photo: it must be eager like the hero, or Next.js warns that the LCP image is lazy */}
-                  <Image src={t.image} alt="" width={624} height={800} loading={t.image === site.hero.photo.src ? "eager" : "lazy"} />
+                  {/* A generated photo (ADR 0013) once `pnpm images` has made one for this topic, else the placeholder.
+                      All lazy: the hero cutout is now the LCP image, so "Who I am" no longer shares its file. */}
+                  {generatedImages[t.photoId] ? (
+                    <Picture image={generatedImages[t.photoId]!} alt="" sizes={ABOUT_SIZES} />
+                  ) : (
+                    <Image src={t.image} alt="" width={624} height={800} loading="lazy" />
+                  )}
                 </figure>
                 <div className="side-text">
                   <p className="side-num" aria-hidden="true">
