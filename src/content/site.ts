@@ -72,11 +72,9 @@ export const site = {
   about: {
     label: "About",
     title: "A little about me",
-    // Card stack controls (ADR 0015): the stack's and the constellation's group names, the arrows, each star's label.
+    // Card stack controls (ADR 0015): the stack's and the constellation's group names, each star's label.
     stackLabel: "About photos",
     dotsLabel: "About topics",
-    prevLabel: "Previous topic",
-    nextLabel: "Next topic",
     dotLabel: (n: number, total: number, title: string) => `Show topic ${n} of ${total}: ${title}`,
     // Order = the photo order (batch 7): Who I am, Study, Experience and work, Beyond work.
     topics: [

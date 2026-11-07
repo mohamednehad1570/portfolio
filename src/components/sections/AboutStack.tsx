@@ -4,7 +4,7 @@
  * the page scrolls straight through it (the top card has `touch-action: pan-y`, so a finger on the photo still
  * scrolls the page; only sideways drags move the card).
  *
- * The visitor changes topic by dragging / flicking or tapping the top card, the arrow buttons (hidden on phones), the
+ * The visitor changes topic by dragging / flicking or tapping the top card, the
  * constellation stars (AboutConstellation), or the arrow keys while the stack has focus. The stack reports its top
  * card (`onChange`); the stars and the text panel follow it.
  * Peek: the first time the stack comes into view (once per page load) the top card nudges sideways and springs back,
@@ -138,9 +138,6 @@ export default function AboutStack() {
           </div>
 
           <div className="about-controls">
-            <button type="button" className="about-arrow" aria-label={about.prevLabel} onClick={() => stackRef.current?.prev()}>
-              <span aria-hidden="true">‹</span>
-            </button>
             <AboutConstellation
               titles={topics.map((t) => t.title)}
               labels={topics.map((t) => t.navLabel)}
@@ -149,9 +146,6 @@ export default function AboutStack() {
               dotLabel={about.dotLabel}
               onSelect={(i) => stackRef.current?.goTo(i)}
             />
-            <button type="button" className="about-arrow" aria-label={about.nextLabel} onClick={() => stackRef.current?.next()}>
-              <span aria-hidden="true">›</span>
-            </button>
           </div>
 
           {/* Visual text only: screen readers get the plain list above. */}

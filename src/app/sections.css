@@ -184,12 +184,35 @@ section[id] {
   background: radial-gradient(closest-side, rgba(10, 22, 38, 0.85), rgba(10, 22, 38, 0.55) 60%, rgba(10, 22, 38, 0));
 }
 .hero-photo-wrap {
+  position: relative;
+  isolation: isolate; /* the glow below sits behind the photo but above the starfield */
   justify-self: end;
   width: 100%;
   max-width: 420px;
 }
-/* Frameless transparent cutout (D14 as amended by ADR 0013): no radius, border, shadow, background or glow, so the
-   stars show around the person and through the faded suit. It is the LCP element, so it is never hidden: the
+/* Moonlight glow (batch 9): a soft accent radial behind the head and upper shoulders, ~70% of the photo's width.
+   A gradient only (no filter, no animation), drawn by CSS, so it never delays the LCP image. */
+.hero-photo-wrap::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 15%;
+  top: 4%;
+  width: 70%;
+  aspect-ratio: 1 / 1;
+  background: radial-gradient(closest-side, rgba(111, 176, 224, 0.18), rgba(111, 176, 224, 0.09) 55%, rgba(111, 176, 224, 0));
+  pointer-events: none;
+}
+/* Mouse parallax (desktop, set up by Hero.tsx): --hx / --hy run from -1 to 1 with the cursor. The photo moves up to
+   6px against it, the glow 3px; only while the class is on, so without JavaScript nothing is transformed. */
+.hero-photo-wrap.is-parallax img {
+  transform: translate3d(calc(var(--hx, 0) * -6px), calc(var(--hy, 0) * -6px), 0);
+}
+.hero-photo-wrap.is-parallax::before {
+  transform: translate3d(calc(var(--hx, 0) * -3px), calc(var(--hy, 0) * -3px), 0);
+}
+/* Frameless transparent cutout (D14 as amended by ADR 0013): no radius, border, shadow or background, so the
+   stars show around the person; the shoulders and bottom are faded in the files themselves (scripts/images.mjs fx). It is the LCP element, so it is never hidden: the
    entrance is a CSS-only slide (transform, no opacity) that starts with the first paint, not after hydration. */
 .hero-photo {
   display: block;
@@ -323,29 +346,6 @@ section[id] {
   visibility: visible;
 }
 
-/* Arrows: 44px targets (rule 5) with the accent focus ring. */
-.about-arrow {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 1px solid var(--color-line);
-  border-radius: 50%;
-  background: none;
-  color: var(--color-ink);
-  font-size: 26px;
-  line-height: 1;
-  cursor: pointer;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-}
-.about-arrow span {
-  margin-top: -3px; /* the guillemet glyph sits low in the font */
-}
-.about-arrow:hover {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
-}
 /* Constellation navigation (AboutConstellation): stars over a decorative SVG of three lines. Colours, line and star
    sizes come from the starfield (lib/theme.ts SKY_*, passed in as --sky-* variables). Each button is a 64 x 24+ px
    hit area: the star centred in a 24px box, its 11px label underneath. */
@@ -459,9 +459,6 @@ section[id] {
   }
   .about-controls {
     margin-top: 22px;
-  }
-  .about-arrow {
-    display: none; /* phones: drag, tap or the stars */
   }
   .about-panel {
     margin-top: 24px;

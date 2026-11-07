@@ -6,7 +6,9 @@
  *
  * Steps: check every source first (stop with a clear message if one is missing), wipe the output folder, encode,
  * write the manifest. Metadata (EXIF, GPS, ICC, text chunks) is never copied: sharp drops it unless asked to keep it.
- * The person in a cutout is never retouched: only resized (same 4:5 aspect) and encoded; alpha is kept.
+ * The person in a cutout is never retouched or re-masked: only resized (same aspect) and encoded; alpha is kept.
+ * Optional `fx` (the hero, batch 9): a soft edge fade (alpha x mask) and a light cool grade, computed per pixel in
+ * plain JS on the source before resizing, so the output stays deterministic. The OG card is made from the plain source.
  */
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile, stat } from "node:fs/promises";
@@ -36,6 +38,32 @@ const fail = (msg) => {
 };
 const sourcePath = (file) => (path.isAbsolute(file) ? file : path.join(photosDir, file));
 const kb = (bytes) => `${(bytes / 1024).toFixed(1)} KB`;
+const smoothstep = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t)); // soft ends: no visible band at either edge
+
+// fx: returns the source as raw RGBA with the grade and the edge fade applied (see images.config.mjs).
+async function applyFx(src, { fade, grade }) {
+  const { data, info } = await sharp(src).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width: W, height: H } = info;
+  const clamp255 = (v) => (v < 0 ? 0 : v > 255 ? 255 : Math.round(v));
+  for (let y = 0; y < H; y++) {
+    const v = y / (H - 1); // 0 top .. 1 bottom
+    const bottom = 1 - smoothstep((v - (1 - fade.bottom)) / fade.bottom);
+    const sideOn = smoothstep((v - fade.sideFrom) / (fade.sideFull - fade.sideFrom)); // 0 above, 1 in the lower part
+    for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4;
+      const edge = Math.min(x, W - 1 - x) / (W - 1); // 0 at either side .. 0.5 in the middle
+      const side = 1 - sideOn * (1 - smoothstep(edge / fade.side));
+      data[i + 3] = clamp255(data[i + 3] * bottom * side);
+      // grade: pull towards the pixel's luminance (saturation), then cool it slightly
+      const r = data[i], g = data[i + 1], b = data[i + 2];
+      const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      data[i] = clamp255((l + (r - l) * grade.saturation) * grade.red);
+      data[i + 1] = clamp255(l + (g - l) * grade.saturation);
+      data[i + 2] = clamp255((l + (b - l) * grade.saturation) * grade.blue);
+    }
+  }
+  return { data, raw: { width: W, height: H, channels: 4 } };
+}
 
 // Which ids the committed manifest already has: an optional photo that was generated before may not vanish silently.
 async function previouslyGenerated() {
@@ -81,8 +109,10 @@ for (const img of jobs) {
   if (img.kind === "cutout" && !meta.hasAlpha) fail(`"${img.id}" is a cutout but ${img.src} has no transparency.`);
   const ratio = meta.height / meta.width;
   const heightFor = (w) => Math.round(w * ratio);
-  // fit "fill" with the rounded height: no crop at all (the 4:5 source is 1325 x 1656, so the stretch is < 0.02 %).
-  const resized = (w) => sharp(img.src).resize(w, heightFor(w), { fit: "fill", kernel: "lanczos3" });
+  // fit "fill" with the rounded height: no crop at all (rounding the height stretches by well under 0.1 %).
+  const fx = img.fx ? await applyFx(img.src, img.fx) : null;
+  const source = () => (fx ? sharp(fx.data, { raw: fx.raw }) : sharp(img.src));
+  const resized = (w) => source().resize(w, heightFor(w), { fit: "fill", kernel: "lanczos3" });
 
   const variants = [];
   for (const w of img.widths) {
