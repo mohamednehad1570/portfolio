@@ -6,7 +6,8 @@
  * is not only a colour set: it draws the orbiting light with normal blending in the accent colour (the "dark"
  * theme blends additively and whitens the light, a different look and hover). So the behaviour flag stays
  * "light" and the dark-theme colours are passed explicitly (face, text, track).
- * External URLs (the booking link once it is Cal.com, ADR 0011) open in a new tab; in-page links do not.
+ * External URLs (the Cal.com booking link, ADR 0011/0014) open in a new tab, and screen readers hear so; in-page
+ * links do not.
  */
 "use client";
 
@@ -15,7 +16,7 @@ import Magnet from "./rb/Magnet";
 import ClickSpark from "./rb/ClickSpark";
 import StarBorder from "./rb/StarBorder";
 import { ACCENT, INK, LINE, SURFACE } from "@/lib/theme";
-import { newTabProps } from "@/lib/links";
+import { newTabProps, NewTabNote } from "@/lib/links";
 
 export default function CtaButton({ href, children }: { href: string; children: ReactNode }) {
   return (
@@ -23,6 +24,7 @@ export default function CtaButton({ href, children }: { href: string; children: 
       <ClickSpark sparkColor={ACCENT} sparkCount={10} sparkRadius={28} sparkSize={12} style={{ display: "inline-block" }}>
         <StarBorder as="a" href={href} {...newTabProps(href)} theme="light" backgroundColor={SURFACE} textColor={INK} borderColor={LINE} color={ACCENT} trailColor={ACCENT} radius={26} glow={0.5} thickness={1.2} className="cta">
           {children}
+          <NewTabNote href={href} />
         </StarBorder>
       </ClickSpark>
     </Magnet>

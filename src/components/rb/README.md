@@ -19,6 +19,7 @@ No `@hugeicons/*` packages are used.
 | `BlurText` | Hero description and intro lines | Yes: `play` prop holds the words until the parent says go (hero description waits for the typed title) |
 | `TextType` | Hero label and title, section labels | Yes: `threshold`, `enabled`, `reserveSpace`, `onTypingComplete` props; cursor hidden until typing starts; caret is an inline word-joiner (no mid-word line breaks); CSS shows the whole text without JavaScript and with reduced motion |
 | `VariableProximity` | "Let's talk." | No |
+| `Stack` | About photo cards (ADR 0015) | Yes: TypeScript, no default Unsplash images, ref API `next` / `prev` / `goTo`, ArrowLeft/Up step back, `label` prop, accent focus ring. Fetched from the registry (`reactbits.dev/r/Stack-JS-CSS.json`), not the prototype |
 
 Besides the `MODIFIED` markers, each file got a short header comment naming its source.
 

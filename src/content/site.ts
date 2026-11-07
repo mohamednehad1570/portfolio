@@ -7,9 +7,9 @@
 
 export type NavItem = { id: "about" | "projects" | "contact"; label: string; href: string };
 
-// image = placeholder in /public/images; photoId = its generated replacement (scripts/images.config.mjs), used
-// automatically once `pnpm images` has produced it.
-export type AboutTopic = { title: string; image: string; photoId: string; body: string };
+// photoId = the generated photo (scripts/images.config.mjs, ADR 0013); alt = what the photo shows, in plain words.
+// navLabel = the short label under the topic's star in the constellation navigation.
+export type AboutTopic = { title: string; navLabel: string; photoId: string; alt: string; body: string };
 
 export type Project = {
   title: string;
@@ -37,10 +37,9 @@ const GITHUB_URL = "https://github.com/mohamednehad1570";
 // The one public email address (Proton Mail, ADR 0009). Use this constant wherever an address is needed.
 export const CONTACT_EMAIL = "hello@mohammednehad.com";
 
-// Where every "Book a free call" link goes (Hero and Projects buttons, Contact ring 5). ADR 0007: a link, no embedded
-// calendar; ADR 0011: once this is an external URL, those links open it in a new tab (src/lib/links.ts).
-// TODO(batch-4): Cal.com event URL (until then the link only scrolls to Contact).
-export const BOOKING_URL = "#contact";
+// Where every "Book a free call" link goes (Hero and Projects buttons, Contact ring 5): the Cal.com intro event (D6).
+// ADR 0007: a link, no embedded calendar or Cal.com script; ADR 0011: it opens in a new tab (src/lib/links.tsx).
+export const BOOKING_URL = "https://cal.com/mohammednehad/intro";
 
 export const site = {
   name: "Mohammed Nehad",
@@ -73,29 +72,40 @@ export const site = {
   about: {
     label: "About",
     title: "A little about me",
+    // Card stack controls (ADR 0015): the stack's and the constellation's group names, the arrows, each star's label.
+    stackLabel: "About photos",
+    dotsLabel: "About topics",
+    prevLabel: "Previous topic",
+    nextLabel: "Next topic",
+    dotLabel: (n: number, total: number, title: string) => `Show topic ${n} of ${total}: ${title}`,
+    // Order = the photo order (batch 7): Who I am, Study, Experience and work, Beyond work.
     topics: [
       {
         title: "Who I am",
-        image: "/images/hero.jpg",
+        navLabel: "Me",
         photoId: "about-who",
+        alt: "Mohammed sitting on a stone wall above a valley",
         body: "Born in Dubai, based in Cairo, and working in English and Arabic with clients around the world. [Add one or two lines about what drives you.]",
       },
       {
-        title: "Experience and work",
-        image: "/images/about-work.jpg",
-        photoId: "about-work",
-        body: "Over four years in IT support at Concentrix, then freelance web development, including the Emaar International website below. [Add what this means for the people you work with.]",
-      },
-      {
         title: "Study",
-        image: "/images/about-study.jpg",
+        navLabel: "Study",
         photoId: "about-study",
+        alt: "Mohammed's Computer Engineering diploma",
         body: "Computer Engineering at Eastern Mediterranean University (ABET accredited), and a Professional Master's in Cloud Computing Networks at Cairo University. [Add what you focused on.]",
       },
       {
+        title: "Experience and work",
+        navLabel: "Work",
+        photoId: "about-work",
+        alt: "Mohammed receiving a certificate at a work event",
+        body: "Over four years in IT support at Concentrix, then freelance web development, including the Emaar International website below. [Add what this means for the people you work with.]",
+      },
+      {
         title: "Beyond work",
-        image: "/images/about-beyond.jpg",
+        navLabel: "Beyond",
         photoId: "about-beyond",
+        alt: "Mohammed in a hooded sweatshirt beside a running track",
         body: "[What you enjoy when you're offline, in your own words.]",
       },
     ] satisfies AboutTopic[],
@@ -160,8 +170,10 @@ export const site = {
     privacy: { label: "Privacy", href: "/privacy/" },
   },
   toTopLabel: "Back to top",
+  newTabNote: "(opens in a new tab)", // screen-reader-only suffix on links that open a new tab (src/lib/links.tsx)
 
-  // /privacy: headings only, with bracketed placeholders for Mohammed (and a lawyer, if needed) to write.
+  // /privacy: headings with bracketed placeholders for Mohammed (and a lawyer, if needed) to write; the Booking
+  // paragraph is final (ADR 0014) and its `link` text must be a phrase of its body.
   privacy: {
     title: "Privacy",
     metaDescription: "How this website handles personal data.",
@@ -171,6 +183,11 @@ export const site = {
       {
         heading: "What data is collected",
         body: "[When the booking calendar is added: first name and email, processed by Cal.com to arrange the call. Say what is stored, why, and for how long.]",
+      },
+      {
+        heading: "Booking a free call",
+        body: "Bookings are handled by Cal.com. The name and email you enter there go to Cal.com and to me, only to arrange and hold the call. See Cal.com's privacy policy.",
+        link: { text: "Cal.com's privacy policy", href: "https://cal.com/privacy" },
       },
       {
         heading: "Analytics",

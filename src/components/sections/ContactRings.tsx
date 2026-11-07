@@ -1,7 +1,8 @@
 /**
  * ContactRings: the five contact links as rotating text rings in one line (D17 revised, ADR 0006).
  * Why: replaces the FlowingMenu bands. No rows, backgrounds or names: the stars show through; each ring is one
- * link whose accessible name is its `aria-label` (the ring text is decorative, so it is hidden from assistive tech).
+ * link whose accessible name is its `aria-label` (the ring text is decorative, so it is hidden from assistive tech);
+ * links that open a new tab say so in that label (newTabLabel).
  *  - neighbouring rings spin in opposite directions (even positions clockwise, odd counter-clockwise) and
  *    alternate ink / accent text colour;
  *  - the service logo in the centre turns against its ring (`centerSpin="opposite"`: same speed, opposite way);
@@ -15,7 +16,7 @@
 import { useRef, type ComponentType, type CSSProperties } from "react";
 import { site, type ContactRing } from "@/content/site";
 import { ACCENT, INK } from "@/lib/theme";
-import { newTabProps } from "@/lib/links";
+import { newTabLabel, newTabProps } from "@/lib/links";
 import { useEnterOnce } from "@/lib/useEnterOnce";
 import CalendarIcon from "../icons/CalendarIcon";
 import EnvelopeOpenIcon from "../icons/EnvelopeOpenIcon";
@@ -42,7 +43,7 @@ export default function ContactRings() {
         const Logo = LOGOS[ring.id];
         return (
           <div key={ring.id} className="ring-item" style={{ "--i": i } as CSSProperties}>
-            <a className="ring-link" href={ring.href} aria-label={ring.label} {...newTabProps(ring.href)}>
+            <a className="ring-link" href={ring.href} aria-label={newTabLabel(ring.label, ring.href)} {...newTabProps(ring.href)}>
               <CircularText
                 text={ring.ringText}
                 className="ring-text"

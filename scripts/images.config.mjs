@@ -25,11 +25,12 @@ const config = {
       fallbackWidth: 840,
       og: { file: "og-image.jpg", width: 1200, height: 630, background: "#0a1626" },
     },
-    // About photos (not ready yet): drop the files into the photos folder and run `pnpm images`.
-    { id: "about-who", file: "about-who.jpg", kind: "photo", required: false, widths: [480, 720, 1000], fallbackWidth: 720 },
-    { id: "about-work", file: "about-work.jpg", kind: "photo", required: false, widths: [480, 720, 1000], fallbackWidth: 720 },
-    { id: "about-study", file: "about-study.jpg", kind: "photo", required: false, widths: [480, 720, 1000], fallbackWidth: 720 },
-    { id: "about-beyond", file: "about-beyond.jpg", kind: "photo", required: false, widths: [480, 720, 1000], fallbackWidth: 720 },
+    // About photos (ADR 0015): the four card-stack photos, shown square (the page crops with object-fit: cover).
+    // Widths stop at 880 px (2x the 440 px desktop card) so no source is upscaled (the smallest original is 896 px).
+    { id: "about-who", file: "who-i-am.jpeg", kind: "photo", required: true, widths: [440, 660, 880], fallbackWidth: 660 },
+    { id: "about-study", file: "study.jpeg", kind: "photo", required: true, widths: [440, 660, 880], fallbackWidth: 660 },
+    { id: "about-work", file: "work-and-experience.jpeg", kind: "photo", required: true, widths: [440, 660, 880], fallbackWidth: 660 },
+    { id: "about-beyond", file: "beyond-work.jpeg", kind: "photo", required: true, widths: [440, 660, 880], fallbackWidth: 660 },
   ],
 };
 
