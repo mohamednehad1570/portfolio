@@ -346,9 +346,9 @@ section[id] {
   .is-side .side-stage {
     justify-content: flex-start; /* phones: from the top, the bottom stays clear of the pill */
     gap: 18px;
-    /* below the dots: the pill plus 44px, so the topic text (which ends 24px above the dots' bottom) always
-       stays above the go-to-top button (46px tall, 84px up, right side); the dots sit beside it on the left */
-    padding: 28px 0 calc(var(--side-bottom) + 44px);
+    /* below the dots: the pill plus 14px of air. No room is kept for the go-to-top button: it fades out while
+       the stage is pinned (`.about-pinned`, see the go-to-top rules), so that space goes to the photo. */
+    padding: 28px 0 calc(var(--side-bottom) + 14px);
   }
 }
 .is-side .about-head {
@@ -832,6 +832,16 @@ html:not(.js) .blur-text span {
     bottom: calc(84px + env(safe-area-inset-bottom, 0px)); /* above the bottom nav */
     width: 46px;
     height: 46px;
+  }
+  /* Hidden while the About stack is pinned (AboutSideways sets `about-pinned` on <html>): it would sit over the
+     topic text. Fades out, then `visibility: hidden` (after the fade) takes it out of the tab order and the
+     accessibility tree; leaving the pin brings it straight back (the base rule has no visibility delay). */
+  .about-pinned .to-top.is-shown {
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+    visibility: hidden;
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
   }
 }
 

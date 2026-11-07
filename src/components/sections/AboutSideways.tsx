@@ -27,6 +27,9 @@
  * going back), and each time a topic becomes front its words play again (WordReveal). Topic 1 plays when the pin
  * first reaches the top of the viewport.
  *
+ * While the stage is pinned, <html> gets the class `about-pinned`; on phones CSS uses it to fade the go-to-top
+ * button out (it is not needed inside the stack, and its space goes to the photo instead).
+ *
  * Reduced motion / no JavaScript / before hydration: no pin and no `is-side` class, so the topics are a plain
  * vertical list of photo + number + title + text, all visible.
  */
@@ -91,8 +94,11 @@ export default function AboutSideways() {
       const lastTransform = slides.map(() => "");
       let frontIdx = 0;
       let entered = false; // has the pin reached the top of the viewport?
+      let pinned = false; // is the stage stuck right now? (mirrored as `about-pinned` on <html>)
+      const root = document.documentElement;
 
       let pinStart = 0; // scrollY at which the stage sticks (document px)
+      let pinEnd = 0; // scrollY at which it lets go (bottom of the pin box reaches the bottom of the stage)
       let viewH = 1; // stage height (px)
       let stageW = 0;
       let left0 = 0; // where a slide sits when it is in front (centred in the stage)
@@ -104,6 +110,7 @@ export default function AboutSideways() {
         const stickyTop = parseFloat(st.top) || 0;
         pinStart = pin.getBoundingClientRect().top + window.scrollY - stickyTop;
         viewH = Math.max(1, stage.offsetHeight);
+        pinEnd = pinStart + pin.offsetHeight - viewH;
         stageW = stage.clientWidth;
         left0 = (stageW - slides[0].offsetWidth) / 2;
         peek = parseFloat(st.getPropertyValue("--side-peek")) || 22;
@@ -132,6 +139,13 @@ export default function AboutSideways() {
       const update = () => {
         const scroll = window.scrollY;
         const x = progress(scroll);
+
+        // Class change only when the state flips (no DOM write per frame).
+        const nowPinned = scroll >= pinStart - 2 && scroll <= pinEnd;
+        if (nowPinned !== pinned) {
+          pinned = nowPinned;
+          root.classList.toggle("about-pinned", pinned);
+        }
 
         slides.forEach((slide, i) => {
           const d = i - x;
@@ -200,7 +214,8 @@ export default function AboutSideways() {
       });
       measure();
       update();
-      return undefined; // useGSAP removes the trigger on cleanup
+      // useGSAP removes the trigger on cleanup; the class must go too (e.g. switching to reduced motion mid-pin)
+      return () => root.classList.remove("about-pinned");
     },
     { scope: sectionRef, dependencies: [motionAllowed], revertOnUpdate: true },
   );
