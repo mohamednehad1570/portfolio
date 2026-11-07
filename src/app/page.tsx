@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Projects from "@/components/Projects";
-import AboutSideways from "@/components/sections/AboutSideways";
+import AboutStack from "@/components/sections/AboutStack";
 import { SiteStateProvider } from "@/components/SiteState";
 import ToTop from "@/components/ToTop";
 
@@ -19,7 +19,7 @@ export default function Home() {
         <Header />
         <main>
           <Hero />
-          <AboutSideways />
+          <AboutStack />
           <Projects />
           <Contact />
         </main>

@@ -206,39 +206,50 @@ section[id] {
   }
 }
 
-/* ---------- About (scroll-driven sideways stack, ADR 0010, 0011) ---------- */
-/* Base = a plain list: heading, then photo + title + text per topic, all visible (reduced motion, no
-   JavaScript, before hydration). AboutSideways adds `.is-side` once JavaScript runs and motion is allowed. */
-.about-side {
-  --side-w: min(1040px, calc(100% - 80px)); /* slide width (percent of the box it is used in) */
-  --side-peek: 22px; /* how far each passed slide steps left */
-  --side-bottom: 0px; /* room kept for the phone's bottom nav pill */
+/* ---------- About (card stack, ADR 0015) ---------- */
+/* A normal section: no pin, no sticky stage. `overflow-x: clip` cuts off a card flying out of the stack without
+   making the section a scroll box (clip, unlike hidden, creates no scroll container), so the page never scrolls
+   sideways. Without JavaScript only the plain list shows; with it the deck shows and the list is for screen readers. */
+.about {
   padding: 120px 0 0;
+  overflow-x: clip;
 }
-/* the heading lines up with the slides' left edge */
-.about-head {
-  width: var(--side-w);
-  margin: 0 auto 40px;
-}
-.side-slides {
-  list-style: none;
+.about-wrap {
+  width: min(1040px, calc(100% - 80px));
   margin: 0 auto;
+}
+.about-head {
+  margin-bottom: 40px;
+}
+.about-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.2vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-weight: 650;
+  color: var(--color-ink);
+  margin: 0 0 14px;
+}
+.about-body {
+  font-size: clamp(16px, 1.4vw, 18px);
+  max-width: 34em;
+  margin: 0;
+}
+
+/* Plain list (no JavaScript): photo + title + text per topic, all visible. */
+.about-list {
+  list-style: none;
+  margin: 0;
   padding: 0;
   display: grid;
   gap: 72px;
-  width: var(--side-w);
 }
-.side-dots {
-  display: none; /* progress dots exist only in the pinned version */
-}
-/* No box: no background, border, radius or shadow on the slide or card; the stars show through. */
-.side-card {
+.about-item {
   display: flex;
   align-items: center;
   gap: 56px;
 }
-/* square photo; the shadow lifts it off the night sky */
-.side-photo {
+.about-item-photo {
   flex: none;
   margin: 0;
   width: 440px;
@@ -248,158 +259,109 @@ section[id] {
   background: var(--color-accent-soft); /* only visible while the image loads */
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
 }
-.side-photo picture {
-  display: block; /* generated photos (ADR 0013) come wrapped in <picture>: let the img fill the square */
+.about-item-photo picture,
+.stack-card-content picture {
+  display: block; /* generated photos come wrapped in <picture>: let the img fill the square */
   height: 100%;
 }
-.side-photo img {
+.about-item-photo img {
+  display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: cover; /* the 4:3 "Beyond work" original is shown square too */
 }
-.side-text {
-  flex: 1 1 0;
-  min-width: 0;
+/* With JavaScript: the list stays in the page for screen readers only (same as .sr-only), its photos are removed
+   (the stack shows them, and display: none keeps the lazy files from loading twice). */
+.js .about-list {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
-.side-title {
-  font-family: var(--font-display);
-  font-size: clamp(26px, 3.2vw, 40px);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  font-weight: 650;
-  margin: 0 0 14px;
-}
-.side-body {
-  font-size: clamp(16px, 1.4vw, 18px);
-  max-width: 34em;
-}
-/* Tablet and phone: photo on top, text below */
-@media (max-width: 1024px) {
-  .side-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 28px;
-  }
-  .side-photo {
-    width: min(100%, 500px);
-  }
-}
-@media (max-width: 760px) {
-  .about-side {
-    --side-w: calc(100% - 32px);
-    --side-peek: 10px;
-    padding-top: 72px;
-  }
-  .side-card {
-    gap: 18px;
-  }
-  .side-photo {
-    width: 100%;
-    border-radius: 16px;
-  }
+.js .about-item-photo {
+  display: none;
 }
 
-/*
- * Pinned mode. The section is a tall pin box; the stage inside it is `position: sticky`, so the PAGE does the
- * pinning while the visitor scrolls down normally. Pin height = viewH * (1 + 3 topic segments + a last rest and
- * hold), viewH being the stage height: the viewport minus the sticky top bar (desktop and tablet) or all of it
- * (phones, where the nav is a bottom pill). --side-rest/-move/-hold are set by AboutSideways.tsx from its constants.
- * The stage holds heading, slides and dots in one column, so the heading is on screen for the whole pin.
- */
-/* two classes: must beat `section[id]` (scroll-margin) and `.about-side` (padding) */
-.about-side.is-side {
-  --side-view: calc(100svh - var(--header-h));
-  --side-rest: 0.75;
-  --side-move: 0.45;
-  --side-hold: 0.3;
-  padding: 0;
-  /* a nav click (#about) scrolls to exactly where the stage sticks: heading and topic 1, no blank band */
-  scroll-margin-top: var(--header-h);
+/* Deck (JavaScript only). Desktop: stack left, text right (centred on the stack), controls and hint under the stack. */
+.about-deck {
+  display: none;
 }
-@media (max-width: 760px) {
-  .is-side {
-    --side-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); /* 54px pill + 14px gap */
-  }
-}
-.is-side.side-pin {
-  height: calc(var(--side-view) * (1 + 3 * (var(--side-rest) + var(--side-move)) + var(--side-rest) + var(--side-hold)));
-}
-.is-side .side-stage {
-  position: sticky;
-  top: var(--header-h);
-  height: var(--side-view);
-  overflow: hidden; /* waiting slides are parked past the right edge */
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* desktop and tablet: heading + slides + dots centred */
-  gap: 32px;
-  padding: 24px 0;
-}
-@media (max-width: 760px) {
-  .is-side .side-stage {
-    justify-content: flex-start; /* phones: from the top, the bottom stays clear of the pill */
-    gap: 18px;
-    /* below the dots: the pill plus 14px of air. No room is kept for the go-to-top button: it fades out while
-       the stage is pinned (`.about-pinned`, see the go-to-top rules), so that space goes to the photo. */
-    padding: 28px 0 calc(var(--side-bottom) + 14px);
-  }
-}
-.is-side .about-head {
-  flex: none;
-  margin-bottom: 0;
-}
-/* All slides share one grid cell, so the list is as tall as the tallest slide and they sit on top of each
-   other; a later slide is painted over an earlier one (z-index = position). JavaScript moves each with transform. */
-.is-side .side-slides {
+.js .about-deck {
   display: grid;
-  grid-template-areas: "slide";
-  width: auto;
-  margin: 0;
+  grid-template-columns: 440px minmax(0, 1fr);
+  grid-template-areas:
+    "stack panel"
+    "controls ."
+    "hint .";
+  column-gap: 72px;
 }
-.is-side .side-slide {
-  --depth: 0; /* set by AboutSideways: how far this slide has been passed (0 = front or waiting) */
-  grid-area: slide;
-  justify-self: start;
-  align-self: start; /* every photo shares one top edge, so passed photos peek out evenly behind the front one */
-  width: var(--side-w);
-  transform-origin: 0 50%;
-  will-change: transform;
+.about-stack-box {
+  grid-area: stack;
+  width: 440px;
+  aspect-ratio: 1 / 1;
 }
-.is-side .side-card {
-  width: 100%;
-}
-/* depth effect: filter and opacity only (cheap to animate). --side-photo-fit is measured by AboutSideways so
-   heading, photo, the longest text and the dots always fit in the stage. */
-.is-side .side-photo {
-  filter: brightness(calc(1 - 0.25 * var(--depth)));
-  width: min(440px, var(--side-photo-fit, 440px));
-}
-.is-side .side-text {
-  opacity: max(0, calc(1 - 1.6 * var(--depth))); /* a passed topic's text is gone, so texts never overlap */
-}
-@media (max-width: 1024px) {
-  .is-side .side-photo {
-    width: min(100%, 500px, var(--side-photo-fit, 500px));
-  }
-}
-@media (max-width: 760px) {
-  .is-side .side-photo {
-    width: min(100%, var(--side-photo-fit, 100%));
-  }
-}
-/* Progress dots (ADR 0014): real buttons under the slides, aligned with their left edge. The visible dot is the
-   ::before (6x6 idle, 28x6 and accent when active, 300 ms); the button around it is a 24px-tall padded hit area
-   (WCAG 2.5.8). Negative margins keep the row's layout as thin as the old 6px dots (so the photo fit is unchanged)
-   and pull the first dot back onto the slides' left edge. Visible gap between dots: 18px (two 9px paddings). */
-.is-side .side-dots {
-  flex: none;
+.about-controls {
+  grid-area: controls;
   display: flex;
-  width: var(--side-w);
-  margin-inline: auto;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 28px;
 }
-.side-dot {
+.about-hint {
+  grid-area: hint;
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-muted);
+}
+/* All four text blocks in one grid cell: the panel is as tall as the tallest, so changing topic shifts nothing. */
+.about-panel {
+  grid-area: panel;
+  align-self: center;
+  display: grid;
+}
+.about-block {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+.about-block.is-active {
+  visibility: visible;
+}
+
+/* Arrows: 44px targets (rule 5) with the accent focus ring. */
+.about-arrow {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--color-line);
+  border-radius: 50%;
+  background: none;
+  color: var(--color-ink);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.about-arrow span {
+  margin-top: -3px; /* the guillemet glyph sits low in the font */
+}
+.about-arrow:hover {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+/* Dots: the visible dot is the ::before (6x6, 28x6 accent when active, 300 ms); the button is a 24px padded hit
+   area (WCAG 2.5.8), so the visible gap between dots is 18px. */
+.about-dots {
+  display: flex;
+  align-items: center;
+}
+.about-dot {
   display: block;
-  margin: -9px 0;
   padding: 9px;
   border: 0;
   border-radius: 12px;
@@ -407,10 +369,7 @@ section[id] {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.side-dot:first-child {
-  margin-left: -9px;
-}
-.side-dot::before {
+.about-dot::before {
   content: "";
   display: block;
   width: 6px;
@@ -419,19 +378,65 @@ section[id] {
   background: rgba(255, 255, 255, 0.28);
   transition: width 0.3s ease, background-color 0.3s ease;
 }
-.side-dot:hover::before {
+.about-dot:hover::before {
   background: rgba(255, 255, 255, 0.5);
 }
-.side-dot.is-active::before {
+.about-dot.is-active::before {
   width: 28px;
   background: var(--color-accent);
 }
-.side-dot:focus-visible {
+.about-dot:focus-visible {
   outline-offset: 0;
 }
-/* Swipe (ADR 0014): the browser keeps vertical panning and pinch zoom; sideways touch moves reach AboutSideways. */
-.is-side .side-stage {
-  touch-action: pan-y pinch-zoom;
+
+/* Tablet and phone: stack on top (centred), then controls, hint and text. The stack keeps room on its right for the
+   fanned cards behind it (they lean out to the right by up to ~13% of its width), so nothing overflows. */
+@media (max-width: 1024px) {
+  .about-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+  }
+  .about-item-photo {
+    width: min(100%, 500px);
+  }
+  .js .about-deck {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "stack"
+      "controls"
+      "hint"
+      "panel";
+  }
+  .about-stack-box {
+    justify-self: center;
+    width: min(100% - 56px, 420px);
+    margin-right: 28px; /* shifts the card left by half the fan's reach, so card + fan sit centred */
+  }
+  .about-panel {
+    margin-top: 32px;
+  }
+}
+@media (max-width: 760px) {
+  .about {
+    padding-top: 72px;
+  }
+  .about-wrap {
+    width: calc(100% - 32px);
+  }
+  .about-item {
+    gap: 18px;
+  }
+  .about-item-photo {
+    width: 100%;
+    border-radius: 16px;
+  }
+  .about-controls {
+    margin-top: 22px;
+  }
+  .about-panel {
+    margin-top: 24px;
+  }
 }
 
 /* ---------- Projects ---------- */
@@ -852,16 +857,6 @@ html:not(.js) .blur-text span {
     bottom: calc(84px + env(safe-area-inset-bottom, 0px)); /* above the bottom nav */
     width: 46px;
     height: 46px;
-  }
-  /* Hidden while the About stack is pinned (AboutSideways sets `about-pinned` on <html>): it would sit over the
-     topic text. Fades out, then `visibility: hidden` (after the fade) takes it out of the tab order and the
-     accessibility tree; leaving the pin brings it straight back (the base rule has no visibility delay). */
-  .about-pinned .to-top.is-shown {
-    opacity: 0;
-    transform: translateY(12px);
-    pointer-events: none;
-    visibility: hidden;
-    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
   }
 }
 

@@ -7,9 +7,8 @@
 
 export type NavItem = { id: "about" | "projects" | "contact"; label: string; href: string };
 
-// image = placeholder in /public/images; photoId = its generated replacement (scripts/images.config.mjs), used
-// automatically once `pnpm images` has produced it.
-export type AboutTopic = { title: string; image: string; photoId: string; body: string };
+// photoId = the generated photo (scripts/images.config.mjs, ADR 0013); alt = what the photo shows, in plain words.
+export type AboutTopic = { title: string; photoId: string; alt: string; body: string };
 
 export type Project = {
   title: string;
@@ -72,32 +71,37 @@ export const site = {
   about: {
     label: "About",
     title: "A little about me",
-    // Progress dots (pinned mode only, ADR 0014): the group's name and each button's screen-reader label.
+    // Card stack controls (ADR 0015): the stack's and the dots' group names, the arrows, each dot's label and the hint.
+    stackLabel: "About photos",
     dotsLabel: "About topics",
+    prevLabel: "Previous topic",
+    nextLabel: "Next topic",
     dotLabel: (n: number, total: number, title: string) => `Show topic ${n} of ${total}: ${title}`,
+    hint: "Drag, tap or use the arrows",
+    // Order = the photo order (batch 7): Who I am, Study, Experience and work, Beyond work.
     topics: [
       {
         title: "Who I am",
-        image: "/images/hero.jpg",
         photoId: "about-who",
+        alt: "Mohammed sitting on a stone wall above a valley",
         body: "Born in Dubai, based in Cairo, and working in English and Arabic with clients around the world. [Add one or two lines about what drives you.]",
       },
       {
-        title: "Experience and work",
-        image: "/images/about-work.jpg",
-        photoId: "about-work",
-        body: "Over four years in IT support at Concentrix, then freelance web development, including the Emaar International website below. [Add what this means for the people you work with.]",
-      },
-      {
         title: "Study",
-        image: "/images/about-study.jpg",
         photoId: "about-study",
+        alt: "Mohammed's Computer Engineering diploma",
         body: "Computer Engineering at Eastern Mediterranean University (ABET accredited), and a Professional Master's in Cloud Computing Networks at Cairo University. [Add what you focused on.]",
       },
       {
+        title: "Experience and work",
+        photoId: "about-work",
+        alt: "Mohammed receiving a certificate at a work event",
+        body: "Over four years in IT support at Concentrix, then freelance web development, including the Emaar International website below. [Add what this means for the people you work with.]",
+      },
+      {
         title: "Beyond work",
-        image: "/images/about-beyond.jpg",
         photoId: "about-beyond",
+        alt: "Mohammed in a hooded sweatshirt beside a running track",
         body: "[What you enjoy when you're offline, in your own words.]",
       },
     ] satisfies AboutTopic[],

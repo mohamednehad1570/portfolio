@@ -46,5 +46,113 @@ export const generatedImages: Record<string, GeneratedImage | undefined> = {
       "width": 1200,
       "height": 630
     }
+  },
+  "about-who": {
+    "width": 660,
+    "height": 660,
+    "src": "/images/generated/about-who-660.jpg",
+    "avifSrcSet": "/images/generated/about-who-440.avif 440w, /images/generated/about-who-660.avif 660w, /images/generated/about-who-880.avif 880w",
+    "webpSrcSet": "/images/generated/about-who-440.webp 440w, /images/generated/about-who-660.webp 660w, /images/generated/about-who-880.webp 880w",
+    "variants": [
+      {
+        "width": 440,
+        "height": 440,
+        "avif": "/images/generated/about-who-440.avif",
+        "webp": "/images/generated/about-who-440.webp"
+      },
+      {
+        "width": 660,
+        "height": 660,
+        "avif": "/images/generated/about-who-660.avif",
+        "webp": "/images/generated/about-who-660.webp"
+      },
+      {
+        "width": 880,
+        "height": 880,
+        "avif": "/images/generated/about-who-880.avif",
+        "webp": "/images/generated/about-who-880.webp"
+      }
+    ]
+  },
+  "about-study": {
+    "width": 660,
+    "height": 660,
+    "src": "/images/generated/about-study-660.jpg",
+    "avifSrcSet": "/images/generated/about-study-440.avif 440w, /images/generated/about-study-660.avif 660w, /images/generated/about-study-880.avif 880w",
+    "webpSrcSet": "/images/generated/about-study-440.webp 440w, /images/generated/about-study-660.webp 660w, /images/generated/about-study-880.webp 880w",
+    "variants": [
+      {
+        "width": 440,
+        "height": 440,
+        "avif": "/images/generated/about-study-440.avif",
+        "webp": "/images/generated/about-study-440.webp"
+      },
+      {
+        "width": 660,
+        "height": 660,
+        "avif": "/images/generated/about-study-660.avif",
+        "webp": "/images/generated/about-study-660.webp"
+      },
+      {
+        "width": 880,
+        "height": 880,
+        "avif": "/images/generated/about-study-880.avif",
+        "webp": "/images/generated/about-study-880.webp"
+      }
+    ]
+  },
+  "about-work": {
+    "width": 660,
+    "height": 660,
+    "src": "/images/generated/about-work-660.jpg",
+    "avifSrcSet": "/images/generated/about-work-440.avif 440w, /images/generated/about-work-660.avif 660w, /images/generated/about-work-880.avif 880w",
+    "webpSrcSet": "/images/generated/about-work-440.webp 440w, /images/generated/about-work-660.webp 660w, /images/generated/about-work-880.webp 880w",
+    "variants": [
+      {
+        "width": 440,
+        "height": 440,
+        "avif": "/images/generated/about-work-440.avif",
+        "webp": "/images/generated/about-work-440.webp"
+      },
+      {
+        "width": 660,
+        "height": 660,
+        "avif": "/images/generated/about-work-660.avif",
+        "webp": "/images/generated/about-work-660.webp"
+      },
+      {
+        "width": 880,
+        "height": 880,
+        "avif": "/images/generated/about-work-880.avif",
+        "webp": "/images/generated/about-work-880.webp"
+      }
+    ]
+  },
+  "about-beyond": {
+    "width": 660,
+    "height": 495,
+    "src": "/images/generated/about-beyond-660.jpg",
+    "avifSrcSet": "/images/generated/about-beyond-440.avif 440w, /images/generated/about-beyond-660.avif 660w, /images/generated/about-beyond-880.avif 880w",
+    "webpSrcSet": "/images/generated/about-beyond-440.webp 440w, /images/generated/about-beyond-660.webp 660w, /images/generated/about-beyond-880.webp 880w",
+    "variants": [
+      {
+        "width": 440,
+        "height": 330,
+        "avif": "/images/generated/about-beyond-440.avif",
+        "webp": "/images/generated/about-beyond-440.webp"
+      },
+      {
+        "width": 660,
+        "height": 495,
+        "avif": "/images/generated/about-beyond-660.avif",
+        "webp": "/images/generated/about-beyond-660.webp"
+      },
+      {
+        "width": 880,
+        "height": 660,
+        "avif": "/images/generated/about-beyond-880.avif",
+        "webp": "/images/generated/about-beyond-880.webp"
+      }
+    ]
   }
 };
