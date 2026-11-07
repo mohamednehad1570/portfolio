@@ -207,7 +207,7 @@ section[id] {
 }
 
 /* ---------- About (scroll-driven sideways stack, ADR 0010, 0011) ---------- */
-/* Base = a plain list: heading, then photo + number + title + text per topic, all visible (reduced motion, no
+/* Base = a plain list: heading, then photo + title + text per topic, all visible (reduced motion, no
    JavaScript, before hydration). AboutSideways adds `.is-side` once JavaScript runs and motion is allowed. */
 .about-side {
   --side-w: min(1040px, calc(100% - 80px)); /* slide width (percent of the box it is used in) */
@@ -261,13 +261,6 @@ section[id] {
   flex: 1 1 0;
   min-width: 0;
 }
-.side-num {
-  margin: 0 0 10px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  color: var(--color-accent);
-}
 .side-title {
   font-family: var(--font-display);
   font-size: clamp(26px, 3.2vw, 40px);
@@ -316,7 +309,7 @@ section[id] {
 /* two classes: must beat `section[id]` (scroll-margin) and `.about-side` (padding) */
 .about-side.is-side {
   --side-view: calc(100svh - var(--header-h));
-  --side-rest: 0.55;
+  --side-rest: 0.75;
   --side-move: 0.45;
   --side-hold: 0.3;
   padding: 0;
@@ -394,24 +387,51 @@ section[id] {
     width: min(100%, var(--side-photo-fit, 100%));
   }
 }
-/* progress dots: under the slides, aligned with their left edge, 6x6 idle, 28x6 and accent when active */
+/* Progress dots (ADR 0014): real buttons under the slides, aligned with their left edge. The visible dot is the
+   ::before (6x6 idle, 28x6 and accent when active, 300 ms); the button around it is a 24px-tall padded hit area
+   (WCAG 2.5.8). Negative margins keep the row's layout as thin as the old 6px dots (so the photo fit is unchanged)
+   and pull the first dot back onto the slides' left edge. Visible gap between dots: 18px (two 9px paddings). */
 .is-side .side-dots {
   flex: none;
   display: flex;
-  gap: 8px;
   width: var(--side-w);
   margin-inline: auto;
 }
 .side-dot {
+  display: block;
+  margin: -9px 0;
+  padding: 9px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.side-dot:first-child {
+  margin-left: -9px;
+}
+.side-dot::before {
+  content: "";
+  display: block;
   width: 6px;
   height: 6px;
   border-radius: 3px;
   background: rgba(255, 255, 255, 0.28);
   transition: width 0.3s ease, background-color 0.3s ease;
 }
-.side-dot.is-active {
+.side-dot:hover::before {
+  background: rgba(255, 255, 255, 0.5);
+}
+.side-dot.is-active::before {
   width: 28px;
   background: var(--color-accent);
+}
+.side-dot:focus-visible {
+  outline-offset: 0;
+}
+/* Swipe (ADR 0014): the browser keeps vertical panning and pinch zoom; sideways touch moves reach AboutSideways. */
+.is-side .side-stage {
+  touch-action: pan-y pinch-zoom;
 }
 
 /* ---------- Projects ---------- */

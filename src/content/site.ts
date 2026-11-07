@@ -73,6 +73,9 @@ export const site = {
   about: {
     label: "About",
     title: "A little about me",
+    // Progress dots (pinned mode only, ADR 0014): the group's name and each button's screen-reader label.
+    dotsLabel: "About topics",
+    dotLabel: (n: number, total: number, title: string) => `Show topic ${n} of ${total}: ${title}`,
     topics: [
       {
         title: "Who I am",
