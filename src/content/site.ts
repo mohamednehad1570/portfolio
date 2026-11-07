@@ -37,10 +37,9 @@ const GITHUB_URL = "https://github.com/mohamednehad1570";
 // The one public email address (Proton Mail, ADR 0009). Use this constant wherever an address is needed.
 export const CONTACT_EMAIL = "hello@mohammednehad.com";
 
-// Where every "Book a free call" link goes (Hero and Projects buttons, Contact ring 5). ADR 0007: a link, no embedded
-// calendar; ADR 0011: once this is an external URL, those links open it in a new tab (src/lib/links.ts).
-// TODO(batch-4): Cal.com event URL (until then the link only scrolls to Contact).
-export const BOOKING_URL = "#contact";
+// Where every "Book a free call" link goes (Hero and Projects buttons, Contact ring 5): the Cal.com intro event (D6).
+// ADR 0007: a link, no embedded calendar or Cal.com script; ADR 0011: it opens in a new tab (src/lib/links.tsx).
+export const BOOKING_URL = "https://cal.com/mohammednehad/intro";
 
 export const site = {
   name: "Mohammed Nehad",
@@ -163,8 +162,10 @@ export const site = {
     privacy: { label: "Privacy", href: "/privacy/" },
   },
   toTopLabel: "Back to top",
+  newTabNote: "(opens in a new tab)", // screen-reader-only suffix on links that open a new tab (src/lib/links.tsx)
 
-  // /privacy: headings only, with bracketed placeholders for Mohammed (and a lawyer, if needed) to write.
+  // /privacy: headings with bracketed placeholders for Mohammed (and a lawyer, if needed) to write; the Booking
+  // paragraph is final (ADR 0014) and its `link` text must be a phrase of its body.
   privacy: {
     title: "Privacy",
     metaDescription: "How this website handles personal data.",
@@ -174,6 +175,11 @@ export const site = {
       {
         heading: "What data is collected",
         body: "[When the booking calendar is added: first name and email, processed by Cal.com to arrange the call. Say what is stored, why, and for how long.]",
+      },
+      {
+        heading: "Booking a free call",
+        body: "Bookings are handled by Cal.com. The name and email you enter there go to Cal.com and to me, only to arrange and hold the call. See Cal.com's privacy policy.",
+        link: { text: "Cal.com's privacy policy", href: "https://cal.com/privacy" },
       },
       {
         heading: "Analytics",
