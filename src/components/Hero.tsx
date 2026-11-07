@@ -10,13 +10,18 @@
  * Photo (D14 as amended by ADR 0013): a frameless transparent cutout standing directly on the starfield. It is the
  * page's LCP element, so it is never hidden: it is opaque in the server HTML (its CSS entrance only slides it, see
  * .hero-photo in sections.css), loads eagerly with high priority, and is preloaded from <head> (`preload` below).
+ * Batch 9: the edge fade and cool grade are baked into the files; a CSS moonlight glow sits behind the photo.
+ * Mouse parallax (desktop only): with a fine pointer and motion allowed, once the browser is idle after load, the
+ * photo drifts up to 6px against the cursor and the glow 3px (rAF lerp of two CSS variables, transforms only).
+ * Never on touch screens, never under reduced motion, and nothing is transformed before it starts.
  */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { preload } from "react-dom";
 import { site } from "@/content/site";
 import { HERO_IMAGE, HERO_PRELOAD_HREF, HERO_SIZES } from "@/lib/images";
+import { preloadWhenIdle } from "@/lib/useMotionAllowed";
 import BlurText from "./rb/BlurText";
 import CtaButton from "./CtaButton";
 import Picture from "./Picture";
@@ -26,11 +31,50 @@ import TypedText from "./TypedText";
 const WORDS_FROM = { filter: "blur(8px)", opacity: 0, y: 12 };
 const WORDS_TO = [{ filter: "blur(0px)", opacity: 1, y: 0 }];
 const WORDS_EASE = [0.2, 0.7, 0.2, 1];
+const PARALLAX_QUERY = "(pointer: fine) and (prefers-reduced-motion: no-preference)";
+const LERP = 0.08; // share of the remaining distance covered per frame (smooth follow)
+
+/** Desktop mouse parallax on the photo wrapper: writes --hx / --hy (-1..1) and the `is-parallax` class. */
+function useHeroParallax(ref: React.RefObject<HTMLDivElement | null>) {
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || !window.matchMedia(PARALLAX_QUERY).matches) return undefined;
+    let raf = 0;
+    let x = 0, y = 0, tx = 0, ty = 0;
+    const frame = () => {
+      x += (tx - x) * LERP;
+      y += (ty - y) * LERP;
+      el.style.setProperty("--hx", x.toFixed(4));
+      el.style.setProperty("--hy", y.toFixed(4));
+      // keep going only while still moving noticeably (stops on its own when the cursor rests)
+      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.002 ? requestAnimationFrame(frame) : 0;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== "mouse") return; // a pen or a touch on a hybrid device: no parallax
+      tx = Math.max(-1, Math.min(1, (e.clientX / window.innerWidth) * 2 - 1));
+      ty = Math.max(-1, Math.min(1, (e.clientY / window.innerHeight) * 2 - 1));
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+    // start after load, when the browser is idle: never competes with the LCP image or hydration
+    const cancelIdle = preloadWhenIdle(() => {
+      el.classList.add("is-parallax");
+      window.addEventListener("pointermove", onMove, { passive: true });
+    });
+    return () => {
+      cancelIdle();
+      cancelAnimationFrame(raf);
+      window.removeEventListener("pointermove", onMove);
+      el.classList.remove("is-parallax");
+    };
+  }, [ref]);
+}
 
 export default function Hero() {
   const { hero } = site;
   const [labelDone, setLabelDone] = useState(false);
   const [titleDone, setTitleDone] = useState(false);
+  const photoRef = useRef<HTMLDivElement>(null);
+  useHeroParallax(photoRef);
   // <link rel="preload" as="image"> in <head> (React hoists it into the static HTML): the photo starts downloading
   // before the body is parsed. type=avif: browsers without AVIF skip it and take WebP from <picture> instead.
   // The href is only React's de-duplication key: with imageSrcSet React leaves it out of the tag, so a browser
@@ -81,7 +125,7 @@ export default function Hero() {
             <CtaButton href={hero.secondaryCta.href}>{hero.secondaryCta.label}</CtaButton>
           </div>
         </div>
-        <div className="hero-photo-wrap">
+        <div className="hero-photo-wrap" ref={photoRef}>
           <Picture className="hero-photo" image={HERO_IMAGE} alt={hero.photo.alt} sizes={HERO_SIZES} priority />
         </div>
       </div>

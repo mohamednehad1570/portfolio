@@ -17,26 +17,26 @@ export type GeneratedImage = {
 export const generatedImages: Record<string, GeneratedImage | undefined> = {
   "hero": {
     "width": 840,
-    "height": 1050,
+    "height": 1083,
     "src": "/images/generated/hero-840.png",
     "avifSrcSet": "/images/generated/hero-480.avif 480w, /images/generated/hero-840.avif 840w, /images/generated/hero-1200.avif 1200w",
     "webpSrcSet": "/images/generated/hero-480.webp 480w, /images/generated/hero-840.webp 840w, /images/generated/hero-1200.webp 1200w",
     "variants": [
       {
         "width": 480,
-        "height": 600,
+        "height": 619,
         "avif": "/images/generated/hero-480.avif",
         "webp": "/images/generated/hero-480.webp"
       },
       {
         "width": 840,
-        "height": 1050,
+        "height": 1083,
         "avif": "/images/generated/hero-840.avif",
         "webp": "/images/generated/hero-840.webp"
       },
       {
         "width": 1200,
-        "height": 1500,
+        "height": 1546,
         "avif": "/images/generated/hero-1200.avif",
         "webp": "/images/generated/hero-1200.webp"
       }
