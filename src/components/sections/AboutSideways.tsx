@@ -27,6 +27,9 @@
  * going back), and each time a topic becomes front its words play again (WordReveal). Topic 1 plays when the pin
  * first reaches the top of the viewport.
  *
+ * While the stage is pinned, <html> gets the class `about-pinned`; on phones CSS uses it to fade the go-to-top
+ * button out (it is not needed inside the stack, and its space goes to the photo instead).
+ *
  * Reduced motion / no JavaScript / before hydration: no pin and no `is-side` class, so the topics are a plain
  * vertical list of photo + number + title + text, all visible.
  */
@@ -38,6 +41,8 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { site } from "@/content/site";
+import { generatedImages } from "@/content/images.generated";
+import Picture from "../Picture";
 import { useMotionAllowed } from "@/lib/useMotionAllowed";
 import { Eyebrow, Heading } from "./SectionText";
 import WordReveal from "./WordReveal";
@@ -60,6 +65,8 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const smoothstep = (t: number) => t * t * (3 - 2 * t); // eases in and out, flat at both ends: no jolt at rest edges
 const MIN_PHOTO = 96; // px: the photo never shrinks below this, even on very short screens
 const pad2 = (n: number) => String(n).padStart(2, "0");
+// Rendered photo width (sections.css .side-photo): full slide width on phones, up to 500px on tablet, 440px on desktop.
+const ABOUT_SIZES = "(max-width: 760px) calc(100vw - 32px), (max-width: 1024px) 500px, 440px";
 
 export default function AboutSideways() {
   const { about } = site;
@@ -87,8 +94,11 @@ export default function AboutSideways() {
       const lastTransform = slides.map(() => "");
       let frontIdx = 0;
       let entered = false; // has the pin reached the top of the viewport?
+      let pinned = false; // is the stage stuck right now? (mirrored as `about-pinned` on <html>)
+      const root = document.documentElement;
 
       let pinStart = 0; // scrollY at which the stage sticks (document px)
+      let pinEnd = 0; // scrollY at which it lets go (bottom of the pin box reaches the bottom of the stage)
       let viewH = 1; // stage height (px)
       let stageW = 0;
       let left0 = 0; // where a slide sits when it is in front (centred in the stage)
@@ -100,6 +110,7 @@ export default function AboutSideways() {
         const stickyTop = parseFloat(st.top) || 0;
         pinStart = pin.getBoundingClientRect().top + window.scrollY - stickyTop;
         viewH = Math.max(1, stage.offsetHeight);
+        pinEnd = pinStart + pin.offsetHeight - viewH;
         stageW = stage.clientWidth;
         left0 = (stageW - slides[0].offsetWidth) / 2;
         peek = parseFloat(st.getPropertyValue("--side-peek")) || 22;
@@ -128,6 +139,13 @@ export default function AboutSideways() {
       const update = () => {
         const scroll = window.scrollY;
         const x = progress(scroll);
+
+        // Class change only when the state flips (no DOM write per frame).
+        const nowPinned = scroll >= pinStart - 2 && scroll <= pinEnd;
+        if (nowPinned !== pinned) {
+          pinned = nowPinned;
+          root.classList.toggle("about-pinned", pinned);
+        }
 
         slides.forEach((slide, i) => {
           const d = i - x;
@@ -196,7 +214,8 @@ export default function AboutSideways() {
       });
       measure();
       update();
-      return undefined; // useGSAP removes the trigger on cleanup
+      // useGSAP removes the trigger on cleanup; the class must go too (e.g. switching to reduced motion mid-pin)
+      return () => root.classList.remove("about-pinned");
     },
     { scope: sectionRef, dependencies: [motionAllowed], revertOnUpdate: true },
   );
@@ -219,8 +238,13 @@ export default function AboutSideways() {
             <li key={t.title} className="side-slide" style={{ zIndex: i }}>
               <div className="side-card">
                 <figure className="side-photo">
-                  {/* "Who I am" reuses the hero photo: it must be eager like the hero, or Next.js warns that the LCP image is lazy */}
-                  <Image src={t.image} alt="" width={624} height={800} loading={t.image === site.hero.photo.src ? "eager" : "lazy"} />
+                  {/* A generated photo (ADR 0013) once `pnpm images` has made one for this topic, else the placeholder.
+                      All lazy: the hero cutout is now the LCP image, so "Who I am" no longer shares its file. */}
+                  {generatedImages[t.photoId] ? (
+                    <Picture image={generatedImages[t.photoId]!} alt="" sizes={ABOUT_SIZES} />
+                  ) : (
+                    <Image src={t.image} alt="" width={624} height={800} loading="lazy" />
+                  )}
                 </figure>
                 <div className="side-text">
                   <p className="side-num" aria-hidden="true">

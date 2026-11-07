@@ -7,7 +7,9 @@
 
 export type NavItem = { id: "about" | "projects" | "contact"; label: string; href: string };
 
-export type AboutTopic = { title: string; image: string; body: string };
+// image = placeholder in /public/images; photoId = its generated replacement (scripts/images.config.mjs), used
+// automatically once `pnpm images` has produced it.
+export type AboutTopic = { title: string; image: string; photoId: string; body: string };
 
 export type Project = {
   title: string;
@@ -49,8 +51,7 @@ export const site = {
     title: "Mohammed Nehad · Web developer",
     description:
       "Websites that are fast, clear and built to last. Web developer based in Cairo, working with clients worldwide. Start with a free 30-minute call.",
-    ogImage: "/images/hero.jpg",
-    ogImageAlt: "Mohammed Nehad smiling, outdoors",
+    ogImageAlt: "Mohammed Nehad", // the card itself is generated (og-image.jpg, ADR 0013)
   },
   nav: [
     { id: "about", label: "About", href: "#about" },
@@ -66,7 +67,7 @@ export const site = {
       "I design and build modern websites for businesses around the world. It starts with a free 30-minute call, with no pressure and no commitment.",
     primaryCta: { label: "About me", href: "#about" },
     secondaryCta: { label: "Book a free call", href: BOOKING_URL },
-    photo: { src: "/images/hero.jpg", alt: "Mohammed Nehad smiling, outdoors" },
+    photo: { alt: "Mohammed Nehad" }, // files come from the image pipeline (src/lib/images.ts)
   },
 
   about: {
@@ -76,21 +77,25 @@ export const site = {
       {
         title: "Who I am",
         image: "/images/hero.jpg",
+        photoId: "about-who",
         body: "Born in Dubai, based in Cairo, and working in English and Arabic with clients around the world. [Add one or two lines about what drives you.]",
       },
       {
         title: "Experience and work",
         image: "/images/about-work.jpg",
+        photoId: "about-work",
         body: "Over four years in IT support at Concentrix, then freelance web development, including the Emaar International website below. [Add what this means for the people you work with.]",
       },
       {
         title: "Study",
         image: "/images/about-study.jpg",
+        photoId: "about-study",
         body: "Computer Engineering at Eastern Mediterranean University (ABET accredited), and a Professional Master's in Cloud Computing Networks at Cairo University. [Add what you focused on.]",
       },
       {
         title: "Beyond work",
         image: "/images/about-beyond.jpg",
+        photoId: "about-beyond",
         body: "[What you enjoy when you're offline, in your own words.]",
       },
     ] satisfies AboutTopic[],

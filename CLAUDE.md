@@ -11,6 +11,7 @@ Next.js static export. See `AGENTS.md` for the Next.js version note (read the do
 - About pacing constants (ADR 0011, amends 0008/0010), defined once in `sections/AboutSideways.tsx` and shared with the CSS: rest-then-move, each topic = `REST = 0.55` (nothing moves) + `MOVE = 0.45` (next topic slides in, smoothstep) viewport heights; `HOLD = 0.3` (the last topic keeps REST + HOLD before release); front-item hysteresis 0.55. The About heading sits inside the pinned stage; the pin carries `#about`. Domain mohammednehad.com, email hello@mohammednehad.com (ADR 0009).
 - One text animation system (ADR 0005); Contact is five rotating text rings (ADR 0006); booking is a link to Cal.com, no embed, shown as buttons that open a new tab once the URL is external (ADR 0007, 0011)
 - Fonts via `next/font/google`: Bricolage Grotesque (display), Instrument Sans (body)
+- Images (ADR 0013): `pnpm images` (sharp, build-time only) turns originals in `~/Pictures/site-photos/` (never committed) into AVIF/WebP/fallback files in `public/images/generated/` + the manifest `src/content/images.generated.ts`; commit the generated files. Hero = frameless transparent cutout on the starfield (D14), the LCP image: never hidden, preloaded.
 - Package manager: pnpm. Free / open source only. No tracking, no cookies, no secrets.
 - Hosting (ADR 0012): Cloudflare Workers static assets serving `out/` (config `wrangler.jsonc`, headers `public/_headers`), live at https://mohammednehad.com (`www` 301s to the apex). Cloudflare Workers Builds deploys from GitHub: push to `main` = production deploy; push to any other branch = preview version with its own `*.workers.dev` preview URL (noindex). Never touch the Proton Mail DNS records in the Cloudflare zone.
 
@@ -32,7 +33,8 @@ Next.js static export. See `AGENTS.md` for the Next.js version note (read the do
 - Text animation roles (ADR 0005): eyebrow/hero = `TextType` (via `TypedText`), H2/H3 = `SplitText`, intro line = `BlurText`, body paragraph = `Reveal from="fade"`. Use these; do not add per-section effects.
 - `src/content/site.ts`: all page copy as typed data (no copy hard-coded in components)
 - `src/lib/`: shared helpers (colour constants, site URL, reduced-motion hook)
-- `public/images/`: photos
+- `public/images/`: photos (`generated/` = output of `pnpm images`; do not edit by hand)
+- `scripts/`: build-time scripts (`images.mjs` + `images.config.mjs`)
 - `docs/`: ADRs and glossary
 - `reference/prototype/`: approved Vite prototype (documentation only; excluded from lint/tsc)
 
