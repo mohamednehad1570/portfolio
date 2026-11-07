@@ -8,6 +8,8 @@
  *  - A ref API `{ next, prev, goTo }`: the original can only send the top card to the back. `prev` brings the last
  *    card to the front with the normal place spring; `goTo(i)` rotates the order so card i is on top.
  *  - ArrowLeft / ArrowUp call `prev` (upstream only steps forward); `label` names the group for screen readers.
+ *  - `peek()` on the ref: a one-off hint that the top card moves (nudge sideways with a small turn, spring back),
+ *    skipped under reduced motion and once the visitor has interacted in any way (drag, tap, keys, ref calls).
  * Touch: the top card has `touch-action: pan-y`, so a vertical finger move scrolls the page (the browser takes it
  * over and sends pointercancel); only sideways drags move the card.
  */
@@ -59,7 +61,7 @@ type Drag = {
 type Flight = { turned: boolean };
 
 // MODIFIED: ref API for the arrows and dots outside the stack.
-export type StackHandle = { next: () => void; prev: () => void; goTo: (index: number) => void };
+export type StackHandle = { next: () => void; prev: () => void; goTo: (index: number) => void; peek: () => void };
 
 type Props = {
   cards: ReactNode[];
@@ -93,6 +95,9 @@ const FLICK_SPEED = 650; // px/s: a fast release sends the card back even under 
 const LEAN_SPEED = 1300;
 const LEAN_REACH = 260;
 const PRESS_SCALE = 1.035;
+const PEEK_X = 28; // MODIFIED: peek nudge (px) ...
+const PEEK_TURN = 6; // ...and turn (degrees)
+const PEEK_OUT = 0.28; // s out; the place spring brings it back (about 0.9 s in all)
 const SPRINGS: Record<SpringKind, [number, number]> = {
   place: [260, 24],
   settle: [320, 34],
@@ -181,6 +186,7 @@ export default function Stack({
   const dragRef = useRef<Drag | null>(null);
   const aliveRef = useRef(true);
   const mountedRef = useRef(false);
+  const interactedRef = useRef(false); // MODIFIED: any interaction cancels the peek
   const settingsRef = useRef<Settings>(null!);
   const actionsRef = useRef<{
     placeAll: (options?: PlaceAllOptions) => void;
@@ -319,6 +325,7 @@ export default function Stack({
     if (current.length < 2) return;
     const top = current[0];
     if (flyingRef.current.has(top)) return;
+    interactedRef.current = true; // MODIFIED
     const next = [...current.slice(1), top];
     if (s.reduceMotion) {
       commit(next);
@@ -396,6 +403,7 @@ export default function Stack({
     const current = orderRef.current;
     const position = current.indexOf(index);
     if (position <= 0 || dragRef.current) return;
+    interactedRef.current = true;
     flyingRef.current.clear(); // a card still flying out is simply placed with the rest
     commit([...current.slice(position), ...current.slice(0, position)]);
   };
@@ -494,6 +502,7 @@ export default function Stack({
     if (event.button !== 0 || dragRef.current) return;
     if (orderRef.current[0] !== index || flyingRef.current.has(index)) return; // only the top card is grabbed
     const s = settingsRef.current;
+    interactedRef.current = true; // MODIFIED
     const values = valuesFor(index);
     const home = placement(s.layout, 0, index, s.spread, s.depth);
     const bounds = event.currentTarget.getBoundingClientRect();
@@ -555,6 +564,21 @@ export default function Stack({
       prev: () => {
         const current = orderRef.current;
         actionsRef.current.bringToFront(current[current.length - 1]);
+      },
+      peek: () => {
+        const s = settingsRef.current;
+        const top = orderRef.current[0];
+        if (s.reduceMotion || interactedRef.current || dragRef.current || top === undefined || flyingRef.current.has(top)) return;
+        const values = valuesFor(top);
+        const home = placement(s.layout, 0, top, s.spread, s.depth);
+        const out = { duration: PEEK_OUT, ease: "easeOut" as const };
+        // out, then back with the normal springs (a drag that starts meanwhile stops these values itself)
+        animate(values.x, home.x + PEEK_X, out).then(() => {
+          if (!dragRef.current) animate(values.x, home.x, springFor(settingsRef.current, "place"));
+        });
+        animate(values.spin, PEEK_TURN, out).then(() => {
+          if (!dragRef.current) animate(values.spin, 0, springFor(settingsRef.current, "face"));
+        });
       },
       goTo: (index: number) => {
         const position = orderRef.current.indexOf(index);

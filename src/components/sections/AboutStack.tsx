@@ -4,14 +4,17 @@
  * the page scrolls straight through it (the top card has `touch-action: pan-y`, so a finger on the photo still
  * scrolls the page; only sideways drags move the card).
  *
- * The visitor changes topic by dragging / flicking or tapping the top card, the arrow buttons, the dots, or the arrow
- * keys while the stack has focus. The stack reports its top card (`onChange`), and the text panel shows that topic.
+ * The visitor changes topic by dragging / flicking or tapping the top card, the arrow buttons (hidden on phones), the
+ * constellation stars (AboutConstellation), or the arrow keys while the stack has focus. The stack reports its top
+ * card (`onChange`); the stars and the text panel follow it.
+ * Peek: the first time the stack comes into view (once per page load) the top card nudges sideways and springs back,
+ * a hint that it moves; the Stack skips it under reduced motion and once the visitor has interacted.
  *
  * Three views of the same four topics:
  *  - `.about-list`: a plain list (photo + title + text). Shown as is without JavaScript (no `js` class on <html>);
  *    with JavaScript its photos are removed and the list becomes screen-reader only: screen readers get all four
  *    topics once, in order.
- *  - `.about-deck` (only under `.js`): the stack, the controls and the hint.
+ *  - `.about-deck` (only under `.js`): the stack and the controls.
  *  - `.about-panel` (inside the deck, `aria-hidden`): the four text blocks share one grid cell, so its height always
  *    fits the tallest one and nothing shifts; only the top card's block is visible (the others `visibility: hidden`).
  *    The visible block's words play (WordReveal) when the section first comes into view and again on every change.
@@ -27,6 +30,7 @@ import Picture from "../Picture";
 import TodoText from "../TodoText";
 import Stack, { type StackHandle } from "../rb/Stack";
 import { Eyebrow, Heading } from "./SectionText";
+import AboutConstellation from "./AboutConstellation";
 import WordReveal from "./WordReveal";
 
 // Rendered photo width, matching sections.css (.about-stack-box): 440px beside the text on desktop, otherwise
@@ -49,6 +53,7 @@ export default function AboutStack() {
   const phone = usePhone();
   const stackRef = useRef<StackHandle>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
   const [top, setTop] = useState(0); // index of the topic whose card is on top
   const [seen, setSeen] = useState(false); // has the panel come into view? (the first words wait for it)
   const [replay, setReplay] = useState(() => topics.map(() => 0)); // per topic: a new value plays its words again
@@ -61,6 +66,22 @@ export default function AboutStack() {
     io.observe(el);
     return () => io.disconnect();
   }, [seen]);
+
+  // Peek once, the first time half the stack is on screen (the Stack decides whether it may play).
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return undefined;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        stackRef.current?.peek();
+      },
+      { threshold: 0.5 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const onChange = (index: number) => {
     setTop(index);
@@ -97,7 +118,7 @@ export default function AboutStack() {
         </ol>
 
         <div className="about-deck">
-          <div className="about-stack-box">
+          <div className="about-stack-box" ref={boxRef}>
             <Stack
               ref={stackRef}
               cards={cards}
@@ -120,25 +141,18 @@ export default function AboutStack() {
             <button type="button" className="about-arrow" aria-label={about.prevLabel} onClick={() => stackRef.current?.prev()}>
               <span aria-hidden="true">‹</span>
             </button>
-            <div className="about-dots" role="group" aria-label={about.dotsLabel}>
-              {topics.map((t, i) => (
-                <button
-                  key={t.title}
-                  type="button"
-                  className={`about-dot${i === top ? " is-active" : ""}`}
-                  aria-label={about.dotLabel(i + 1, topics.length, t.title)}
-                  aria-current={i === top ? "true" : undefined}
-                  onClick={() => stackRef.current?.goTo(i)}
-                />
-              ))}
-            </div>
+            <AboutConstellation
+              titles={topics.map((t) => t.title)}
+              labels={topics.map((t) => t.navLabel)}
+              active={top}
+              groupLabel={about.dotsLabel}
+              dotLabel={about.dotLabel}
+              onSelect={(i) => stackRef.current?.goTo(i)}
+            />
             <button type="button" className="about-arrow" aria-label={about.nextLabel} onClick={() => stackRef.current?.next()}>
               <span aria-hidden="true">›</span>
             </button>
           </div>
-          <p className="about-hint" aria-hidden="true">
-            {about.hint}
-          </p>
 
           {/* Visual text only: screen readers get the plain list above. */}
           <div className="about-panel" ref={panelRef} aria-hidden="true">

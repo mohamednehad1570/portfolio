@@ -8,7 +8,8 @@
 export type NavItem = { id: "about" | "projects" | "contact"; label: string; href: string };
 
 // photoId = the generated photo (scripts/images.config.mjs, ADR 0013); alt = what the photo shows, in plain words.
-export type AboutTopic = { title: string; photoId: string; alt: string; body: string };
+// navLabel = the short label under the topic's star in the constellation navigation.
+export type AboutTopic = { title: string; navLabel: string; photoId: string; alt: string; body: string };
 
 export type Project = {
   title: string;
@@ -71,35 +72,38 @@ export const site = {
   about: {
     label: "About",
     title: "A little about me",
-    // Card stack controls (ADR 0015): the stack's and the dots' group names, the arrows, each dot's label and the hint.
+    // Card stack controls (ADR 0015): the stack's and the constellation's group names, the arrows, each star's label.
     stackLabel: "About photos",
     dotsLabel: "About topics",
     prevLabel: "Previous topic",
     nextLabel: "Next topic",
     dotLabel: (n: number, total: number, title: string) => `Show topic ${n} of ${total}: ${title}`,
-    hint: "Drag, tap or use the arrows",
     // Order = the photo order (batch 7): Who I am, Study, Experience and work, Beyond work.
     topics: [
       {
         title: "Who I am",
+        navLabel: "Me",
         photoId: "about-who",
         alt: "Mohammed sitting on a stone wall above a valley",
         body: "Born in Dubai, based in Cairo, and working in English and Arabic with clients around the world. [Add one or two lines about what drives you.]",
       },
       {
         title: "Study",
+        navLabel: "Study",
         photoId: "about-study",
         alt: "Mohammed's Computer Engineering diploma",
         body: "Computer Engineering at Eastern Mediterranean University (ABET accredited), and a Professional Master's in Cloud Computing Networks at Cairo University. [Add what you focused on.]",
       },
       {
         title: "Experience and work",
+        navLabel: "Work",
         photoId: "about-work",
         alt: "Mohammed receiving a certificate at a work event",
         body: "Over four years in IT support at Concentrix, then freelance web development, including the Emaar International website below. [Add what this means for the people you work with.]",
       },
       {
         title: "Beyond work",
+        navLabel: "Beyond",
         photoId: "about-beyond",
         alt: "Mohammed in a hooded sweatshirt beside a running track",
         body: "[What you enjoy when you're offline, in your own words.]",

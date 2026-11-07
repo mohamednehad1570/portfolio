@@ -17,7 +17,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { BG } from "@/lib/theme";
+import { BG, SKY_BRIGHT_ALPHA, SKY_BRIGHT_R, SKY_LINK, SKY_LINK_ALPHA, SKY_LINK_WIDTH, SKY_STAR, SKY_TWINKLE_MIN } from "@/lib/theme";
 
 // ---- Tuning (from the approved sample) ----
 const AREA_PER_STAR = 3000; // px² of screen per star
@@ -26,13 +26,13 @@ const MAX_STARS_MOBILE = 160;
 const MOBILE_MAX_WIDTH = 760; // same phone breakpoint as sections.css
 const SMALL_SCREEN_WIDTH = 500; // meteors are slower and shorter below this width
 const BRIGHT_SHARE = 0.07;
-const STAR_RGB = "rgb(205,225,245)";
-const LINK_RGB = "rgb(120,180,230)";
+const STAR_RGB = SKY_STAR; // shared with the About constellation (lib/theme.ts)
+const LINK_RGB = SKY_LINK;
 const CONSTELLATION_STARS = 45;
 const CONSTELLATION_MIN = 30; // px: closer neighbours are ignored (they would overlap)
 const CONSTELLATION_MAX = 150;
-const CONSTELLATION_ALPHA = 0.16;
-const LINK_WIDTH = 0.6;
+const CONSTELLATION_ALPHA = SKY_LINK_ALPHA;
+const LINK_WIDTH = SKY_LINK_WIDTH;
 const CURSOR_REACH = 160; // stars within this distance of the pointer may link
 const CURSOR_LINK_MAX = 90; // ...when they are closer than this to each other
 const CURSOR_LINK_ALPHA = 0.4;
@@ -79,8 +79,8 @@ export default function StarfieldBackground() {
         return {
           nx: Math.random(),
           ny: Math.random(),
-          r: bright ? rand(1.2, 1.9) : rand(0.4, 1.15),
-          alpha: bright ? 0.95 : rand(0.3, 0.8),
+          r: bright ? rand(...SKY_BRIGHT_R) : rand(0.4, 1.15),
+          alpha: bright ? SKY_BRIGHT_ALPHA : rand(0.3, 0.8),
           speed: rand(0.5, 2.3), // twinkle speed, rad/s
           phase: rand(0, Math.PI * 2),
         };
@@ -198,7 +198,7 @@ export default function StarfieldBackground() {
       ctx.fillStyle = STAR_RGB;
       for (let i = 0; i < stars.length; i++) {
         const s = stars[i];
-        const twinkle = animated ? 0.55 + 0.45 * Math.sin(clock * s.speed + s.phase) : 1;
+        const twinkle = animated ? SKY_TWINKLE_MIN + (1 - SKY_TWINKLE_MIN) * Math.sin(clock * s.speed + s.phase) : 1;
         ctx.globalAlpha = s.alpha * twinkle;
         ctx.beginPath();
         ctx.arc(px[i], py[i], s.r, 0, Math.PI * 2);

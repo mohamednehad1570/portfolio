@@ -284,7 +284,7 @@ section[id] {
   display: none;
 }
 
-/* Deck (JavaScript only). Desktop: stack left, text right (centred on the stack), controls and hint under the stack. */
+/* Deck (JavaScript only). Desktop: stack left, text right (centred on the stack), controls under the stack. */
 .about-deck {
   display: none;
 }
@@ -293,8 +293,7 @@ section[id] {
   grid-template-columns: 440px minmax(0, 1fr);
   grid-template-areas:
     "stack panel"
-    "controls ."
-    "hint .";
+    "controls .";
   column-gap: 72px;
 }
 .about-stack-box {
@@ -307,15 +306,8 @@ section[id] {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 18px;
   margin-top: 28px;
-}
-.about-hint {
-  grid-area: hint;
-  margin: 10px 0 0;
-  text-align: center;
-  font-size: 14px;
-  color: var(--color-muted);
 }
 /* All four text blocks in one grid cell: the panel is as tall as the tallest, so changing topic shifts nothing. */
 .about-panel {
@@ -354,42 +346,77 @@ section[id] {
   border-color: var(--color-accent);
   background: var(--color-accent-soft);
 }
-/* Dots: the visible dot is the ::before (6x6, 28x6 accent when active, 300 ms); the button is a 24px padded hit
-   area (WCAG 2.5.8), so the visible gap between dots is 18px. */
-.about-dots {
-  display: flex;
-  align-items: center;
+/* Constellation navigation (AboutConstellation): stars over a decorative SVG of three lines. Colours, line and star
+   sizes come from the starfield (lib/theme.ts SKY_*, passed in as --sky-* variables). Each button is a 64 x 24+ px
+   hit area: the star centred in a 24px box, its 11px label underneath. */
+.about-sky {
+  position: relative;
+  flex: none;
 }
-.about-dot {
-  display: block;
-  padding: 9px;
+.about-sky-lines {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+.about-star {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 2px;
   border: 0;
-  border-radius: 12px;
+  border-radius: 8px;
   background: none;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.about-dot::before {
+.about-star-point {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+}
+.about-star-point::before {
   content: "";
-  display: block;
-  width: 6px;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.28);
-  transition: width 0.3s ease, background-color 0.3s ease;
+  width: var(--sky-star-size);
+  height: var(--sky-star-size);
+  border-radius: 50%;
+  background: var(--sky-star);
+  opacity: var(--sky-star-alpha);
+  transition: width 0.3s ease, height 0.3s ease, box-shadow 0.3s ease;
+  animation: sky-twinkle var(--twinkle-time) ease-in-out var(--twinkle-delay) infinite alternate;
 }
-.about-dot:hover::before {
-  background: rgba(255, 255, 255, 0.5);
+/* the starfield's twinkle: opacity between SKY_TWINKLE_MIN and full, at its own pace per star */
+@keyframes sky-twinkle {
+  to {
+    opacity: calc(var(--sky-star-alpha) * var(--sky-twinkle-min));
+  }
 }
-.about-dot.is-active::before {
-  width: 28px;
-  background: var(--color-accent);
+.about-star:hover .about-star-point::before {
+  box-shadow: 0 0 6px 1px rgba(111, 176, 224, 0.35);
 }
-.about-dot:focus-visible {
+.about-star.is-active .about-star-point::before {
+  width: 7px;
+  height: 7px;
+  opacity: 1;
+  animation: none; /* steady and bright */
+  box-shadow: 0 0 10px 3px rgba(111, 176, 224, 0.45); /* faint accent glow */
+}
+.about-star-label {
+  font-size: 11.5px;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--color-todo); /* #8a94a1: muted */
+  transition: color 0.3s ease;
+}
+.about-star.is-active .about-star-label {
+  color: var(--color-ink);
+}
+.about-star:focus-visible {
   outline-offset: 0;
 }
 
-/* Tablet and phone: stack on top (centred), then controls, hint and text. The stack keeps room on its right for the
+/* Tablet and phone: stack on top (centred), then controls and text. The stack keeps room on its right for the
    fanned cards behind it (they lean out to the right by up to ~13% of its width), so nothing overflows. */
 @media (max-width: 1024px) {
   .about-item {
@@ -405,7 +432,6 @@ section[id] {
     grid-template-areas:
       "stack"
       "controls"
-      "hint"
       "panel";
   }
   .about-stack-box {
@@ -433,6 +459,9 @@ section[id] {
   }
   .about-controls {
     margin-top: 22px;
+  }
+  .about-arrow {
+    display: none; /* phones: drag, tap or the stars */
   }
   .about-panel {
     margin-top: 24px;
@@ -862,6 +891,9 @@ html:not(.js) .blur-text span {
 
 /* ---------- Reduced motion: everything static and visible (rule 8) ---------- */
 @media (prefers-reduced-motion: reduce) {
+  .about-star-point::before {
+    animation: none;
+  }
   .reveal,
   .reveal:not(.is-in) {
     opacity: 1 !important;
