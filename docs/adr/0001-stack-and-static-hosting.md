@@ -18,5 +18,5 @@ The site is a one-page portfolio with no user accounts, no database and no serve
 - `trailingSlash: true` makes `/privacy` build to `out/privacy/index.html`, which works on hosts without rewrite rules.
 
 ## Alternatives considered
-- Astro: smaller JS by default, but the approved prototype and the React Bits components are React; Next.js keeps one stack with the client's existing Emaar project.
+- Astro: smaller JS by default, but the approved prototype and the React Bits components are React; Next.js keeps one stack with the existing project for a UAE manufacturer client.
 - Server-rendered Next.js: unnecessary for a static page and would need a Node host.
