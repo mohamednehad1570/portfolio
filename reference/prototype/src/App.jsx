@@ -30,7 +30,7 @@ const INK_HEX = INK;
 // About topics: one photo + one paragraph each. Text in [brackets] is for Mohammed to write.
 const TOPICS = [
   { text: 'Who I am', image: 'img/hero.jpg', body: "Born in Dubai, based in Cairo, and working in English and Arabic with clients around the world. [Add one or two lines about what drives you.]" },
-  { text: 'Experience and work', image: 'img/ph-work.jpg', body: "Over four years in IT support at Concentrix, then freelance web development, including the Emaar International website below. [Add what this means for the people you work with.]" },
+  { text: 'Experience and work', image: 'img/ph-work.jpg', body: "Over four years in IT support at Concentrix, then freelance web development, including a website for a UAE manufacturer client below. [Add what this means for the people you work with.]" },
   { text: 'Study', image: 'img/ph-study.jpg', body: "Computer Engineering at Eastern Mediterranean University (ABET accredited), and a Professional Master's in Cloud Computing Networks at Cairo University. [Add what you focused on.]" },
   { text: 'Beyond work', image: 'img/outdoor.jpg', body: "[What you enjoy when you're offline, in your own words.]" }
 ];
@@ -209,12 +209,12 @@ export default function App() {
               <Reveal from="left" className="project">
                 <GlareHover width="100%" height="auto" background="#ffffff" borderRadius="18px" borderColor="#e2e6eb"
                   glareColor="#ffffff" glareOpacity={0.55} blendMode="normal" className="frame-glare">
-                  <a className="frame" href="#projects" aria-label="Visit the Emaar International website">
-                    <span className="frame-bar"><i /><i /><i /><span className="frame-addr">emaarupvc.ae</span></span>
-                    <span className="frame-shot">Screenshot of the Emaar International home page (after the client's OK)</span>
+                  <a className="frame" href="#projects" aria-label="Visit the client website">
+                    <span className="frame-bar"><i /><i /><i /><span className="frame-addr">client-website</span></span>
+                    <span className="frame-shot">Screenshot of the client website home page (after the client's OK)</span>
                   </a>
                 </GlareHover>
-                <h3 className="h3">Emaar International</h3>
+                <h3 className="h3">A UAE manufacturer client</h3>
                 <p className="body">A bilingual English and Arabic website for a uPVC and aluminium windows and doors manufacturer in Sharjah, UAE. <span className="todo">[One line on the result.]</span></p>
                 <ul className="tags"><li>Next.js</li><li>TypeScript</li><li>Tailwind CSS</li><li>English / Arabic</li></ul>
                 <a className="text-link" href="#projects">Visit website ↗</a>

@@ -27,7 +27,7 @@ An approved prototype exists in `./reference/prototype/` (Vite + React). **Port 
 | D13 | One page: `#home` Hero · `#about` About · `#projects` Projects · `#contact` Contact · Footer. Extra routes: `/privacy`, 404 |
 | D14 | Hero: label + title + description + "About me" button + "or book a free call" link; photo on the other side in a 24px rounded rectangle (no arch) |
 | D15 | About: React Bits **CircularGallery**, pinned with ScrollTrigger, **snaps on each of the 4 photos** (0, ⅓, ⅔, 1), title at the bottom-middle of each photo, paragraph for the centred photo underneath (BlurText, replays on change), 4 progress dots. Same behaviour on desktop and mobile; horizontal drag/swipe also turns it; vertical wheel never trapped |
-| D16 | Projects: two cards side by side (stacked on mobile), **identical frame size** (16:10): Emaar in a light browser frame, Kubernetes autoscaling in a dark terminal frame, both wrapped in **GlareHover**; cards slide in from opposite sides |
+| D16 | Projects: two cards side by side (stacked on mobile), **identical frame size** (16:10): the client website in a light browser frame, Kubernetes autoscaling in a dark terminal frame, both wrapped in **GlareHover**; cards slide in from opposite sides |
 | D17 | Contact: React Bits **FlowingMenu** with `alwaysOn` (bands always visible and moving, no hover needed), direction `alternate`, rows alternate **blue / transparent** (Email blue, WhatsApp clear, LinkedIn blue, GitHub clear, Book blue), round photo between repeats **spinning around its own centre** (20s/turn). Under it: a "Book a free call" panel with a placeholder where the Cal.com embed will go later |
 | D18 | Nav: text only (About · Projects · Contact), no buttons/icons, active section underlined (scrollspy). Top bar on desktop, floating bottom pill on mobile (≤760px) |
 | D19 | Footer: `© 2026 Mohammed Nehad` + `Privacy` link only. Floating round "go to top" arrow (the only icon) appears after the hero; on mobile it sits above the bottom nav and never covers Privacy |
@@ -56,7 +56,7 @@ An approved prototype exists in `./reference/prototype/` (Vite + React). **Port 
 
 **Part 6 — Sections.** Build `src/app/page.tsx` from server components, with client components only where needed:
 - `Header` (scrollspy, D18), `Hero` (D14, D20), `About` (D15: `useGSAP` + ScrollTrigger pin, `end = innerHeight × 0.7 × (n−1)`, snap `1/(n−1)`, dots, cubes paused while pinned), `Projects` (D16, frames as `BrowserFrame` / `TerminalFrame` components), `Contact` (D17; mount FlowingMenu when the section is ~25% visible so its intro is seen; menu height 640px desktop / 460px mobile), `Footer` + `ToTop` (D19), shared `CtaButton` (StarBorder + Magnet + ClickSpark, renders an `<a>`), `Reveal` (enter-once fade/slide, respects reduced motion).
-- External links: `target="_blank" rel="noopener noreferrer"`. The Emaar link stays `#projects` until the client approves showing it.
+- External links: `target="_blank" rel="noopener noreferrer"`. The client website link stays `#projects` until the client approves showing it.
 - Call `ScrollTrigger.refresh()` after fonts load.
 *Check:* at 1440×900 and 390×844 the page matches the prototype; scrolling through About lands on all 4 photos in order; no horizontal scroll at any width.
 
