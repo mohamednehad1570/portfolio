@@ -1,11 +1,12 @@
 /**
  * Projects (#projects): two cards side by side (stacked on phones) with identical frames.
  * Alignment (D16 final): the cards share five rows through CSS subgrid, so titles, descriptions, tags and links line up.
- * Why (D16): Emaar in a light browser frame, the Kubernetes autoscaling project in a dark terminal frame;
- * the cards slide in from opposite sides. The Emaar link stays "#projects" until the client approves showing it.
- * Below the cards: two buttons, "Contact me" and "Book a free call" (ADR 0011).
+ * Why (D16): the client website in a light browser frame, the Kubernetes autoscaling project in a dark terminal
+ * frame; the cards slide in from opposite sides. Batch 10: the client is never named and its card has no link
+ * (no text link, and its frame is not a link). Below the cards: the two buttons from site.ts (ADR 0011).
  */
 import { site } from "@/content/site";
+import { newTabProps, NewTabNote } from "@/lib/links";
 import CtaButton from "./CtaButton";
 import { BrowserFrame, TerminalFrame } from "./ProjectFrame";
 import Reveal from "./Reveal";
@@ -29,7 +30,7 @@ export default function Projects() {
               // through CSS subgrid, so those rows line up across the cards whatever the text length (D16).
               <article key={p.title} className="project">
                 <Reveal from={i === 0 ? "left" : "right"} delay={i === 0 ? 0 : 120}>
-                  <Frame href={p.href} external={p.external} ariaLabel={p.ariaLabel} address={p.address} shot={p.shot} />
+                  <Frame href={p.link?.href} ariaLabel={p.ariaLabel} address={p.address} shot={p.shot} />
                 </Reveal>
                 <Heading tag="h3" text={p.title} className="h3" />
                 <Reveal from="fade">
@@ -44,11 +45,15 @@ export default function Projects() {
                     ))}
                   </ul>
                 </Reveal>
-                <Reveal from="fade">
-                  <a className="text-link" href={p.href} {...(p.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
-                    {p.linkLabel}
-                  </a>
-                </Reveal>
+                {/* the link row stays empty for a card without a link; the subgrid keeps the other rows aligned */}
+                {p.link ? (
+                  <Reveal from="fade">
+                    <a className="text-link" href={p.link.href} {...newTabProps(p.link.href)}>
+                      {p.link.label}
+                      <NewTabNote href={p.link.href} />
+                    </a>
+                  </Reveal>
+                ) : null}
               </article>
             );
           })}

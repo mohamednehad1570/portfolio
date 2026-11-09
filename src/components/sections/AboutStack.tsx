@@ -10,8 +10,10 @@
  * Peek: the first time the stack comes into view (once per page load) the top card nudges sideways and springs back,
  * a hint that it moves; the Stack skips it under reduced motion and once the visitor has interacted.
  *
+ * Batch 10: no eyebrow above the heading; the topic titles are not shown above the texts (they are sr-only headings
+ * in the list and the labels of the constellation stars).
  * Three views of the same four topics:
- *  - `.about-list`: a plain list (photo + title + text). Shown as is without JavaScript (no `js` class on <html>);
+ *  - `.about-list`: a plain list (photo + sr-only title + text). Shown as is without JavaScript (no `js` class on <html>);
  *    with JavaScript its photos are removed and the list becomes screen-reader only: screen readers get all four
  *    topics once, in order.
  *  - `.about-deck` (only under `.js`): the stack and the controls.
@@ -29,7 +31,7 @@ import { useMotionAllowed } from "@/lib/useMotionAllowed";
 import Picture from "../Picture";
 import TodoText from "../TodoText";
 import Stack, { type StackHandle } from "../rb/Stack";
-import { Eyebrow, Heading } from "./SectionText";
+import { Heading } from "./SectionText";
 import AboutConstellation from "./AboutConstellation";
 import WordReveal from "./WordReveal";
 
@@ -96,7 +98,6 @@ export default function AboutStack() {
     <section id="about" className="about">
       <div className="about-wrap">
         <div className="about-head">
-          <Eyebrow text={about.label} />
           <Heading tag="h2" text={about.title} className="h2" />
         </div>
 
@@ -108,7 +109,7 @@ export default function AboutStack() {
                 <Picture image={requireImage(t.photoId)} alt={t.alt} sizes={PHOTO_SIZES} />
               </figure>
               <div>
-                <h3 className="about-title">{t.title}</h3>
+                <h3 className="sr-only">{t.title}</h3>
                 <p className="body about-body">
                   <TodoText text={t.body} />
                 </p>
@@ -140,7 +141,6 @@ export default function AboutStack() {
           <div className="about-controls">
             <AboutConstellation
               titles={topics.map((t) => t.title)}
-              labels={topics.map((t) => t.navLabel)}
               active={top}
               groupLabel={about.dotsLabel}
               dotLabel={about.dotLabel}
@@ -152,8 +152,7 @@ export default function AboutStack() {
           <div className="about-panel" ref={panelRef} aria-hidden="true">
             {topics.map((t, i) => (
               <div key={t.title} className={`about-block${i === top ? " is-active" : ""}`}>
-                <WordReveal as="p" className="about-title" text={t.title} play={seen && i === top} replay={replay[i]} animate={motionAllowed} stagger={0.08} />
-                <WordReveal className="body about-body" text={t.body} play={seen && i === top} replay={replay[i]} animate={motionAllowed} startDelay={0.26} stagger={0.035} />
+                <WordReveal className="body about-body" text={t.body} play={seen && i === top} replay={replay[i]} animate={motionAllowed} stagger={0.035} />
               </div>
             ))}
           </div>

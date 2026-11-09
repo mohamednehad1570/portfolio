@@ -2,23 +2,21 @@
  * Site content as typed data: every sentence shown on the page lives here, never in a component.
  * Why: Mohammed edits wording in one place; components only lay it out.
  * Text in [square brackets] is a placeholder he will write; components render it grey (the `.todo` style).
- * Wording is copied from the approved prototype (reference/prototype/src/App.jsx).
+ * Wording: final copy approved by Mohammed (batch 10). The website client is never named on the site.
  */
 
 export type NavItem = { id: "about" | "projects" | "contact"; label: string; href: string };
 
 // photoId = the generated photo (scripts/images.config.mjs, ADR 0013); alt = what the photo shows, in plain words.
-// navLabel = the short label under the topic's star in the constellation navigation.
-export type AboutTopic = { title: string; navLabel: string; photoId: string; alt: string; body: string };
+// title = the sr-only heading and the label under the topic's star in the constellation navigation.
+export type AboutTopic = { title: string; photoId: string; alt: string; body: string };
 
 export type Project = {
   title: string;
   body: string;
   tags: string[];
-  href: string; // "#projects" until the client approves showing the Emaar link
-  linkLabel: string;
-  external: boolean; // opens in a new tab
-  ariaLabel: string; // name of the frame link for screen readers
+  link?: { href: string; label: string }; // the card's text link (opens in a new tab); none = the frame is no link
+  ariaLabel: string; // name of the frame link for screen readers (or of the frame when there is no link)
   frame: "browser" | "terminal";
   address: string; // text in the frame's address bar
   shot: string; // placeholder text inside the frame until real screenshots exist
@@ -31,15 +29,20 @@ export type ContactRing = {
   ringText: string; // text that runs around the ring
 };
 
+// A privacy paragraph: plain text, or text with phrases to show as links / code (each must occur in `text`).
+export type PrivacyParagraph = string | { text: string; links?: { text: string; href: string }[]; code?: string[] };
+export type PrivacySection = { heading: string; paragraphs: PrivacyParagraph[] };
+
 const LINKEDIN_URL = "https://linkedin.com/in/mohdman";
 const GITHUB_URL = "https://github.com/mohamednehad1570";
 
 // The one public email address (Proton Mail, ADR 0009). Use this constant wherever an address is needed.
 export const CONTACT_EMAIL = "hello@mohammednehad.com";
 
-// Where every "Book a free call" link goes (Hero and Projects buttons, Contact ring 5): the Cal.com intro event (D6).
+// Where every "Schedule a call" link goes (Hero and Projects buttons, Contact ring 5): the Cal.com profile page,
+// which lists both call types (batch 10; replaces the /intro event).
 // ADR 0007: a link, no embedded calendar or Cal.com script; ADR 0011: it opens in a new tab (src/lib/links.tsx).
-export const BOOKING_URL = "https://cal.com/mohammednehad/intro";
+export const BOOKING_URL = "https://cal.com/mohammednehad";
 
 export const site = {
   name: "Mohammed Nehad",
@@ -47,9 +50,9 @@ export const site = {
   profiles: [LINKEDIN_URL, GITHUB_URL],
 
   seo: {
-    title: "Mohammed Nehad · Web developer",
+    title: "Mohammed Nehad · Cloud & Infrastructure Engineer",
     description:
-      "Websites that are fast, clear and built to last. Web developer based in Cairo, working with clients worldwide. Start with a free 30-minute call.",
+      "Cloud and infrastructure engineer, working remotely. Four years in IT operations, a Master's in Cloud Computing Networks and a predictive autoscaling project.",
     ogImageAlt: "Mohammed Nehad", // the card itself is generated (og-image.jpg, ADR 0013)
   },
   nav: [
@@ -60,93 +63,83 @@ export const site = {
   navAriaLabel: "Sections",
 
   hero: {
-    label: "Web developer · Cairo, working worldwide",
-    title: "Websites that are fast, clear and built to last.",
-    description:
-      "I design and build modern websites for businesses around the world. It starts with a free 30-minute call, with no pressure and no commitment.",
-    primaryCta: { label: "About me", href: "#about" },
-    secondaryCta: { label: "Book a free call", href: BOOKING_URL },
+    label: "Cloud & infrastructure engineer · Remote",
+    title: "I don't let go until it's solved, for everyone.",
+    description: "Four years of chasing tricky IT issues to their cause led me to the cloud systems behind them.",
+    primaryCta: { label: "Get in touch", href: "#contact" },
+    secondaryCta: { label: "Schedule a call", href: BOOKING_URL },
     photo: { alt: "Mohammed Nehad" }, // files come from the image pipeline (src/lib/images.ts)
   },
 
   about: {
-    label: "About",
-    title: "A little about me",
+    title: "How I got here",
     // Card stack controls (ADR 0015): the stack's and the constellation's group names, each star's label.
     stackLabel: "About photos",
     dotsLabel: "About topics",
     dotLabel: (n: number, total: number, title: string) => `Show topic ${n} of ${total}: ${title}`,
-    // Order = the photo order (batch 7): Who I am, Study, Experience and work, Beyond work.
+    // Order = the photo order (batch 7). The titles are screen-reader headings and the constellation star labels.
     topics: [
       {
-        title: "Who I am",
-        navLabel: "Me",
+        title: "Where it starts",
         photoId: "about-who",
         alt: "Mohammed sitting on a stone wall above a valley",
-        body: "Born in Dubai, based in Cairo, and working in English and Arabic with clients around the world. [Add one or two lines about what drives you.]",
+        body: "I was born in Dubai to a Palestinian family and grew up between Sharjah, Cairo and Gaza before university in North Cyprus. Every move taught me to listen first, adapt fast and stay calm. Those habits still guide me: I stay curious, I don't give up on a problem, and nothing eases me more than making someone's day easier.",
       },
       {
-        title: "Study",
-        navLabel: "Study",
+        title: "The groundwork",
         photoId: "about-study",
         alt: "Mohammed's Computer Engineering diploma",
-        body: "Computer Engineering at Eastern Mediterranean University (ABET accredited), and a Professional Master's in Cloud Computing Networks at Cairo University. [Add what you focused on.]",
+        body: "Computer Engineering at Eastern Mediterranean University in North Cyprus gave me the foundations. Back in Cairo, I kept building on them while working full time: first a CCNA networking course, then a Master's in Cloud Computing Networks at Cairo University. It all came together in a system that scales servers before traffic spikes arrive.",
       },
       {
-        title: "Experience and work",
-        navLabel: "Work",
+        title: "On the job",
         photoId: "about-work",
         alt: "Mohammed receiving a certificate at a work event",
-        body: "Over four years in IT support at Concentrix, then freelance web development, including the Emaar International website below. [Add what this means for the people you work with.]",
+        body: "It started with a headset and a UK telecom queue at Concentrix. Three months later I was in IT operations, and for four years the problems kept getting more curious. I learned that the real fix is the one nobody needs to report again. Then a friendly request became my first website, for a manufacturer in the UAE, which you'll find below.",
       },
       {
-        title: "Beyond work",
-        navLabel: "Beyond",
+        title: "Off the clock",
         photoId: "about-beyond",
         alt: "Mohammed in a hooded sweatshirt beside a running track",
-        body: "[What you enjoy when you're offline, in your own words.]",
+        body: "In Famagusta I had a ritual: cycle to the beach, run barefoot along the shore, swim, then sit and listen to the sea in the quiet hours. I still chase that calm in seaside bungalows, old castles and green fields. The rest of the time, you'll find me reading slowly, wandering a book fair, at a horror film, over a board game, or at a long dinner with family.",
       },
     ] satisfies AboutTopic[],
   },
 
   projects: {
     label: "Projects",
-    title: "Selected projects",
-    intro: "One website for a real client, and one cloud engineering project.",
+    title: "Built for the other side of the screen",
+    intro: "Behind every system I build is someone who just wants it to work.",
     items: [
       {
-        title: "Emaar International",
-        body: "A bilingual English and Arabic website for a uPVC and aluminium windows and doors manufacturer in Sharjah, UAE. [One line on the result.]",
-        tags: ["Next.js", "TypeScript", "Tailwind CSS", "English / Arabic"],
-        href: "#projects",
-        linkLabel: "Visit website ↗",
-        external: false,
-        ariaLabel: "Visit the Emaar International website",
+        title: "Bilingual website for a UAE manufacturer",
+        body: "For their customers, it simply speaks their language: English or Arabic, on any screen. It took three designs to make it feel that simple.",
+        tags: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Figma", "Bilingual (EN / AR)", "RTL layout", "Claude Code (AI-assisted)"],
+        // No public link: the client stays unnamed (batch 10), so the frame is not a link and there is no link row.
+        ariaLabel: "Bilingual website for a UAE manufacturer",
         frame: "browser",
-        address: "emaarupvc.ae",
-        shot: "Screenshot of the Emaar International home page (after the client's OK)",
+        address: "client-website",
+        shot: "Screenshot of the client website (after the client's OK)",
       },
       {
         title: "Predictive Kubernetes autoscaling",
-        body: "Graduation project: forecasts e-commerce traffic from historical data and scales Kubernetes pods before spikes like Black Friday arrive. [One line on the result.]",
-        tags: ["Kubernetes", "GKE", "KEDA", "Prophet", "Prometheus and Grafana"],
-        href: GITHUB_URL,
-        linkLabel: "View on GitHub ↗",
-        external: true,
+        body: "For a shopper, Black Friday should feel like any other day. This system predicts the rush from past traffic and scales Kubernetes before anyone feels it. My Master's project, with more to build.",
+        tags: ["GKE", "KEDA", "Time-series forecasting", "Holt-Winters", "FastAPI", "ArgoCD", "Prometheus & Grafana", "Locust", "Claude Code (AI-assisted)"],
+        link: { href: GITHUB_URL, label: "View on GitHub ↗" },
         ariaLabel: "View the autoscaling project on GitHub",
         frame: "terminal",
         address: "k8s-ecommerce-autoscaler",
         shot: "$ [screenshot placeholder]\nGrafana: predicted vs. actual traffic,\npods scaling up before the spike",
       },
     ] satisfies Project[],
-    primaryCta: { label: "Contact me", href: "#contact" },
-    secondaryCta: { label: "Book a free call", href: BOOKING_URL },
+    primaryCta: { label: "Discuss this work", href: "#contact" },
+    secondaryCta: { label: "Schedule a call", href: BOOKING_URL },
   },
 
   contact: {
     label: "Contact",
     title: "Let's talk.",
-    intro: "Pick whatever feels easiest, or book a free 30-minute intro call. No forms and no pressure.",
+    intro: "Hiring, or have a project in mind? Pick whatever feels easiest, or schedule a call.",
     // Five rings in one line (ADR 0006), in this order: Book sits in the middle. Spin direction and text colour
     // come from the position (see ContactRings), not from these entries.
     rings: [
@@ -154,10 +147,10 @@ export const site = {
       {
         id: "whatsapp",
         label: "Message Mohammed on WhatsApp",
-        href: "https://wa.me/201021282909?text=Hi%20Mohammed%2C%20I%20saw%20your%20website",
+        href: "https://wa.me/201029092128",
         ringText: "QUICK CHAT • QUICK CHAT • ",
       },
-      { id: "booking", label: "Book a free call", href: BOOKING_URL, ringText: "NO PRESSURE • 30 MIN • FREE • " },
+      { id: "booking", label: "Schedule a call", href: BOOKING_URL, ringText: "SCHEDULE A CALL • SCHEDULE A CALL • " },
       { id: "linkedin", label: "Mohammed on LinkedIn", href: LINKEDIN_URL, ringText: "LET’S CONNECT • LET’S CONNECT • " },
       { id: "github", label: "Mohammed on GitHub", href: GITHUB_URL, ringText: "SEE THE CODE • OPEN WORK • " },
     ] satisfies ContactRing[],
@@ -170,30 +163,96 @@ export const site = {
   toTopLabel: "Back to top",
   newTabNote: "(opens in a new tab)", // screen-reader-only suffix on links that open a new tab (src/lib/links.tsx)
 
-  // /privacy: headings with bracketed placeholders for Mohammed (and a lawyer, if needed) to write; the Booking
-  // paragraph is final (ADR 0014) and its `link` text must be a phrase of its body.
+  // /privacy (batch 10, final text): sections of paragraphs. A paragraph is plain text, or { text, links, code }:
+  // each link's / code's `text` must be a phrase of the paragraph (the page wraps it in <a> / <code>).
   privacy: {
     title: "Privacy",
     metaDescription: "How this website handles personal data.",
     backLabel: "← Back to home",
+    updatedLabel: "Last updated:", // followed by the build date (src/app/privacy/page.tsx)
     sections: [
-      { heading: "Who runs this site", body: "[Name, country and contact address of the person responsible for this website.]" },
       {
-        heading: "What data is collected",
-        body: "[When the booking calendar is added: first name and email, processed by Cal.com to arrange the call. Say what is stored, why, and for how long.]",
+        heading: "The short version",
+        paragraphs: [
+          "I keep this simple: no tracking, no ads, no analytics. If you contact me or schedule a call, I use your details only to reply.",
+        ],
       },
       {
-        heading: "Booking a free call",
-        body: "Bookings are handled by Cal.com. The name and email you enter there go to Cal.com and to me, only to arrange and hold the call. See Cal.com's privacy policy.",
-        link: { text: "Cal.com's privacy policy", href: "https://cal.com/privacy" },
+        heading: "Who runs this site",
+        paragraphs: [
+          {
+            text: `This is the personal website of Mohammed Nehad, and I'm responsible for any personal data handled through it. You can reach me at ${CONTACT_EMAIL}.`,
+            links: [{ text: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` }],
+          },
+        ],
       },
       {
-        heading: "Analytics",
-        body: "[If cookieless analytics is added later: which tool, what it counts, and that no cookies are used.]",
+        heading: "Services that help run this site",
+        paragraphs: [
+          {
+            text: "Cloudflare hosts and protects the site. To deliver pages and block attacks, it processes technical data such as your IP address and browser type. Cloudflare's privacy policy.",
+            links: [{ text: "Cloudflare's privacy policy", href: "https://www.cloudflare.com/privacypolicy/" }],
+          },
+          {
+            text: "Cal.com handles call scheduling. Cal.com's privacy policy.",
+            links: [{ text: "Cal.com's privacy policy", href: "https://cal.com/privacy" }],
+          },
+          "These services may process data outside your country, including in the United States, under the safeguards described in their own policies.",
+        ],
       },
-      { heading: "How to ask for deletion", body: "[How a visitor can ask to see or delete their data, and how fast Mohammed replies.]" },
-      { heading: "Contact", body: CONTACT_EMAIL },
-    ],
+      {
+        heading: "Scheduling a call",
+        paragraphs: [
+          "If you schedule a call, you give Cal.com your name, email and any notes you add. I use them only to prepare for and hold the call. Booking is optional, but a call can't be booked without a name and email.",
+        ],
+      },
+      {
+        heading: "Contacting me",
+        paragraphs: [
+          "If you email me or message me on WhatsApp or LinkedIn, I use what you send only to reply and continue our conversation.",
+        ],
+      },
+      {
+        heading: "Cookies",
+        paragraphs: [
+          {
+            text: "This site doesn't set cookies of its own. Cloudflare may set one small security cookie (cf_clearance) that helps tell real visitors from bots. It's strictly necessary and is never used for tracking or advertising.",
+            code: ["cf_clearance"],
+          },
+        ],
+      },
+      {
+        heading: "Why I use your data",
+        paragraphs: [
+          "To reply to you and arrange calls, because you asked me to. To keep the site secure, because protecting it is necessary. I never sell your data, share it for advertising, or make automated decisions about you.",
+        ],
+      },
+      {
+        heading: "How long I keep things",
+        paragraphs: [
+          "I keep messages and booking details only as long as we need them, and delete them within 12 months.",
+        ],
+      },
+      {
+        heading: "Questions or requests about your data",
+        paragraphs: [
+          {
+            text: `Want to know what I have, or want it gone? Email me at ${CONTACT_EMAIL} and I'll take care of it within 30 days.`,
+            links: [{ text: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` }],
+          },
+          {
+            text: "If you're ever unhappy with how I've handled your data, you can also contact a data protection authority, such as the one in your EU country, the UK's ICO, or Egypt's Personal Data Protection Centre.",
+            links: [{ text: "ICO", href: "https://ico.org.uk" }],
+          },
+        ],
+      },
+      {
+        heading: "Changes to this page",
+        paragraphs: [
+          "If anything changes, for example if I add analytics, I'll update this page and its date.",
+        ],
+      },
+    ] satisfies PrivacySection[],
   },
 
   notFound: {

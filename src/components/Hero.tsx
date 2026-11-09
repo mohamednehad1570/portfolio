@@ -1,5 +1,5 @@
 /**
- * Hero (#home): label, the one H1, description, two buttons ("About me", "Book a free call", ADR 0011), and the
+ * Hero (#home): label, the one H1, description, two buttons ("Get in touch", "Schedule a call", ADR 0011), and the
  * photo on the other side.
  * Why (D14 revised, ADR 0005): the label types first, then the title; the title's cursor is the only blinking
  * cursor on the page. The description blurs in word by word once the title is typed, and the buttons fade up

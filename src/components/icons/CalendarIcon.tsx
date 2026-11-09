@@ -1,6 +1,6 @@
 /**
  * CalendarIcon: a simple calendar page, drawn for this site (24x24, filled).
- * Why: the Contact ring for "Book a free call"; no brand mark involved. Two paths: the page with its header band
+ * Why: the Contact ring for "Schedule a call"; no brand mark involved. Two paths: the page with its header band
  * (even-odd cut-out), and the two binder tabs plus six date squares. Decorative: the link carries the name.
  */
 export default function CalendarIcon() {
