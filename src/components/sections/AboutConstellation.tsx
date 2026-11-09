@@ -4,7 +4,8 @@
  * Why: it reads as part of the night sky. Line colour / opacity / width and the star colour and size are the
  * starfield's own constants (lib/theme.ts SKY_*), so it matches the canvas behind it.
  *
- * Each star is a real <button> (a 24px+ hit area holding the star and its short label), labelled
+ * Each star is a real <button> (a 24px+ hit area holding the star and its label, the topic's full title, which may
+ * wrap to two lines inside its column so labels never overlap; batch 10), labelled
  * "Show topic N of 4: Title", with `aria-current` on the active one, in a group named "About topics". The lines are
  * decorative SVG (`aria-hidden`). Stars twinkle with CSS opacity at staggered timings (off under reduced motion);
  * the active star is bigger, fully bright, with a faint accent glow, and its label turns ink colour.
@@ -13,20 +14,19 @@ import type { CSSProperties } from "react";
 import { SKY_BRIGHT_ALPHA, SKY_BRIGHT_R, SKY_LINK, SKY_LINK_ALPHA, SKY_LINK_WIDTH, SKY_STAR, SKY_TWINKLE_MIN } from "@/lib/theme";
 
 // Geometry (px): one column per star; the stars' heights make the uneven zig-zag.
-const COL = 64; // column width = each button's width
+const COL = 80; // column width = each button's width (and the most a label may take before it wraps)
 const STAR_Y = [10, 26, 6, 20]; // star centre, from the top of the drawing
-const HEIGHT = 56; // drawing height: the lowest star (26) + half its 24px star box + its label below
+const HEIGHT = 70; // drawing height: the lowest star (26) + half its 24px star box + a two-line label below
 
 type Props = {
   titles: string[];
-  labels: string[];
   active: number;
   groupLabel: string;
   dotLabel: (n: number, total: number, title: string) => string;
   onSelect: (index: number) => void;
 };
 
-export default function AboutConstellation({ titles, labels, active, groupLabel, dotLabel, onSelect }: Props) {
+export default function AboutConstellation({ titles, active, groupLabel, dotLabel, onSelect }: Props) {
   const n = titles.length;
   const width = COL * n;
   const cx = (i: number) => COL * i + COL / 2;
@@ -69,7 +69,7 @@ export default function AboutConstellation({ titles, labels, active, groupLabel,
         >
           <span className="about-star-point" aria-hidden="true" />
           <span className="about-star-label" aria-hidden="true">
-            {labels[i]}
+            {t}
           </span>
         </button>
       ))}

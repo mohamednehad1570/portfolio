@@ -1,7 +1,7 @@
 /**
  * Contact (#contact): "Let's talk." title, an intro line, and the five rotating contact rings (ContactRings).
  * Why (D17 revised, D6 amended; ADR 0006 and 0007): no menu bands and no booking panel. The call is described in the
- * intro line; "Book a free call" is the fifth ring and points to BOOKING_URL. The title keeps VariableProximity
+ * intro line; "Schedule a call" is the middle ring and points to BOOKING_URL. The title keeps VariableProximity
  * (the letters thicken near the pointer) on top of the word-rise.
  */
 "use client";

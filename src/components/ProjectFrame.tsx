@@ -2,16 +2,17 @@
  * BrowserFrame and TerminalFrame: the picture frame of a project card (light browser window / dark terminal).
  * Why (D16): both cards have the identical 16:10 frame size, and both are wrapped in GlareHover.
  * Until real screenshots exist the frame shows a labelled placeholder (`shot`).
+ * Without `href` (the client website, batch 10) the frame is a plain labelled box (role="img"), not a link.
  * Dark theme (ADR 0004): the browser frame stays light (a light window reads clearly on navy; colours are
  * provisional, Mohammed decides after seeing the build); the terminal frame is dark and gets a `line` border so
  * its edge separates from the night-sky background.
  */
 import GlareHover from "./rb/GlareHover";
+import { newTabLabel, newTabProps } from "@/lib/links";
 import { LINE } from "@/lib/theme";
 
 type FrameProps = {
-  href: string;
-  external: boolean;
+  href?: string; // an external URL (opens in a new tab); none = the frame is not a link
   ariaLabel: string;
   address: string;
   shot: string;
@@ -29,9 +30,23 @@ function Bar({ address }: { address: string }) {
   );
 }
 
-const externalProps = (external: boolean) => (external ? { target: "_blank", rel: "noopener noreferrer" } : {});
+// The frame's outer element: a link that opens in a new tab, or (no href) a plain box named by its aria-label.
+function FrameBox({ href, ariaLabel, className, children }: { href?: string; ariaLabel: string; className: string; children: React.ReactNode }) {
+  if (!href) {
+    return (
+      <span className={className} role="img" aria-label={ariaLabel}>
+        {children}
+      </span>
+    );
+  }
+  return (
+    <a className={className} href={href} aria-label={newTabLabel(ariaLabel, href)} {...newTabProps(href)}>
+      {children}
+    </a>
+  );
+}
 
-export function BrowserFrame({ href, external, ariaLabel, address, shot }: FrameProps) {
+export function BrowserFrame({ href, ariaLabel, address, shot }: FrameProps) {
   return (
     <GlareHover
       width="100%"
@@ -44,15 +59,15 @@ export function BrowserFrame({ href, external, ariaLabel, address, shot }: Frame
       blendMode="normal"
       className="frame-glare"
     >
-      <a className="frame" href={href} aria-label={ariaLabel} {...externalProps(external)}>
+      <FrameBox className="frame" href={href} ariaLabel={ariaLabel}>
         <Bar address={address} />
         <span className="frame-shot">{shot}</span>
-      </a>
+      </FrameBox>
     </GlareHover>
   );
 }
 
-export function TerminalFrame({ href, external, ariaLabel, address, shot }: FrameProps) {
+export function TerminalFrame({ href, ariaLabel, address, shot }: FrameProps) {
   const lines = shot.split("\n");
   return (
     <GlareHover
@@ -65,7 +80,7 @@ export function TerminalFrame({ href, external, ariaLabel, address, shot }: Fram
       glareOpacity={0.35}
       className="frame-glare"
     >
-      <a className="frame frame--dark" href={href} aria-label={ariaLabel} {...externalProps(external)}>
+      <FrameBox className="frame frame--dark" href={href} ariaLabel={ariaLabel}>
         <Bar address={address} />
         <span className="frame-shot">
           <span className="term-lines">
@@ -78,7 +93,7 @@ export function TerminalFrame({ href, external, ariaLabel, address, shot }: Fram
             <b className="caret" />
           </span>
         </span>
-      </a>
+      </FrameBox>
     </GlareHover>
   );
 }
