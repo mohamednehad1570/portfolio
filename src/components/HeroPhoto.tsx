@@ -1,340 +1,335 @@
 /**
- * HeroPhoto: the hero cutout (the page's LCP image) with its two batch 12 effects.
+ * HeroPhoto: the hero cutout (the page's LCP image) with its two batch 13 effects. Kept from earlier batches: the
+ * baked edge fade and cool grade (in the files), the CSS moonlight glow behind the photo, the starfield.
  *
- * 1. Constellation halo: an inline SVG over the photo box (points in src/lib/heroHalo.ts). Hover (mouse) or the
- *    `is-halo` class fades it in, draws each line (stroke-dashoffset, pathLength 1, staggered) and lets the points
- *    twinkle; the glow brightens. All of that is CSS (sections.css, "Hero halo"). On touch screens ((hover: none))
- *    a tap adds `is-halo` for ~1.7 s, and it plays once by itself after each return of the photo (below).
+ * 1. Dawn: two decorative layers behind the cutout, above the moonlight glow: a violet tint over the photo box and
+ *    a warm "sun" that rises from below (10% wider than the box on each side). The `is-dawn` class turns it on;
+ *    the transitions (and the slight warm-up of the photo) are CSS (sections.css, "Hero Dawn"). Triggers: mouse
+ *    over the photo on hover screens; a tap plays it for 3 s on touch screens; and on every size it plays once for
+ *    2.6 s each time the photo has fully rebuilt after being more than half dissolved. Never on page load, and the
+ *    photo is not a tab stop (Dawn is decoration only).
  *
- * 2. Star dust: an IntersectionObserver on the hero section. Leave (< 30% visible): the photo fades out (250 ms)
- *    while a canvas draws particles sampled from the cutout's alpha (every 4.5 px where alpha > 0.5, capped at
- *    1,500 / 700 below 768 px) that drift up and outward and fade into star colour over 1.2 s; the glow fades with
- *    them. Return (>= 30% visible): the same particles fall back over 1.2 s, then the photo fades in and the glow
- *    returns. One progress value (0 = assembled, 1 = dispersed) runs both ways, so a reversal mid-way is smooth.
- *    Budget: the canvas is created on the first leave (or first return), devicePixelRatio is capped at 2, and rAF
- *    runs only while particles move.
+ * 2. Star dust, scroll-linked: progress p = how far the hero has scrolled up past the viewport top, divided by
+ *    (photo top in the hero + 90% of the photo height), clamped 0..1. edge = p * 1.25 - 0.1 is the dissolve front
+ *    (0 = top of the photo, 1 = bottom). Above the front the photo is masked away (CSS mask via --edge) and a canvas
+ *    draws its points (src/data/hero-particles.json, sampled at build time by scripts/images.mjs: no pixel reads in
+ *    the browser) drifting up and fading into star colour. Nothing is timed: it holds when scrolling stops and runs
+ *    backwards when scrolling back.
+ *    Budget: scroll is read in a passive listener and drawn at most once per animation frame, only while the hero is
+ *    near the viewport (IntersectionObserver) and only when p changed; at p = 0 and p = 1 the canvas is empty and
+ *    no frame is requested. The canvas and the point data are created on the first scroll into the dissolve
+ *    (devicePixelRatio capped at 2); 1,500 points on desktop, 700 below 768 px (thinned evenly).
  *
- * LCP: nothing changes on the first page load. The first observer report only records where the hero is; if the
- * page opens scrolled past it, the photo is hidden without animation (it is off screen) and reassembles on return.
- * Reduced motion: no particles and no line drawing; leave and return are a 200 ms fade, hover just fades the halo in.
- * Without JavaScript: the photo is simply there (hover still shows the halo, pure CSS).
+ * LCP: at p = 0 (the normal first view) nothing is added: no mask, no canvas, no Dawn.
+ * Reduced motion: no particles and no mask; the photo just fades (opacity 1 - p); Dawn only fades (no rise).
+ * Without JavaScript: the photo is simply there.
  */
 "use client";
 
-import { useCallback, useEffect, useRef, type CSSProperties, type RefObject } from "react";
+import { useCallback, useEffect, useRef, type RefObject } from "react";
 import { HERO_IMAGE, HERO_SIZES } from "@/lib/images";
-import { HALO_CHORDS, HALO_POINTS, HALO_TAP_MS } from "@/lib/heroHalo";
 import Picture from "./Picture";
 
-const LEAVE_RATIO = 0.3; // the hero counts as "left" below 30% visible
-const DUST_MS = 1200; // particle flight, both ways
-const PHOTO_FADE_MS = 300; // photo fade-in after the particles land (matches the CSS transition + a frame)
-const SAMPLE_STEP = 4.5; // px between alpha samples
-const MAX_DESKTOP = 1500;
+const DAWN_TAP_MS = 3000; // a tap on a touch screen
+const DAWN_REBUILD_MS = 2600; // after the photo rebuilds
+const MAX_DESKTOP = 1500; // the JSON already holds at most this many
 const MAX_PHONE = 700; // below 768 px
-const SHADES = 5; // colour steps from the photo pixel to star colour
-const STAR: [number, number, number] = [205, 225, 245]; // SKY_STAR in lib/theme.ts
+const STAR = "#e3efff"; // dust colour once a point has left the photo
+// Room around the photo box for the drift: up to 280 * 0.55 = 154 px up, 80 * 0.35 = 28 px (+ jitter) sideways.
+const PAD_X = 40;
+const PAD_TOP = 160;
+const PAD_BOTTOM = 8;
 
-const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const touchOnly = () => window.matchMedia("(hover: none)").matches;
-const rand = (a: number, b: number) => a + Math.random() * (b - a);
-
-// Halo geometry in the photo's own pixel space (viewBox = the image size), so it scales with the box exactly.
-const VW = HERO_IMAGE.width;
-const VH = HERO_IMAGE.height;
-const pt = (i: number) => [(HALO_POINTS[i][0] / 100) * VW, (HALO_POINTS[i][1] / 100) * VH] as const;
-const HALO_LINES = [
-  ...HALO_POINTS.slice(1).map((_, i) => ({ a: i, b: i + 1, chord: false })),
-  ...HALO_CHORDS.map(([a, b]) => ({ a, b, chord: true })),
-];
-
-/** Decorative constellation over the photo box. --i staggers each line and star; --n reverses the order on leave. */
-function Halo() {
-  return (
-    <svg className="hero-halo" viewBox={`0 0 ${VW} ${VH}`} aria-hidden="true" focusable="false" style={{ "--n": HALO_LINES.length } as CSSProperties}>
-      {HALO_LINES.map(({ a, b, chord }, i) => {
-        const [x1, y1] = pt(a);
-        const [x2, y2] = pt(b);
-        return (
-          <path
-            key={`${a}-${b}`}
-            className={chord ? "halo-line halo-chord" : "halo-line"}
-            d={`M${x1.toFixed(1)},${y1.toFixed(1)}L${x2.toFixed(1)},${y2.toFixed(1)}`}
-            pathLength={1}
-            style={{ "--i": i } as CSSProperties}
-          />
-        );
-      })}
-      {HALO_POINTS.map((_, i) => {
-        const [cx, cy] = pt(i);
-        return <circle key={i} className="halo-star" cx={cx.toFixed(1)} cy={cy.toFixed(1)} r="4.5" style={{ "--i": i } as CSSProperties} />;
-      })}
-    </svg>
-  );
-}
+type Points = { points: [number, number, number, number, number][] };
 
 type Dust = {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
-  boxW: number;
-  w: number; // canvas size (CSS px)
+  cap: number; // MAX_DESKTOP or MAX_PHONE: the set is rebuilt if a resize crosses 768 px
+  dpr: number;
+  w: number; // photo box (CSS px)
   h: number;
-  ox: number; // where the photo box's top-left corner is inside the canvas
-  oy: number;
   n: number;
-  x: Float32Array; // start position in the box
-  y: Float32Array;
-  dx: Float32Array; // flight at the end of the leave
-  dy: Float32Array;
-  sway: Float32Array; // sideways bend of the path
-  delay: Float32Array; // ms
-  dur: Float32Array; // ms
+  ux: Float32Array; // point in the box, 0..1
+  uy: Float32Array;
+  jx: Float32Array; // jitter, -1..1 (scaled to the box on every resize)
+  jy: Float32Array;
+  vx: Float32Array; // drift, px
+  vy: Float32Array;
   size: Float32Array;
-  colors: string[]; // SHADES per particle: photo colour -> star colour
+  color: string[];
+  x: Float32Array; // mapped position in the box (CSS px), set once per resize
+  y: Float32Array;
 };
 
-/** Samples the cutout as drawn in the box and prepares the particles; null if the photo is not decoded yet. */
-function buildDust(wrap: HTMLElement, img: HTMLImageElement, old: Dust | null): Dust | null {
-  const boxW = wrap.clientWidth;
-  const boxH = wrap.clientHeight;
-  if (!img.complete || !img.naturalWidth || boxW < 10 || boxH < 10) return null;
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const smoothstep = (t: number) => t * t * (3 - 2 * t);
+const rand = (a: number, b: number) => a + Math.random() * (b - a);
+const phoneCap = () => (window.innerWidth < 768 ? MAX_PHONE : MAX_DESKTOP);
 
-  const off = document.createElement("canvas");
-  off.width = Math.round(boxW);
-  off.height = Math.round(boxH);
-  const octx = off.getContext("2d", { willReadFrequently: true });
-  if (!octx) return null;
-  let px: Uint8ClampedArray;
-  try {
-    octx.drawImage(img, 0, 0, off.width, off.height);
-    px = octx.getImageData(0, 0, off.width, off.height).data;
-  } catch {
-    return null; // e.g. a tainted canvas: then leave/return is a plain fade
-  }
-
-  // every SAMPLE_STEP px where alpha > 0.5
-  const cand: number[] = [];
-  for (let y = SAMPLE_STEP / 2; y < off.height; y += SAMPLE_STEP) {
-    for (let x = SAMPLE_STEP / 2; x < off.width; x += SAMPLE_STEP) {
-      const i = (Math.floor(y) * off.width + Math.floor(x)) * 4;
-      if (px[i + 3] > 127) cand.push(i);
-    }
-  }
-  // over budget: a random subset (partial Fisher-Yates), so the dust covers the whole figure evenly
-  const max = window.innerWidth < 768 ? MAX_PHONE : MAX_DESKTOP;
-  const n = Math.min(max, cand.length);
-  for (let k = 0; k < n; k++) {
-    const j = k + Math.floor(Math.random() * (cand.length - k));
-    [cand[k], cand[j]] = [cand[j], cand[k]];
-  }
-
-  // room for the flight: up to 55% of the box above it and 35% of its width on either side
-  const padX = Math.round(boxW * 0.35);
-  const padTop = Math.round(boxH * 0.55);
-  const w = Math.round(boxW + 2 * padX);
-  const h = Math.round(boxH + padTop + 8);
-  const canvas = old?.canvas ?? document.createElement("canvas");
-  if (!old) {
-    canvas.className = "hero-dust";
-    canvas.setAttribute("aria-hidden", "true");
-    wrap.appendChild(canvas);
-  }
-  const dpr = Math.min(2, window.devicePixelRatio || 1);
-  canvas.width = Math.round(w * dpr);
-  canvas.height = Math.round(h * dpr);
-  Object.assign(canvas.style, { left: `${-padX}px`, top: `${-padTop}px`, width: `${w}px`, height: `${h}px` });
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
+/** The point set for one cap: evenly spaced entries of the build-time list, each with its own drift and size. */
+function buildDust(data: Points, cap: number, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D): Dust {
+  const all = data.points;
+  const n = Math.min(cap, all.length);
+  const f = () => new Float32Array(n);
   const d: Dust = {
-    canvas, ctx, boxW, w, h, ox: padX, oy: padTop, n,
-    x: new Float32Array(n), y: new Float32Array(n), dx: new Float32Array(n), dy: new Float32Array(n),
-    sway: new Float32Array(n), delay: new Float32Array(n), dur: new Float32Array(n), size: new Float32Array(n),
-    colors: new Array(n * SHADES),
+    canvas, ctx, cap, dpr: 1, w: 0, h: 0, n,
+    ux: f(), uy: f(), jx: f(), jy: f(), vx: f(), vy: f(), size: f(), color: new Array(n), x: f(), y: f(),
   };
-  const big = window.innerWidth >= 768;
   for (let k = 0; k < n; k++) {
-    const i = cand[k];
-    const pxIndex = i / 4;
-    const x = pxIndex % off.width;
-    const y = Math.floor(pxIndex / off.width);
-    const nx = (x - boxW / 2) / (boxW / 2); // -1 left .. 1 right: drift outward
-    const top = 1 - y / boxH; // 1 at the head: the head goes first and rises furthest
-    d.x[k] = x;
-    d.y[k] = y;
-    d.dx[k] = nx * padX * rand(0.25, 0.85) + rand(-14, 14);
-    d.dy[k] = -padTop * rand(0.3, 0.6 + 0.35 * top);
-    d.sway[k] = rand(-18, 18);
-    d.delay[k] = top * 220 + rand(0, 140);
-    d.dur[k] = DUST_MS - d.delay[k] - rand(0, 140);
-    d.size[k] = (big ? 2.2 : 1.8) + rand(-0.4, 0.4);
-    for (let s = 0; s < SHADES; s++) {
-      const m = (s / (SHADES - 1)) * 0.85; // never quite white: the dust stays a little warm until it fades
-      const c = (ch: number) => Math.round(px[i + ch] + (STAR[ch] - px[i + ch]) * m);
-      d.colors[k * SHADES + s] = `rgb(${c(0)},${c(1)},${c(2)})`;
-    }
+    const [x, y, r, g, b] = all[Math.floor((k * all.length) / n)];
+    d.ux[k] = x / 1000;
+    d.uy[k] = y / 1000;
+    d.jx[k] = rand(-1, 1);
+    d.jy[k] = rand(-1, 1);
+    d.vx[k] = rand(-80, 80);
+    d.vy[k] = rand(-280, -60);
+    d.size[k] = rand(0.9, 1.8);
+    d.color[k] = `rgb(${r},${g},${b})`;
   }
   return d;
 }
 
-/** Draws every particle at global progress p (0 assembled .. 1 dispersed). */
-function drawDust(d: Dust, p: number) {
-  const { ctx } = d;
-  ctx.clearRect(0, 0, d.w, d.h);
-  const t = p * DUST_MS;
+/** Sizes the canvas to the photo box (plus room for the drift) and maps every point into it, with its jitter. */
+function layoutDust(d: Dust, w: number, h: number) {
+  d.w = w;
+  d.h = h;
+  d.dpr = Math.min(2, window.devicePixelRatio || 1);
+  const cw = w + 2 * PAD_X;
+  const ch = h + PAD_TOP + PAD_BOTTOM;
+  d.canvas.width = Math.round(cw * d.dpr);
+  d.canvas.height = Math.round(ch * d.dpr);
+  Object.assign(d.canvas.style, { left: `${-PAD_X}px`, top: `${-PAD_TOP}px`, width: `${cw}px`, height: `${ch}px` });
   for (let k = 0; k < d.n; k++) {
-    const q = Math.min(1, Math.max(0, (t - d.delay[k]) / d.dur[k]));
-    if (q >= 1) continue; // fully faded
-    const e = q * q; // ease-in on the way out = a soft landing on the way back
-    const s = d.size[k] * (1 - 0.35 * q);
-    ctx.globalAlpha = 1 - q;
-    ctx.fillStyle = d.colors[k * SHADES + Math.min(SHADES - 1, Math.floor(q * SHADES))];
-    ctx.fillRect(d.ox + d.x[k] + d.dx[k] * e + d.sway[k] * Math.sin(e * Math.PI) - s / 2, d.oy + d.y[k] + d.dy[k] * e - s / 2, s, s);
+    d.x[k] = d.ux[k] * w + d.jx[k] * w * 0.0083;
+    d.y[k] = d.uy[k] * h + d.jy[k] * h * 0.0065;
+  }
+}
+
+/** One frame. The whole canvas is wiped in device pixels first, so no stale particle can survive a fast scroll. */
+function drawDust(d: Dust, edge: number | null) {
+  const { ctx, canvas } = d;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (edge === null) return;
+  ctx.setTransform(d.dpr, 0, 0, d.dpr, 0, 0);
+  let fill = "";
+  for (let i = 0; i < d.n; i++) {
+    // k: how far past the front this point is (0 = just reached, 1 = gone)
+    const k = (edge - d.y[i] / d.h) / 0.45;
+    if (k <= 0 || k >= 1) continue;
+    const e = smoothstep(k);
+    const c = k < 0.2 ? d.color[i] : STAR;
+    if (c !== fill) ctx.fillStyle = fill = c;
+    ctx.globalAlpha = 1 - e;
+    const s = d.size[i];
+    ctx.fillRect(PAD_X + d.x[i] + d.vx[i] * 0.35 * e - s / 2, PAD_TOP + d.y[i] + d.vy[i] * 0.55 * e - s / 2, s, s);
   }
   ctx.globalAlpha = 1;
 }
 
-/** Leave / return of the hero section -> star dust (or a plain fade under reduced motion). */
-function useStarDust(wrapRef: RefObject<HTMLDivElement | null>, playHalo: () => void) {
+/** Dawn on/off: on while hovered, or for a while after `play(ms)`. Returns `play`. */
+function useDawn(wrapRef: RefObject<HTMLDivElement | null>) {
+  const timer = useRef(0);
+  const hovering = useRef(false);
+  const sync = useCallback(() => {
+    wrapRef.current?.classList.toggle("is-dawn", hovering.current || timer.current !== 0);
+  }, [wrapRef]);
+  const play = useCallback(
+    (ms: number) => {
+      window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        timer.current = 0;
+        sync();
+      }, ms);
+      sync();
+    },
+    [sync],
+  );
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return undefined;
+    const canHover = window.matchMedia("(hover: hover)");
+    const touchOnly = window.matchMedia("(hover: none)");
+    const enter = (e: PointerEvent) => {
+      if (e.pointerType === "touch" || !canHover.matches) return;
+      hovering.current = true;
+      sync();
+    };
+    const leave = (e: PointerEvent) => {
+      if (e.pointerType === "touch") return;
+      hovering.current = false;
+      sync();
+    };
+    // a tap (a scroll gesture ends in pointercancel, not pointerup)
+    const up = (e: PointerEvent) => {
+      if (e.pointerType === "touch" && touchOnly.matches) play(DAWN_TAP_MS);
+    };
+    wrap.addEventListener("pointerenter", enter);
+    wrap.addEventListener("pointerleave", leave);
+    wrap.addEventListener("pointerup", up);
+    return () => {
+      wrap.removeEventListener("pointerenter", enter);
+      wrap.removeEventListener("pointerleave", leave);
+      wrap.removeEventListener("pointerup", up);
+      window.clearTimeout(timer.current);
+    };
+  }, [wrapRef, sync, play]);
+
+  return play;
+}
+
+/** Scroll position -> mask + particles (or a plain fade under reduced motion). */
+function useScrollDust(wrapRef: RefObject<HTMLDivElement | null>, playDawn: (ms: number) => void) {
   useEffect(() => {
     const wrap = wrapRef.current;
     const section = wrap?.closest("section");
-    const img = wrap?.querySelector("img");
-    if (!wrap || !section || !img || typeof IntersectionObserver === "undefined") return undefined;
+    if (!wrap || !section) return undefined;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-    let first = true;
-    let away = false; // where the photo is heading
-    let p = 0; // progress, 0 = assembled
-    let dust: Dust | null = null;
+    // geometry, re-measured on resize: the hero's top in the document and the scroll distance for p = 1
+    let heroTop = 0;
+    let span = 1;
+    let near = true; // the hero is on or near the screen
+    let p = -1; // last applied progress (-1 = nothing applied yet)
     let raf = 0;
-    let last = 0;
-    let fadeTimer = 0;
+    let maxEdge = 0; // furthest the front got since the photo was last whole
+    let data: Points | null = null;
+    let loading = false;
+    let dust: Dust | null = null;
 
-    const stop = () => {
-      cancelAnimationFrame(raf);
-      raf = 0;
-    };
-    const landed = () => {
-      // particles are home: show the photo, fade the canvas out, then clear it
-      wrap.classList.remove("is-dust");
-      if (dust) {
-        dust.canvas.classList.add("is-fading");
-        window.clearTimeout(fadeTimer);
-        fadeTimer = window.setTimeout(() => {
-          if (!away && dust) dust.ctx.clearRect(0, 0, dust.w, dust.h);
-        }, PHOTO_FADE_MS);
-      }
-      if (touchOnly()) window.setTimeout(playHalo, PHOTO_FADE_MS);
-    };
-    const tick = (now: number) => {
-      p = Math.min(1, Math.max(0, p + ((away ? 1 : -1) * (now - last)) / DUST_MS));
-      last = now;
-      if (dust) drawDust(dust, p);
-      if (!away && p <= 0) {
-        stop();
-        landed();
-      } else if (away && p >= 1) {
-        stop(); // all particles have faded: nothing left to draw
-      } else {
-        raf = requestAnimationFrame(tick);
-      }
-    };
-    const run = () => {
-      if (raf) return;
-      last = performance.now();
-      raf = requestAnimationFrame(tick);
-    };
-    // (re)build the particles when there are none yet, or when the box changed size while at rest
+    const progress = () => clamp01((window.scrollY - heroTop) / span);
+
     const ensureDust = () => {
-      if (dust && (dust.boxW === wrap.clientWidth || (p > 0 && p < 1))) return dust;
-      dust = buildDust(wrap, img, dust) ?? dust;
+      if (dust) return dust;
+      if (!data) {
+        if (!loading) {
+          loading = true;
+          // a separate chunk, fetched on the first scroll into the dissolve: nothing extra on page load
+          import("@/data/hero-particles.json").then((m) => {
+            data = m.default as unknown as Points;
+            redraw();
+          });
+        }
+        return null;
+      }
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      canvas.className = "hero-dust";
+      canvas.setAttribute("aria-hidden", "true");
+      wrap.appendChild(canvas);
+      dust = buildDust(data, phoneCap(), canvas, ctx);
+      layoutDust(dust, wrap.clientWidth, wrap.clientHeight);
       return dust;
     };
 
-    const leave = (animate: boolean) => {
-      away = true;
-      wrap.classList.add("is-dust"); // photo fades out (250 ms), glow fades (1.2 s); the halo hides
-      if (!animate || reducedMotion()) {
-        stop();
-        p = 1;
-        if (dust) dust.ctx.clearRect(0, 0, dust.w, dust.h);
-        return;
+    const apply = (next: number) => {
+      p = next;
+      const edge = p * 1.25 - 0.1;
+      wrap.classList.toggle("is-dissolving", edge > 0); // Dawn waits while the photo is coming apart
+      if (reduced.matches) {
+        // plain fade: no mask, no particles
+        wrap.classList.remove("is-masked");
+        wrap.style.removeProperty("--edge");
+        if (p > 0) wrap.style.setProperty("--fade", (1 - p).toFixed(3));
+        else wrap.style.removeProperty("--fade");
+        if (dust) drawDust(dust, null);
+      } else {
+        wrap.style.removeProperty("--fade");
+        if (p > 0) {
+          wrap.style.setProperty("--edge", edge.toFixed(4));
+          wrap.classList.add("is-masked");
+        } else {
+          wrap.classList.remove("is-masked"); // whole photo: no mask at all
+          wrap.style.removeProperty("--edge");
+        }
+        if (p > 0 && p < 1) {
+          const d = ensureDust();
+          if (d) drawDust(d, edge);
+        } else if (dust) {
+          drawDust(dust, null); // the ends: empty canvas
+        }
       }
-      if (!ensureDust()) return;
-      dust!.canvas.classList.remove("is-fading");
-      run();
-    };
-    const back = () => {
-      away = false;
-      if (reducedMotion() || !ensureDust()) {
-        stop();
-        p = 0;
-        landed();
-        return;
+      // Dawn once the photo is whole again after being more than half dissolved
+      if (edge > maxEdge) maxEdge = edge;
+      if (p === 0) {
+        if (maxEdge > 0.5) playDawn(DAWN_REBUILD_MS);
+        maxEdge = 0;
       }
-      dust!.canvas.classList.remove("is-fading");
-      run();
     };
 
+    const frame = () => {
+      raf = 0;
+      const next = progress();
+      if (next !== p) apply(next); // skip the frame when nothing moved
+    };
+    const schedule = () => {
+      if (!raf) raf = requestAnimationFrame(frame);
+    };
+    // force the next frame to draw (new geometry, data just arrived)
+    const redraw = () => {
+      p = -1;
+      schedule();
+    };
+    const onScroll = () => {
+      if (near && progress() !== p) schedule();
+    };
+
+    const measure = () => {
+      const s = section.getBoundingClientRect();
+      const b = wrap.getBoundingClientRect();
+      heroTop = s.top + window.scrollY;
+      span = Math.max(1, b.top - s.top + b.height * 0.9);
+      if (dust) {
+        if (dust.cap !== phoneCap()) {
+          dust = buildDust(data!, phoneCap(), dust.canvas, dust.ctx); // crossed 768 px: other point count
+        }
+        layoutDust(dust, wrap.clientWidth, wrap.clientHeight);
+      }
+      redraw();
+    };
+
+    const ro = new ResizeObserver(measure);
+    ro.observe(section);
+    ro.observe(wrap);
     const io = new IntersectionObserver(
       ([entry]) => {
-        const out = entry.intersectionRatio < LEAVE_RATIO;
-        if (first) {
-          first = false;
-          if (out) leave(false); // opened below the hero: hide quietly, reassemble on return
-          return;
-        }
-        if (out !== away) {
-          if (out) leave(true);
-          else back();
-        }
+        near = entry.isIntersecting;
+        schedule(); // settle once on the way in or out (e.g. a jump to another section)
       },
-      { threshold: [LEAVE_RATIO] },
+      { rootMargin: "25% 0px" },
     );
     io.observe(section);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    reduced.addEventListener("change", redraw);
+
     return () => {
+      ro.disconnect();
       io.disconnect();
-      stop();
-      window.clearTimeout(fadeTimer);
-      wrap.classList.remove("is-dust");
+      window.removeEventListener("scroll", onScroll);
+      reduced.removeEventListener("change", redraw);
+      cancelAnimationFrame(raf);
+      wrap.classList.remove("is-masked", "is-dissolving");
+      wrap.style.removeProperty("--edge");
+      wrap.style.removeProperty("--fade");
       dust?.canvas.remove();
     };
-  }, [wrapRef, playHalo]);
+  }, [wrapRef, playDawn]);
 }
 
 export default function HeroPhoto({ alt }: { alt: string }) {
   const wrapRef = useRef<HTMLDivElement>(null);
-  const haloTimer = useRef(0);
-  // Touch screens: show the halo for HALO_TAP_MS (the `is-halo` class runs the same CSS as a mouse hover).
-  const playHalo = useCallback(() => {
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-    wrap.classList.add("is-halo");
-    window.clearTimeout(haloTimer.current);
-    haloTimer.current = window.setTimeout(() => wrap.classList.remove("is-halo"), HALO_TAP_MS);
-  }, []);
-
-  useStarDust(wrapRef, playHalo);
-
-  // A tap on the photo (touch only; a scroll gesture ends in pointercancel, not pointerup).
-  useEffect(() => {
-    const wrap = wrapRef.current;
-    if (!wrap) return undefined;
-    const onUp = (e: PointerEvent) => {
-      if (e.pointerType === "touch" && touchOnly() && !wrap.classList.contains("is-dust")) playHalo();
-    };
-    wrap.addEventListener("pointerup", onUp);
-    return () => {
-      wrap.removeEventListener("pointerup", onUp);
-      window.clearTimeout(haloTimer.current);
-    };
-  }, [playHalo]);
+  const playDawn = useDawn(wrapRef);
+  useScrollDust(wrapRef, playDawn);
 
   return (
     <div className="hero-photo-wrap" ref={wrapRef}>
+      {/* Dawn (decorative): behind the cutout, above the moonlight glow (::before) */}
+      <span className="hero-dawn hero-dawn--tint" aria-hidden="true" />
+      <span className="hero-dawn hero-dawn--sun" aria-hidden="true" />
       <Picture className="hero-photo" image={HERO_IMAGE} alt={alt} sizes={HERO_SIZES} priority />
-      <Halo />
     </div>
   );
 }

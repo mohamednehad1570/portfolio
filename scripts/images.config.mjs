@@ -11,6 +11,9 @@
  * kind "photo": ordinary photo. AVIF + WebP at each width and a JPEG fallback; aspect kept, the page crops with CSS.
  * kind "screenshot" (batch 12): a tall page capture. AVIF (avifQuality) + WebP at each width, and the WebP doubles as
  *   the fallback (no JPEG: every browser this site supports reads WebP). Aspect kept: the full height survives.
+ * particles (optional, batch 13): sample the processed image (after fx) at `width` px on a `step` px grid where
+ *   alpha > `alpha`, thin evenly to `max` points and write [x, y, r, g, b] (x, y on a 0..1000 scale of the photo box)
+ *   to `file`: the hero's scroll-linked star dust, so the browser never reads pixels (no getImageData).
  * required: false = "not ready yet". Missing is fine until the first time it is generated; after that a missing
  *   source stops the script (so old images are never kept silently).
  */
@@ -34,6 +37,9 @@ const config = {
         fade: { bottom: 0.28, side: 0.22, sideFrom: 0.35, sideFull: 0.6 },
         grade: { saturation: 0.88, red: 0.96, blue: 1.04 },
       },
+      // Batch 13: star-dust points for the hero (HeroPhoto); ~1,900 on the grid, thinned to the desktop cap (the
+      // phone cap of 700 is applied at runtime, again evenly).
+      particles: { file: "src/data/hero-particles.json", width: 840, step: 14, alpha: 128, max: 1500 },
     },
     // About photos (ADR 0015): the four card-stack photos, shown square (the page crops with object-fit: cover).
     // Widths stop at 880 px (2x the 440 px desktop card) so no source is upscaled (the smallest original is 896 px).
