@@ -10,6 +10,7 @@
  * Optional `fx` (the hero, batch 9): a soft edge fade (alpha x mask) and a light cool grade, computed per pixel in
  * plain JS on the source before resizing, so the output stays deterministic. The OG card is made from the plain source.
  * Batch 12: kind "screenshot" (a tall page capture) takes its own AVIF quality and uses the WebP as its fallback.
+ * Batch 13: optional `particles` samples the processed image into a small JSON of star-dust points (see writeParticles).
  */
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile, stat } from "node:fs/promises";
@@ -64,6 +65,27 @@ async function applyFx(src, { fade, grade }) {
     }
   }
   return { data, raw: { width: W, height: H, channels: 4 } };
+}
+
+// particles: the image exactly as shown (fx applied, resized to `width`) sampled on a grid; every cell centre with
+// alpha > threshold becomes [x, y, r, g, b], x and y scaled to 0..1000 of the photo box. Over `max`: keep evenly
+// spaced entries of the row-by-row list (index i * n / max), so the thinning is uniform over the figure.
+// Deterministic (no randomness): the same source always gives the same file.
+async function writeParticles(pipeline, { file, width, step, alpha, max }) {
+  const { data, info } = await pipeline.ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width: W, height: H } = info;
+  if (W !== width) fail(`particles: expected a ${width} px wide image, got ${W}`);
+  const all = [];
+  for (let y = step / 2; y < H; y += step) {
+    for (let x = step / 2; x < W; x += step) {
+      const i = (Math.floor(y) * W + Math.floor(x)) * 4;
+      if (data[i + 3] > alpha) all.push([Math.round((x / W) * 1000), Math.round((y / H) * 1000), data[i], data[i + 1], data[i + 2]]);
+    }
+  }
+  const kept = all.length > max ? Array.from({ length: max }, (_, k) => all[Math.floor((k * all.length) / max)]) : all;
+  const json = `{\n  "source": "scripts/images.mjs (pnpm images): hero cutout at ${width} px, ${step} px grid, alpha > ${alpha}; ${all.length} points, thinned evenly to ${kept.length}. [x, y, r, g, b], x and y on 0..1000 of the photo box.",\n  "points": [\n${kept.map((p) => `    [${p.join(",")}]`).join(",\n")}\n  ]\n}\n`;
+  await writeFile(path.join(root, file), json);
+  console.log(`✓ particles ${file}: ${all.length} on the grid, ${kept.length} kept`);
 }
 
 // Which ids the committed manifest already has: an optional photo that was generated before may not vanish silently.
@@ -131,6 +153,8 @@ for (const img of jobs) {
       : img.kind === "screenshot"
         ? variants.find((v) => v.width === fw)?.webp ?? fail(`"${img.id}": fallbackWidth must be one of its widths`) // the WebP is the fallback
         : await out(resized(fw).flatten({ background: "#0a1626" }).jpeg(JPEG), `${img.id}-${fw}.jpg`);
+
+  if (img.particles) await writeParticles(resized(img.particles.width), img.particles);
 
   manifest[img.id] = {
     width: fw,

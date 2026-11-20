@@ -11,7 +11,7 @@
  * page's LCP element, so it is never hidden: it is opaque in the server HTML (its CSS entrance only slides it, see
  * .hero-photo in sections.css), loads eagerly with high priority, and is preloaded from <head> (`preload` below).
  * Batch 9: the edge fade and cool grade are baked into the files; a CSS moonlight glow sits behind the photo.
- * Batch 12: the mouse parallax is gone; the photo's constellation halo and star-dust leave/return live in HeroPhoto.
+ * Batch 12: the mouse parallax is gone. Batch 13: the photo's Dawn hover and scroll-linked star dust live in HeroPhoto.
  * Phones (< 768 px): the site name sits at the top-left of the hero (not fixed, it scrolls away); the top bar that
  * carries it on larger screens is hidden there (the bubble menu replaces it, see MobileMenu).
  */

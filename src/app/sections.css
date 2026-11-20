@@ -203,20 +203,6 @@ section[id] {
   background: radial-gradient(closest-side, rgba(111, 176, 224, 0.18), rgba(111, 176, 224, 0.09) 55%, rgba(111, 176, 224, 0));
   pointer-events: none;
 }
-/* A second, tighter glow that fades in with the halo: "the glow brightens slightly" (opacity only). */
-.hero-photo-wrap::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: 25%;
-  top: 8%;
-  width: 50%;
-  aspect-ratio: 1 / 1;
-  background: radial-gradient(closest-side, rgba(111, 176, 224, 0.14), rgba(111, 176, 224, 0));
-  opacity: 0;
-  transition: opacity 0.6s ease;
-  pointer-events: none;
-}
 /* Frameless transparent cutout (D14 as amended by ADR 0013): no radius, border, shadow or background, so the
    stars show around the person; the shoulders and bottom are faded in the files themselves (scripts/images.mjs fx). It is the LCP element, so it is never hidden: the
    entrance is a CSS-only slide (transform, no opacity) that starts with the first paint, not after hydration. */
@@ -228,7 +214,7 @@ section[id] {
   display: block;
   width: 100%;
   height: auto; /* the width/height attributes give the 4:5 box before the file arrives: no layout shift */
-  transition: opacity 0.25s ease; /* star dust (HeroPhoto): the photo fades while the particles take over */
+  transition: filter 0.8s ease; /* Dawn warms the photo slightly */
 }
 @keyframes hero-photo-in {
   from {
@@ -236,94 +222,66 @@ section[id] {
   }
 }
 
-/* ---------- Hero halo and star dust (HeroPhoto, batch 12) ---------- */
-/* Constellation halo: hidden until hover (mouse) or `is-halo` (tap on touch screens, or the automatic play after
-   the photo returns). Lines draw with stroke-dashoffset (pathLength 1) 70 ms apart and undraw in reverse order
-   (--n - --i); the points twinkle like the starfield's. Stroke width is in the photo's pixel space (840 wide), so
-   ~2 units = ~1 px at the 420 px desktop size. Decorative: aria-hidden, never takes the pointer. */
-.hero-halo {
+/* ---------- Hero Dawn and star dust (HeroPhoto, batch 13) ---------- */
+/* Dawn: two decorative layers behind the cutout and above the moonlight glow (same z-index as ::before, later in
+   the tree). At rest both are transparent and the sun sits 25% low; `is-dawn` (hover, tap, or after the photo
+   rebuilds; set by HeroPhoto) fades them in and lifts the sun; removing it runs the same transitions back. Dawn
+   waits while the photo is dissolving (`is-dissolving`). Never takes the pointer. */
+.hero-dawn {
   position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+  z-index: -1;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.6s ease;
 }
-.halo-line {
-  fill: none;
-  stroke: #9fd0ff;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-opacity: 0.7;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset 0.4s ease-in calc((var(--n) - 1 - var(--i)) * 40ms);
+.hero-dawn--tint {
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(70, 60, 120, 0.35), transparent 55%);
+  transition: opacity 1.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.halo-chord {
-  stroke-opacity: 0.3; /* faint chords */
+/* 10% wider than the photo box on each side, full height (the page clips any overflow: .page overflow-x) */
+.hero-dawn--sun {
+  top: 0;
+  bottom: 0;
+  left: -10%;
+  right: -10%;
+  background: radial-gradient(
+    75% 55% at 50% 62%,
+    rgba(255, 154, 102, 0.7) 0%,
+    rgba(255, 120, 90, 0.32) 35%,
+    rgba(160, 90, 140, 0.14) 60%,
+    transparent 78%
+  );
+  transform: translateY(25%);
+  transition:
+    opacity 1.6s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 1.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.halo-star {
-  fill: rgb(205, 225, 245); /* SKY_STAR */
-  animation: halo-twinkle 2.2s ease-in-out calc(var(--i) * -0.37s) infinite alternate paused;
-}
-@keyframes halo-twinkle {
-  to {
-    opacity: 0.45;
-  }
-}
-@media (hover: hover) {
-  .hero-photo-wrap:hover:not(.is-dust) .hero-halo {
-    opacity: 1;
-  }
-  .hero-photo-wrap:hover:not(.is-dust) .halo-line {
-    stroke-dashoffset: 0;
-    transition: stroke-dashoffset 0.55s cubic-bezier(0.3, 0.7, 0.3, 1) calc(var(--i) * 70ms);
-  }
-  .hero-photo-wrap:hover:not(.is-dust) .halo-star {
-    animation-play-state: running;
-  }
-  .hero-photo-wrap:hover:not(.is-dust)::after {
-    opacity: 1;
-  }
-}
-.hero-photo-wrap.is-halo:not(.is-dust) .hero-halo {
+.hero-photo-wrap.is-dawn:not(.is-dissolving) .hero-dawn {
   opacity: 1;
 }
-.hero-photo-wrap.is-halo:not(.is-dust) .halo-line {
-  stroke-dashoffset: 0;
-  transition: stroke-dashoffset 0.55s cubic-bezier(0.3, 0.7, 0.3, 1) calc(var(--i) * 70ms);
+.hero-photo-wrap.is-dawn:not(.is-dissolving) .hero-dawn--sun {
+  transform: translateY(0);
 }
-.hero-photo-wrap.is-halo:not(.is-dust) .halo-star {
-  animation-play-state: running;
+.hero-photo-wrap.is-dawn:not(.is-dissolving) .hero-photo img {
+  filter: saturate(1.08) brightness(1.04);
 }
-.hero-photo-wrap.is-halo:not(.is-dust)::after {
-  opacity: 1;
+/* Star dust: while the hero scrolls up, everything above the dissolve front (--edge, 0 = top .. 1 = bottom of the
+   photo) is masked away with a 6% soft edge, and the canvas draws those parts as drifting points. The class is
+   only there while scrolled (p > 0), so the first view has no mask at all. */
+.hero-photo-wrap.is-masked .hero-photo {
+  -webkit-mask-image: linear-gradient(to bottom, transparent calc(var(--edge) * 100%), #000 calc(var(--edge) * 100% + 6%));
+  mask-image: linear-gradient(to bottom, transparent calc(var(--edge) * 100%), #000 calc(var(--edge) * 100% + 6%));
 }
-/* Star dust: leaving the hero adds `is-dust`. The photo fades out (0.25 s), the glows fade with the particles
-   (1.2 s); on return the class goes once the particles have landed, and photo and glow fade back. */
-.hero-photo-wrap::before {
-  transition: opacity 0.6s ease;
+/* reduced motion: a plain fade instead (HeroPhoto sets --fade = 1 - p) */
+.hero-photo-wrap .hero-photo {
+  opacity: var(--fade, 1);
 }
-.hero-photo-wrap.is-dust::before {
-  opacity: 0;
-  transition-duration: 1.2s;
-}
-.hero-photo-wrap.is-dust .hero-photo img {
-  opacity: 0;
-}
-/* the particle canvas: created by HeroPhoto on the first leave, sized and placed in JS (larger than the box, so
-   the dust can rise and spread); it fades out once the photo is back */
+/* the particle canvas: created by HeroPhoto on the first scroll into the dissolve, sized and placed in JS (larger
+   than the photo box, so the points can rise and drift) */
 .hero-dust {
   position: absolute;
   z-index: 2;
   pointer-events: none;
-  transition: opacity 0.3s ease;
-}
-.hero-dust.is-fading {
-  opacity: 0;
 }
 
 /* ---------- About (card stack, ADR 0015) ---------- */
@@ -593,6 +551,14 @@ section[id] {
    (--frame-*): the global muted/line tokens are light-on-dark and would be unreadable on it. */
 .project-media {
   height: 100%;
+}
+/* Batch 13: the browser frame as a link (client site preview): a block that fills the media row like the frame,
+   with the global accent focus ring following the frame's 18 px corners */
+.frame-link {
+  display: block;
+  height: 100%;
+  border-radius: 18px;
+  text-decoration: none;
 }
 .frame {
   --frame-text: #535a65; /* 6:1 or better on the light frame surfaces */
@@ -1158,24 +1124,14 @@ html:not(.js) .blur-text span {
   .hero-photo {
     animation: none;
   }
-  /* batch 12: no screenshot loop; the halo just fades in (no line drawing, no twinkle); star dust becomes a 200 ms
-     fade (HeroPhoto draws no particles); the chart is drawn finished (ScalingChart) */
+  /* batch 12: no screenshot loop; the chart is drawn finished (ScalingChart). Batch 13: Dawn only fades (the sun
+     does not rise); the star dust is a plain opacity fade (HeroPhoto draws no particles and sets no mask) */
   .shot-scroll {
     animation: none;
   }
-  .halo-line,
-  .hero-photo-wrap:hover .halo-line,
-  .hero-photo-wrap.is-halo .halo-line {
-    stroke-dashoffset: 0;
-    transition: none;
-  }
-  .halo-star {
-    animation: none;
-  }
-  .hero-photo img,
-  .hero-photo-wrap::before,
-  .hero-photo-wrap.is-dust::before {
-    transition-duration: 0.2s;
+  .hero-dawn--sun,
+  .hero-photo-wrap.is-dawn:not(.is-dissolving) .hero-dawn--sun {
+    transform: none;
   }
   .chart-marker,
   .chart-endlabels {
