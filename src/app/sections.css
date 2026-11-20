@@ -226,30 +226,30 @@ section[id] {
 /* Dawn: two decorative layers behind the cutout and above the moonlight glow (same z-index as ::before, later in
    the tree). At rest both are transparent and the sun sits 25% low; `is-dawn` (hover, tap, or after the photo
    rebuilds; set by HeroPhoto) fades them in and lifts the sun; removing it runs the same transitions back. Dawn
-   waits while the photo is dissolving (`is-dissolving`). Never takes the pointer. */
+   waits while the photo is dissolving (`is-dissolving`). Never takes the pointer.
+   Batch 14, soft edges: both layers are 18% larger than the photo box on every side, radial gradients only, and
+   masked by a radial fade that reaches nothing well inside their own edges, so no straight edge or corner ever
+   shows on the starfield. Nothing on the photo box clips them; horizontal overflow is clipped at page level
+   (.page overflow-x: clip), never on the photo box. */
 .hero-dawn {
   position: absolute;
   z-index: -1;
+  inset: -18%;
   pointer-events: none;
   opacity: 0;
+  -webkit-mask-image: radial-gradient(closest-side, #000 30%, transparent 95%);
+  mask-image: radial-gradient(closest-side, #000 30%, transparent 95%);
 }
 .hero-dawn--tint {
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(70, 60, 120, 0.35), transparent 55%);
+  background: radial-gradient(60% 45% at 50% 30%, rgba(90, 80, 150, 0.28), transparent 65%);
   transition: opacity 1.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-/* 10% wider than the photo box on each side, full height (the page clips any overflow: .page overflow-x) */
 .hero-dawn--sun {
-  top: 0;
-  bottom: 0;
-  left: -10%;
-  right: -10%;
   background: radial-gradient(
-    75% 55% at 50% 62%,
-    rgba(255, 154, 102, 0.7) 0%,
-    rgba(255, 120, 90, 0.32) 35%,
-    rgba(160, 90, 140, 0.14) 60%,
-    transparent 78%
+    60% 45% at 50% 58%,
+    rgba(255, 154, 102, 0.6) 0%,
+    rgba(255, 120, 90, 0.26) 40%,
+    transparent 75%
   );
   transform: translateY(25%);
   transition:
