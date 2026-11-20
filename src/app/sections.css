@@ -73,7 +73,7 @@ main,
 /* ---------- Navigation ---------- */
 /* Page-colour glass (--color-bg at 88%) with a blur, so text scrolling behind is not readable through it.
    Browsers without backdrop-filter get a near-solid 97% instead (a blur would be missing, so more opaque).
-   --header-h is the height of the top bar (0 on phones, where the bar is a bottom pill). */
+   --header-h is the height of the top bar (0 on phones, where the bar is hidden and the bubble menu takes over). */
 :root {
   --nav-bg: rgba(10, 22, 38, 0.88);
   --header-h: 68px;
@@ -896,38 +896,75 @@ html:not(.js) .blur-text span {
   visibility: hidden; /* also out of the tab order until they appear */
 }
 
-/* ---------- Phones: floating bottom pill, stacked sections ---------- */
-@media (max-width: 760px) {
+/* ---------- Mobile navigation (below 768 px, batch 12) ---------- */
+/* The top bar is hidden; the bubble menu's burger (fixed top-right, rb/BubbleMenu.css) and the back-to-top circle
+   (fixed bottom-right) replace it. The site name sits at the top-left of the hero and scrolls away with it. */
+.hero {
+  position: relative; /* anchors the phone name */
+}
+.hero-brand {
+  display: none;
+}
+@media (max-width: 767px) {
   :root {
-    --header-h: 0px; /* no top bar on phones */
-  }
-  html {
-    scroll-padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px)); /* focus scrolls clear of the bottom pill */
+    --header-h: 0px; /* no top bar */
   }
   .nav {
-    top: auto;
-    bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-    left: 14px;
-    right: 14px;
-    border: 1px solid var(--color-line);
-    border-radius: 999px;
-    background: var(--nav-bg);
-    box-shadow: 0 12px 30px -14px rgba(0, 0, 0, 0.6);
-  }
-  .nav-inner {
-    height: 54px;
-    padding: 0 20px;
-    justify-content: center;
-  }
-  .brand {
     display: none;
   }
-  .nav-links {
-    gap: 30px;
+  /* level with the 48 px burger: same top offset, centred on its height */
+  .hero-brand {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    left: max(20px, env(safe-area-inset-left, 0px));
+    height: 48px;
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.01em;
   }
+  /* back-to-top: the same 48 px glass circle as the burger */
+  .to-top {
+    right: calc(16px + env(safe-area-inset-right, 0px));
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    width: 48px;
+    height: 48px;
+    background: rgba(10, 22, 38, 0.55);
+    border-color: rgba(255, 255, 255, 0.18);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+  /* hidden while the bubble menu is open (BubbleMenu sets data-menu-open on <html>) */
+  html[data-menu-open] .to-top {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  @media (max-width: 767px) {
+    .to-top {
+      background: rgba(10, 22, 38, 0.92);
+    }
+  }
+}
+/* ToTop's 160 px marker: an invisible strip at the top of the page; once it has scrolled away, the phone button shows */
+.to-top-marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 160px;
+  pointer-events: none;
+}
+
+/* ---------- Phones: stacked sections ---------- */
+@media (max-width: 760px) {
   .hero {
     min-height: 0;
-    padding: 48px 0 80px;
+    padding: 88px 0 80px; /* room for the name and the burger above the photo */
   }
   .hero-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -961,18 +998,12 @@ html:not(.js) .blur-text span {
     gap: 28px 18px;
   }
   .footer {
-    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); /* pill (54px) + its 14px gap + air: the last line is never behind it */
+    padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
   }
   .footer-inner {
     flex-direction: row;
     align-items: center;
-    padding-right: 76px; /* keeps Privacy clear of the go-to-top button */
-  }
-  .to-top {
-    right: 16px;
-    bottom: calc(84px + env(safe-area-inset-bottom, 0px)); /* above the bottom nav */
-    width: 46px;
-    height: 46px;
+    padding-right: 64px; /* keeps Privacy clear of the go-to-top button */
   }
 }
 

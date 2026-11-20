@@ -24,6 +24,9 @@ export type Project = {
   shot: string; // placeholder text inside the frame until real screenshots exist
 };
 
+// A bubble of the mobile menu (batch 12). accent = the filled bubble (the booking link).
+export type MenuItem = { label: string; href: string; accent?: boolean };
+
 export type ContactRing = {
   id: "email" | "whatsapp" | "linkedin" | "github" | "booking"; // picks the logo in ContactRings
   label: string; // the link's accessible name (the ring text itself is decorative)
@@ -63,6 +66,15 @@ export const site = {
     { id: "contact", label: "Contact", href: "#contact" },
   ] satisfies NavItem[],
   navAriaLabel: "Sections",
+  // Mobile menu (below 768 px, batch 12): the burger's name and the bubbles, in this order.
+  menuLabel: "Menu",
+  menu: [
+    { label: "Home", href: "#top" },
+    { label: "About", href: "#about" },
+    { label: "Projects", href: "#projects" },
+    { label: "Let's talk", href: "#contact" },
+    { label: "Schedule a call", href: BOOKING_URL, accent: true },
+  ] satisfies MenuItem[],
 
   hero: {
     label: "Cloud & infrastructure engineer",

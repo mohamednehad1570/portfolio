@@ -48,6 +48,8 @@ export default function Hero() {
   });
   return (
     <section id="home" className="hero">
+      {/* phones only (CSS): the name the hidden top bar would show; it scrolls away with the page */}
+      <p className="hero-brand">{site.name}</p>
       <div className="wrap hero-grid">
         <div className="hero-text">
           <TypedText
