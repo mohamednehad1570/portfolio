@@ -5,6 +5,7 @@
  * Wording: final copy approved by Mohammed (batch 10). The website client is never named on the site.
  * Batch 12: hero label and meta description without "Remote"; mobile menu labels; the projects' scrolling
  * screenshot and scaling-chart copy; the Projects "Schedule a call" button goes to the intro call.
+ * Batch 13: the website card's screenshot frame links to the client site preview (CLIENT_PREVIEW_URL).
  */
 
 export type NavItem = { id: "about" | "projects" | "contact"; label: string; href: string };
@@ -21,7 +22,8 @@ export type Project = {
   frame: "browser" | "terminal";
   address: string; // text in the frame's address bar
   // What the frame shows (batch 12): a tall page screenshot that scrolls, or the animated scaling chart.
-  media: { kind: "screenshot"; imageId: string; alt: string } | { kind: "chart" };
+  // Batch 13: a screenshot may link somewhere (the whole frame is the link; linkLabel = its accessible name).
+  media: { kind: "screenshot"; imageId: string; alt: string; href?: string; linkLabel?: string } | { kind: "chart" };
 };
 
 // The autoscaling card's chart (batch 12): numbers come from src/data/scaling-chart.json.
@@ -62,6 +64,11 @@ export const BOOKING_URL = "https://cal.com/mohammednehad";
 
 // The Projects section's "Schedule a call" button only (batch 12): straight to the intro call event.
 export const INTRO_CALL_URL = "https://cal.com/mohammednehad/intro";
+
+// The website card's screenshot frame (batch 13). TEMPORARY, owner-approved exception to the client-masking rule:
+// this preview URL is the only place the client's name may appear in the repo or the built site (the masking grep
+// over the repo and out/ may match this URL and its rendered href, nothing else). Remove it with the exception.
+export const CLIENT_PREVIEW_URL = "https://emaar-site-preview.mnehad.workers.dev/";
 
 export const site = {
   name: "Mohammed Nehad",
@@ -143,13 +150,16 @@ export const site = {
         title: "Bilingual website for a UAE manufacturer",
         body: "For their customers, it simply speaks their language: English or Arabic, on any screen. It took three designs to make it feel that simple.",
         tags: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Figma", "Bilingual (EN / AR)", "RTL layout", "Claude Code (AI-assisted)"],
-        // No public link: the client stays unnamed (batch 10), so the frame is not a link and there is no link row.
+        // The client stays unnamed in the text (batch 10): no link row; the screenshot frame links to the preview
+        // (batch 13, CLIENT_PREVIEW_URL). linkLabel gets " (opens in a new tab)" added by newTabLabel.
         frame: "browser",
         address: "client-website",
         media: {
           kind: "screenshot",
           imageId: "client-home-full",
           alt: "Homepage of a bilingual website for a UAE manufacturer, scrolling from top to bottom",
+          href: CLIENT_PREVIEW_URL,
+          linkLabel: "Open the client website preview",
         },
       },
       {

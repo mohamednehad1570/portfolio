@@ -4,11 +4,13 @@
  * Why (D16): the client website in a light browser frame, the Kubernetes autoscaling project in a dark terminal
  * frame; the cards slide in from opposite sides. Batch 10: the client is never named and its card has no link.
  * Batch 12: the browser frame shows the client homepage scrolling (ScrollingShot), the terminal frame the animated
- * predictive-vs-reactive chart (ScalingChart). Neither frame is a link; the autoscaling card keeps its GitHub link.
+ * predictive-vs-reactive chart (ScalingChart). The autoscaling card keeps its GitHub link.
+ * Batch 13: the browser frame is a link to the client site preview (new tab; named by its aria-label, since the
+ * screenshot's alt describes the picture, not the destination). The chart frame is not a link (the chart is focusable).
  * Below the cards: the two buttons from site.ts (ADR 0011); "Schedule a call" here goes to the intro call.
  */
 import { site } from "@/content/site";
-import { newTabProps, NewTabNote } from "@/lib/links";
+import { newTabLabel, newTabProps, NewTabNote } from "@/lib/links";
 import CtaButton from "./CtaButton";
 import { BrowserFrame, TerminalFrame } from "./ProjectFrame";
 import Reveal from "./Reveal";
@@ -34,9 +36,22 @@ export default function Projects() {
               // through CSS subgrid, so those rows line up across the cards whatever the text length (D16).
               <article key={p.title} className="project">
                 <Reveal from={i === 0 ? "left" : "right"} delay={i === 0 ? 0 : 120} className="project-media">
-                  <Frame address={p.address}>
-                    {p.media.kind === "screenshot" ? <ScrollingShot imageId={p.media.imageId} alt={p.media.alt} /> : <ScalingChart />}
-                  </Frame>
+                  {p.media.kind === "screenshot" && p.media.href ? (
+                    <a
+                      className="frame-link"
+                      href={p.media.href}
+                      {...newTabProps(p.media.href)}
+                      aria-label={newTabLabel(p.media.linkLabel ?? p.title, p.media.href)}
+                    >
+                      <Frame address={p.address}>
+                        <ScrollingShot imageId={p.media.imageId} alt={p.media.alt} />
+                      </Frame>
+                    </a>
+                  ) : (
+                    <Frame address={p.address}>
+                      {p.media.kind === "screenshot" ? <ScrollingShot imageId={p.media.imageId} alt={p.media.alt} /> : <ScalingChart />}
+                    </Frame>
+                  )}
                 </Reveal>
                 <Heading tag="h3" text={p.title} className="h3" />
                 <Reveal from="fade">

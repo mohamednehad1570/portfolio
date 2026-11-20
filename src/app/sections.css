@@ -552,6 +552,14 @@ section[id] {
 .project-media {
   height: 100%;
 }
+/* Batch 13: the browser frame as a link (client site preview): a block that fills the media row like the frame,
+   with the global accent focus ring following the frame's 18 px corners */
+.frame-link {
+  display: block;
+  height: 100%;
+  border-radius: 18px;
+  text-decoration: none;
+}
 .frame {
   --frame-text: #535a65; /* 6:1 or better on the light frame surfaces */
   --frame-line: #e2e6eb;
