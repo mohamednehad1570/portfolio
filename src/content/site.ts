@@ -3,6 +3,8 @@
  * Why: Mohammed edits wording in one place; components only lay it out.
  * Text in [square brackets] is a placeholder he will write; components render it grey (the `.todo` style).
  * Wording: final copy approved by Mohammed (batch 10). The website client is never named on the site.
+ * Batch 12: hero label and meta description without "Remote"; mobile menu labels; the projects' scrolling
+ * screenshot and scaling-chart copy; the Projects "Schedule a call" button goes to the intro call.
  */
 
 export type NavItem = { id: "about" | "projects" | "contact"; label: string; href: string };
@@ -52,7 +54,7 @@ export const site = {
   seo: {
     title: "Mohammed Nehad · Cloud & Infrastructure Engineer",
     description:
-      "Cloud and infrastructure engineer, working remotely. Four years in IT operations, a Master's in Cloud Computing Networks and a predictive autoscaling project.",
+      "Cloud and infrastructure engineer. Four years in IT operations, a Master's in Cloud Computing Networks and a predictive autoscaling project.",
     ogImageAlt: "Mohammed Nehad", // the card itself is generated (og-image.jpg, ADR 0013)
   },
   nav: [
@@ -63,7 +65,7 @@ export const site = {
   navAriaLabel: "Sections",
 
   hero: {
-    label: "Cloud & infrastructure engineer · Remote",
+    label: "Cloud & infrastructure engineer",
     title: "I don't let go until it's solved, for everyone.",
     description: "Four years of chasing tricky IT issues to their cause led me to the cloud systems behind them.",
     primaryCta: { label: "Get in touch", href: "#contact" },
