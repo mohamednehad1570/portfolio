@@ -9,6 +9,8 @@
  * kind "cutout": transparent PNG (person with the background removed). Output keeps the alpha channel exactly:
  *   AVIF + WebP (with alpha) at each width, a lossless PNG fallback, and optionally the Open Graph card.
  * kind "photo": ordinary photo. AVIF + WebP at each width and a JPEG fallback; aspect kept, the page crops with CSS.
+ * kind "screenshot" (batch 12): a tall page capture. AVIF (avifQuality) + WebP at each width, and the WebP doubles as
+ *   the fallback (no JPEG: every browser this site supports reads WebP). Aspect kept: the full height survives.
  * required: false = "not ready yet". Missing is fine until the first time it is generated; after that a missing
  *   source stops the script (so old images are never kept silently).
  */
@@ -39,6 +41,10 @@ const config = {
     { id: "about-study", file: "study.jpeg", kind: "photo", required: true, widths: [440, 660, 880], fallbackWidth: 660 },
     { id: "about-work", file: "work-and-experience.jpeg", kind: "photo", required: true, widths: [440, 660, 880], fallbackWidth: 660 },
     { id: "about-beyond", file: "beyond-work.jpeg", kind: "photo", required: true, widths: [440, 660, 880], fallbackWidth: 660 },
+    // Website card (batch 12): the client homepage, captured once at 1440 px wide (full page, outside the repo) and
+    // shown scrolling inside the browser frame. Neutral name: the client is never named in the repo or on the site.
+    // q50 keeps the ~5,000 px tall AVIF small; one width is enough (the frame is at most ~600 px wide, so 2x).
+    { id: "client-home-full", file: "client-home-full.png", kind: "screenshot", required: true, widths: [1200], fallbackWidth: 1200, avifQuality: 50 },
   ],
 };
 

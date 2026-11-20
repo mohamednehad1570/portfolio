@@ -1,6 +1,7 @@
 /**
  * Header: site name and section links (text only, no icons). The link of the section on screen is underlined.
- * Why: top bar on desktop, floating pill at the bottom on phones (<=760px, see sections.css) where thumbs reach it.
+ * Why: top bar on desktop and tablet. Batch 12: hidden below 768 px, where the bubble menu (MobileMenu) and the
+ * name at the top of the hero replace it (the old floating bottom pill is gone).
  */
 "use client";
 

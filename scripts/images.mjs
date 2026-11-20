@@ -9,6 +9,7 @@
  * The person in a cutout is never retouched or re-masked: only resized (same aspect) and encoded; alpha is kept.
  * Optional `fx` (the hero, batch 9): a soft edge fade (alpha x mask) and a light cool grade, computed per pixel in
  * plain JS on the source before resizing, so the output stays deterministic. The OG card is made from the plain source.
+ * Batch 12: kind "screenshot" (a tall page capture) takes its own AVIF quality and uses the WebP as its fallback.
  */
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rm, writeFile, stat } from "node:fs/promises";
@@ -115,8 +116,10 @@ for (const img of jobs) {
   const resized = (w) => source().resize(w, heightFor(w), { fit: "fill", kernel: "lanczos3" });
 
   const variants = [];
+  // per-image AVIF quality (the tall screenshot uses q50); everything else keeps the measured default
+  const avifOpts = img.avifQuality ? { ...AVIF, quality: img.avifQuality } : AVIF;
   for (const w of img.widths) {
-    const avif = await out(resized(w).avif(AVIF), `${img.id}-${w}.avif`);
+    const avif = await out(resized(w).avif(avifOpts), `${img.id}-${w}.avif`);
     const webp = await out(resized(w).webp(WEBP), `${img.id}-${w}.webp`);
     variants.push({ width: w, height: heightFor(w), avif, webp });
   }
@@ -125,7 +128,9 @@ for (const img of jobs) {
   const fallback =
     img.kind === "cutout"
       ? await out(resized(fw).png(PNG), `${img.id}-${fw}.png`) // JPEG cannot be transparent
-      : await out(resized(fw).flatten({ background: "#0a1626" }).jpeg(JPEG), `${img.id}-${fw}.jpg`);
+      : img.kind === "screenshot"
+        ? variants.find((v) => v.width === fw)?.webp ?? fail(`"${img.id}": fallbackWidth must be one of its widths`) // the WebP is the fallback
+        : await out(resized(fw).flatten({ background: "#0a1626" }).jpeg(JPEG), `${img.id}-${fw}.jpg`);
 
   manifest[img.id] = {
     width: fw,
@@ -162,7 +167,7 @@ await writeFile(
 export type GeneratedImage = {
   width: number; // intrinsic size of the fallback file (sets the aspect ratio, so no layout shift)
   height: number;
-  src: string; // fallback (PNG for cutouts, JPEG for photos)
+  src: string; // fallback (PNG for cutouts, JPEG for photos, WebP for screenshots)
   avifSrcSet: string;
   webpSrcSet: string;
   variants: { width: number; height: number; avif: string; webp: string }[]; // smallest to largest

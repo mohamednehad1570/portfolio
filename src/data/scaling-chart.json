@@ -1,0 +1,7 @@
+{
+  "source": "Two load tests of the predictive Kubernetes autoscaling project (run 1 reactive, run 2 predictive). Values read from Grafana screenshots, ±30 s (the Grafana exports are no longer available, so no CSV script). x = seconds relative to traffic arrival (t = 0: combined network TX first above 10% of the run's peak), on a 30 s grid. predictive / reactive = ready pods as % of the run's final count; traffic = mean of both runs' combined TX as % of its peak.",
+  "x": [-150, -120, -90, -60, -30, 0, 30, 60, 90, 120, 150, 180],
+  "predictive": [12.5, 25, 83, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+  "reactive": [30, 30, 30, 30, 30, 30, 40, 70, 90, 90, 90, 100],
+  "traffic": [0, 0, 0, 0.5, 1.5, 23, 72, 90.5, 95, 96.5, 98, 98.5]
+}

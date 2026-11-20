@@ -7,7 +7,7 @@
 export type GeneratedImage = {
   width: number; // intrinsic size of the fallback file (sets the aspect ratio, so no layout shift)
   height: number;
-  src: string; // fallback (PNG for cutouts, JPEG for photos)
+  src: string; // fallback (PNG for cutouts, JPEG for photos, WebP for screenshots)
   avifSrcSet: string;
   webpSrcSet: string;
   variants: { width: number; height: number; avif: string; webp: string }[]; // smallest to largest
@@ -152,6 +152,21 @@ export const generatedImages: Record<string, GeneratedImage | undefined> = {
         "height": 660,
         "avif": "/images/generated/about-beyond-880.avif",
         "webp": "/images/generated/about-beyond-880.webp"
+      }
+    ]
+  },
+  "client-home-full": {
+    "width": 1200,
+    "height": 4398,
+    "src": "/images/generated/client-home-full-1200.webp",
+    "avifSrcSet": "/images/generated/client-home-full-1200.avif 1200w",
+    "webpSrcSet": "/images/generated/client-home-full-1200.webp 1200w",
+    "variants": [
+      {
+        "width": 1200,
+        "height": 4398,
+        "avif": "/images/generated/client-home-full-1200.avif",
+        "webp": "/images/generated/client-home-full-1200.webp"
       }
     ]
   }

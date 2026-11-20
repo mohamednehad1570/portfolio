@@ -19,6 +19,7 @@ No `@hugeicons/*` packages are used.
 | `BlurText` | Hero description and intro lines | Yes: `play` prop holds the words until the parent says go (hero description waits for the typed title) |
 | `TextType` | Hero label and title, section labels | Yes: `threshold`, `enabled`, `reserveSpace`, `onTypingComplete` props; cursor hidden until typing starts; caret is an inline word-joiner (no mid-word line breaks); CSS shows the whole text without JavaScript and with reduced motion |
 | `VariableProximity` | "Let's talk." | No |
+| `BubbleMenu` | Mobile menu below 768 px (batch 12) | Yes: logo bubble and demo items removed; site tokens (glass burger, night pills, accent pill); `aria-expanded` / `aria-controls` instead of `aria-pressed`; plain nav list instead of `menu` roles; panel always rendered (`hidden` while closed); closes on link, backdrop and Esc; focus moves in, cycles between burger and bubbles, returns to the burger; page scroll locked and siblings `inert` while open; no pop under reduced motion; no desktop rotation. Fetched from the GitHub repo (`src/ts-default/Components/BubbleMenu`; reactbits.dev was unreachable). Depends on GSAP only |
 | `Stack` | About photo cards (ADR 0015) | Yes: TypeScript, no default Unsplash images, ref API `next` / `prev` / `goTo`, ArrowLeft/Up step back, `label` prop, accent focus ring. Fetched from the registry (`reactbits.dev/r/Stack-JS-CSS.json`), not the prototype |
 
 Besides the `MODIFIED` markers, each file got a short header comment naming its source.
