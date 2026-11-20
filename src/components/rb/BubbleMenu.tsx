@@ -3,6 +3,8 @@
  * From React Bits (github.com/DavidHDev/react-bits, src/ts-default/Components/BubbleMenu), MIT + Commons Clause,
  * see LICENSE-react-bits.md. Vendored for this site (batch 12, mobile menu below 768 px); every change is marked
  * `MODIFIED` (see README.md in this folder).
+ * Batch 13: level pills (rotation 0) that spring out of the top-right corner one after another and fold back in
+ * reverse order; the backdrop fades in and out (0.35 s). Behaviour (focus, Esc, backdrop, scroll lock) unchanged.
  */
 'use client';
 
@@ -46,9 +48,9 @@ export default function BubbleMenu({
   onMenuClick,
   className,
   style,
-  animationEase = 'back.out(1.5)',
+  animationEase = 'back.out(1.6)', // MODIFIED (batch 13): was back.out(1.5)
   animationDuration = 0.5,
-  staggerDelay = 0.08
+  staggerDelay = 0.07 // MODIFIED (batch 13): 70 ms (was 80 ms plus a random +-50 ms)
 }: BubbleMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -57,7 +59,6 @@ export default function BubbleMenu({
   const toggleRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const bubblesRef = useRef<HTMLAnchorElement[]>([]);
-  const labelRefs = useRef<HTMLSpanElement[]>([]);
 
   // MODIFIED: the page behind the open menu. While open: scroll locked (overflow hidden on <html> and <body>),
   // every sibling of the menu inert (no focus, no clicks, hidden from screen readers), and <html data-menu-open>
@@ -109,70 +110,43 @@ export default function BubbleMenu({
   useEffect(() => {
     const overlay = overlayRef.current;
     const bubbles = bubblesRef.current.filter(Boolean);
-    const labels = labelRefs.current.filter(Boolean);
 
     if (!overlay || !bubbles.length) return;
 
-    // MODIFIED: reduced motion: the bubbles appear and disappear at once (no pop, no rise).
+    // MODIFIED: reduced motion: the bubbles and the backdrop appear and disappear at once (no pop, no fade).
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (isMenuOpen) {
       gsap.set(overlay, { display: 'flex' });
-      gsap.killTweensOf([...bubbles, ...labels]);
+      gsap.killTweensOf([overlay, ...bubbles]);
       // MODIFIED: focus moves into the menu (the first bubble) as soon as it opens.
       bubbles[0]?.focus({ preventScroll: true });
       if (reduced) {
-        gsap.set(bubbles, { scale: 1 });
-        gsap.set(labels, { y: 0, autoAlpha: 1 });
+        gsap.set(overlay, { opacity: 1 });
+        gsap.set(bubbles, { scale: 1, rotation: 0 });
         return;
       }
-      gsap.set(bubbles, { scale: 0, transformOrigin: '50% 50%' });
-      gsap.set(labels, { y: 24, autoAlpha: 0 });
-
-      bubbles.forEach((bubble, i) => {
-        const delay = i * staggerDelay + gsap.utils.random(-0.05, 0.05);
-        const tl = gsap.timeline({ delay });
-
-        tl.to(bubble, {
-          scale: 1,
-          duration: animationDuration,
-          ease: animationEase
-        });
-        if (labels[i]) {
-          tl.to(
-            labels[i],
-            {
-              y: 0,
-              autoAlpha: 1,
-              duration: animationDuration,
-              ease: 'power3.out'
-            },
-            `-=${animationDuration * 0.9}`
-          );
-        }
-      });
+      // MODIFIED (batch 13): backdrop fades in; every pill level (rotation 0) and scaled from its top-right corner
+      // (transform-origin in CSS), 70 ms apart. The label no longer rises separately: it scales with its pill.
+      gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power1.out' });
+      gsap.fromTo(
+        bubbles,
+        { scale: 0, rotation: 0 },
+        { scale: 1, rotation: 0, duration: animationDuration, ease: animationEase, stagger: staggerDelay }
+      );
     } else if (showOverlay) {
-      gsap.killTweensOf([...bubbles, ...labels]);
-      if (reduced) {
+      gsap.killTweensOf([overlay, ...bubbles]);
+      const hide = () => {
         gsap.set(overlay, { display: 'none' });
         setShowOverlay(false);
+      };
+      if (reduced) {
+        hide();
         return;
       }
-      gsap.to(labels, {
-        y: 24,
-        autoAlpha: 0,
-        duration: 0.2,
-        ease: 'power3.in'
-      });
-      gsap.to(bubbles, {
-        scale: 0,
-        duration: 0.2,
-        ease: 'power3.in',
-        onComplete: () => {
-          gsap.set(overlay, { display: 'none' });
-          setShowOverlay(false);
-        }
-      });
+      // MODIFIED (batch 13): close in reverse order, 40 ms apart, while the backdrop fades out (0.35 s).
+      gsap.to(bubbles, { scale: 0, duration: 0.2, ease: 'power3.in', stagger: { each: 0.04, from: 'end' } });
+      gsap.to(overlay, { opacity: 0, duration: 0.35, ease: 'power1.in', onComplete: hide });
     }
   }, [isMenuOpen, showOverlay, animationEase, animationDuration, staggerDelay]);
 
@@ -247,14 +221,8 @@ export default function BubbleMenu({
                     if (el) bubblesRef.current[idx] = el;
                   }}
                 >
-                  <span
-                    className="pill-label"
-                    ref={el => {
-                      if (el) labelRefs.current[idx] = el;
-                    }}
-                  >
-                    {item.label}
-                  </span>
+                  {/* MODIFIED (batch 13): the label scales with its pill (no separate rise, so no ref) */}
+                  <span className="pill-label">{item.label}</span>
                   {item.srNote ? <span className="sr-only"> {item.srNote}</span> : null}
                 </a>
               </li>

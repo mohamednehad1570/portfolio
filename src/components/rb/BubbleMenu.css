@@ -1,8 +1,10 @@
 /*
  * BubbleMenu styles. From React Bits (github.com/DavidHDev/react-bits), MIT + Commons Clause, see LICENSE-react-bits.md.
- * MODIFIED (batch 12): restyled to the site's tokens (night background, accent #6fb0e0, Bricolage Grotesque),
- * a 48 px glass burger fixed top-right with safe-area offsets, full-width pills only (the menu exists below 768 px),
- * no logo bubble, no rotation; hidden from 768 px up and without JavaScript (the burger needs it to open).
+ * MODIFIED (batch 12): restyled to the site's tokens (accent #6fb0e0, Bricolage Grotesque), a 48 px glass burger
+ * fixed top-right with safe-area offsets, no logo bubble, no rotation; hidden from 768 px up and without JavaScript
+ * (the burger needs it to open).
+ * MODIFIED (batch 13): level light pills sized to their text, right-aligned in a column under the burger, on a
+ * lighter see-through backdrop that fades in and out (BubbleMenu.tsx animates it).
  */
 
 /* MODIFIED: phones only, and only once JavaScript runs (the `js` class from layout.tsx) */
@@ -85,27 +87,23 @@
   transform: translateY(-4px) rotate(-45deg);
 }
 
-/* MODIFIED: the panel is the night-sky backdrop (a click on it closes the menu); bubbles start under the burger */
+/* MODIFIED (batch 13): the panel is the backdrop (a click on it closes the menu): dark, see-through, lightly
+   blurred; the pills form a right-aligned column under the burger (top 76 px, 14 px from either side). */
 .bubble-menu-items {
   position: fixed;
   inset: 0;
   z-index: 98;
   display: flex;
   align-items: flex-start;
-  justify-content: center;
-  padding: calc(96px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px))
-    calc(24px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
-  background: rgba(10, 22, 38, 0.9);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  justify-content: flex-end;
+  padding: calc(76px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px))
+    calc(24px + env(safe-area-inset-bottom, 0px)) calc(14px + env(safe-area-inset-left, 0px));
+  background: rgba(3, 7, 14, 0.62);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 }
 .bubble-menu-items[hidden] {
   display: none;
-}
-
-.bubble-menu-items .pill-nav {
-  width: 100%;
-  max-width: 480px;
 }
 
 .bubble-menu-items .pill-list {
@@ -114,6 +112,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
+  align-items: flex-end; /* each pill only as wide as its text, right edges lined up */
   gap: 12px;
 }
 
@@ -121,53 +120,34 @@
   display: flex;
 }
 
-/* MODIFIED: night pills with a hairline border and ink text; the accent pill (Schedule a call) is filled */
+/* MODIFIED (batch 13): light pills with dark text (about 17:1); Schedule a call is the accent pill; hover and
+   press fill any pill with the accent. They pop out of the top-right corner (GSAP scale, transform-origin). */
 .bubble-menu-items .pill-link {
-  width: 100%;
-  min-height: 60px;
-  padding: 0 24px;
+  padding: 13px 26px;
   border-radius: 999px;
-  border: 1px solid var(--color-line);
-  background: #0e1626; /* SURFACE in lib/theme.ts */
-  color: var(--color-ink);
+  background: #eaf3fc;
+  color: #07111f;
   font-family: var(--font-display);
-  font-size: 1.35rem;
+  font-size: 22px;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  line-height: 1.2;
   text-decoration: none;
-  box-shadow: 0 10px 26px -14px rgba(0, 0, 0, 0.7);
-  display: flex;
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.6);
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
+  transform-origin: top right;
   transition:
-    background 0.3s ease,
-    border-color 0.3s ease,
-    color 0.3s ease;
+    background 0.25s ease,
+    color 0.25s ease;
   will-change: transform;
   white-space: nowrap;
   -webkit-tap-highlight-color: transparent;
 }
-.bubble-menu-items .pill-link:hover {
-  border-color: var(--color-accent);
-  background: #13233a;
-}
+.bubble-menu-items .pill-link--accent,
+.bubble-menu-items .pill-link:hover,
 .bubble-menu-items .pill-link:active {
-  transform: scale(0.97);
-}
-.bubble-menu-items .pill-link--accent {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: #0a1626; /* ~8:1 on the accent */
-}
-.bubble-menu-items .pill-link--accent:hover {
-  background: #8cc2ea;
-}
-
-.bubble-menu-items .pill-link .pill-label {
-  display: inline-block;
-  will-change: transform, opacity;
-  line-height: 1.2;
+  background: var(--color-accent); /* #6fb0e0 */
+  color: #04101c;
 }
 
 /* MODIFIED: short screens (phone held sideways): smaller pills so all five fit without scrolling */
@@ -179,7 +159,7 @@
     gap: 8px;
   }
   .bubble-menu-items .pill-link {
-    min-height: 44px;
-    font-size: 1.1rem;
+    padding: 10px 22px;
+    font-size: 18px;
   }
 }
