@@ -11,12 +11,16 @@
  * plain JS on the source before resizing, so the output stays deterministic. The OG card is made from the plain source.
  * Batch 12: kind "screenshot" (a tall page capture) takes its own AVIF quality and uses the WebP as its fallback.
  * Batch 13: optional `particles` samples the processed image into a small JSON of star-dust points (see writeParticles).
+ * Batch 16: the site icons (see writeIcons): src/app/favicon.ico (16/32/48 px, packed by ImageMagick) and
+ * src/app/apple-icon.png (180 px), both rendered from src/app/icon.svg; Next's file-based metadata links all three.
  */
+import { execFile } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdir, readFile, rm, writeFile, stat } from "node:fs/promises";
-import { homedir } from "node:os";
+import { mkdir, mkdtemp, readFile, rm, writeFile, stat } from "node:fs/promises";
+import { homedir, tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { promisify } from "node:util";
 import sharp from "sharp";
 import config from "./images.config.mjs";
 
@@ -93,6 +97,43 @@ async function previouslyGenerated() {
   if (!existsSync(manifestPath)) return new Set();
   const text = await readFile(manifestPath, "utf8");
   return new Set([...text.matchAll(/^ {2}"([\w-]+)": \{/gm)].map((m) => m[1]));
+}
+
+// Site icons (batch 16), all from the one source src/app/icon.svg (a 64-unit viewBox):
+//  - favicon.ico: 16 and 32 px from a bolder copy (stroke 5, star radius 5.5) so the M stays readable that small,
+//    48 px from the source as is; ImageMagick packs the three PNGs into one ICO (no npm dependency);
+//  - apple-icon.png: 180 px with square corners (iOS rounds them itself, so no transparent corners).
+// Each size is rendered straight from the SVG at its own density (no downscaling), with no metadata.
+async function writeIcons() {
+  const appDir = path.join(root, "src", "app");
+  const svg = await readFile(path.join(appDir, "icon.svg"), "utf8");
+  const bold = svg.replace(/stroke-width="[\d.]+"/, 'stroke-width="5"').replace(/ r="[\d.]+"/g, ' r="5.5"');
+  const square = svg.replace(/ rx="[\d.]+"/, "");
+  if (bold === svg || square === svg) fail("icon.svg no longer matches the icon step (stroke-width / r / rx).");
+  const render = (source, size) =>
+    sharp(Buffer.from(source), { density: (72 * size) / 64 }).resize(size, size).png(PNG);
+
+  const tmp = await mkdtemp(path.join(tmpdir(), "site-icons-"));
+  try {
+    const pngs = [];
+    for (const [size, source] of [[16, bold], [32, bold], [48, svg]]) {
+      const file = path.join(tmp, `icon-${size}.png`);
+      await render(source, size).toFile(file);
+      pngs.push(file);
+    }
+    const ico = path.join(appDir, "favicon.ico");
+    try {
+      await promisify(execFile)("magick", [...pngs, ico]);
+    } catch (err) {
+      fail(`packing favicon.ico needs ImageMagick 7 (\`magick\`): ${err.message}`);
+    }
+    await render(square, 180).toFile(path.join(appDir, "apple-icon.png"));
+    for (const name of ["favicon.ico", "apple-icon.png"]) {
+      written.push([`src/app/${name}`, (await stat(path.join(appDir, name))).size]);
+    }
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
 }
 
 // 1. Check every source before touching any output.
@@ -201,6 +242,9 @@ export type GeneratedImage = {
 export const generatedImages: Record<string, GeneratedImage | undefined> = ${body};
 `,
 );
+
+// 5. Site icons (batch 16, see writeIcons).
+await writeIcons();
 
 for (const [name, size] of written) console.log(`✓ ${name.padEnd(24)} ${kb(size).padStart(10)}`);
 console.log(`✓ manifest ${path.relative(root, manifestPath)}`);

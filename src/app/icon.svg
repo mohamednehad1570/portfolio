@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Site icon, batch 16 (Constellation M, approved by Mohammed): five stars joined into an M on a night tile.
+       Source of truth for every icon: scripts/images.mjs renders favicon.ico and apple-icon.png from this file. -->
+  <!-- night tile -->
+  <rect width="64" height="64" rx="14" fill="#0b1626"/>
+  <!-- constellation lines forming an M -->
+  <path d="M13 49L19 15 32 36 45 15 51 49" fill="none" stroke="#9fd0ff" stroke-width="3" stroke-linejoin="round"/>
+  <!-- five stars -->
+  <g fill="#ffffff">
+    <circle cx="13" cy="49" r="4"/><circle cx="19" cy="15" r="4.5"/><circle cx="32" cy="36" r="4"/>
+    <circle cx="45" cy="15" r="4.5"/><circle cx="51" cy="49" r="4"/>
+  </g>
+</svg>
