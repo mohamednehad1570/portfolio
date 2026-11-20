@@ -17,11 +17,22 @@ export type Project = {
   title: string;
   body: string;
   tags: string[];
-  link?: { href: string; label: string }; // the card's text link (opens in a new tab); none = the frame is no link
-  ariaLabel: string; // name of the frame link for screen readers (or of the frame when there is no link)
+  link?: { href: string; label: string }; // the card's text link (opens in a new tab)
   frame: "browser" | "terminal";
   address: string; // text in the frame's address bar
-  shot: string; // placeholder text inside the frame until real screenshots exist
+  // What the frame shows (batch 12): a tall page screenshot that scrolls, or the animated scaling chart.
+  media: { kind: "screenshot"; imageId: string; alt: string } | { kind: "chart" };
+};
+
+// The autoscaling card's chart (batch 12): numbers come from src/data/scaling-chart.json.
+export type ScalingChartCopy = {
+  ariaLabel: string; // the whole chart for screen readers (the SVG itself is hidden from them)
+  caption: string;
+  yLabel: string;
+  marker: string; // the dotted line at t = 0
+  xLabels: { at: number; long: string; short: string }[]; // at = seconds from traffic arrival; short below 420 px
+  predictive: string;
+  reactive: string;
 };
 
 // A bubble of the mobile menu (batch 12). accent = the filled bubble (the booking link).
@@ -44,10 +55,13 @@ const GITHUB_URL = "https://github.com/mohamednehad1570";
 // The one public email address (Proton Mail, ADR 0009). Use this constant wherever an address is needed.
 export const CONTACT_EMAIL = "hello@mohammednehad.com";
 
-// Where every "Schedule a call" link goes (Hero and Projects buttons, Contact ring 5): the Cal.com profile page,
+// Where every "Schedule a call" link goes (Hero button, Contact ring 5, the mobile menu; not Projects, see below): the Cal.com profile page,
 // which lists both call types (batch 10; replaces the /intro event).
 // ADR 0007: a link, no embedded calendar or Cal.com script; ADR 0011: it opens in a new tab (src/lib/links.tsx).
 export const BOOKING_URL = "https://cal.com/mohammednehad";
+
+// The Projects section's "Schedule a call" button only (batch 12): straight to the intro call event.
+export const INTRO_CALL_URL = "https://cal.com/mohammednehad/intro";
 
 export const site = {
   name: "Mohammed Nehad",
@@ -130,24 +144,42 @@ export const site = {
         body: "For their customers, it simply speaks their language: English or Arabic, on any screen. It took three designs to make it feel that simple.",
         tags: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Figma", "Bilingual (EN / AR)", "RTL layout", "Claude Code (AI-assisted)"],
         // No public link: the client stays unnamed (batch 10), so the frame is not a link and there is no link row.
-        ariaLabel: "Bilingual website for a UAE manufacturer",
         frame: "browser",
         address: "client-website",
-        shot: "Screenshot of the client website (after the client's OK)",
+        media: {
+          kind: "screenshot",
+          imageId: "client-home-full",
+          alt: "Homepage of a bilingual website for a UAE manufacturer, scrolling from top to bottom",
+        },
       },
       {
         title: "Predictive Kubernetes autoscaling",
         body: "For a shopper, Black Friday should feel like any other day. This system predicts the rush from past traffic and scales Kubernetes before anyone feels it. My Master's project, with more to build.",
         tags: ["GKE", "KEDA", "Time-series forecasting", "Holt-Winters", "FastAPI", "ArgoCD", "Prometheus & Grafana", "Locust", "Claude Code (AI-assisted)"],
         link: { href: GITHUB_URL, label: "View on GitHub ↗" },
-        ariaLabel: "View the autoscaling project on GitHub",
         frame: "terminal",
         address: "k8s-ecommerce-autoscaler",
-        shot: "$ [screenshot placeholder]\nGrafana: predicted vs. actual traffic,\npods scaling up before the spike",
+        media: { kind: "chart" },
       },
     ] satisfies Project[],
+    chart: {
+      ariaLabel:
+        "Chart: with predictive scaling all pods were ready about a minute before traffic arrived; with reactive scaling full capacity came about 90 seconds after.",
+      caption:
+        "Two load tests. Predictive had every pod ready about a minute before traffic; reactive caught up about 90 seconds after.",
+      yLabel: "Pods ready, % of full",
+      marker: "Traffic arrives",
+      xLabels: [
+        { at: -120, long: "-2 min", short: "-2m" },
+        { at: -60, long: "-1 min", short: "-1m" },
+        { at: 60, long: "+1 min", short: "+1m" },
+        { at: 120, long: "+2 min", short: "+2m" },
+      ],
+      predictive: "Predictive",
+      reactive: "Reactive",
+    } satisfies ScalingChartCopy,
     primaryCta: { label: "Discuss this work", href: "#contact" },
-    secondaryCta: { label: "Schedule a call", href: BOOKING_URL },
+    secondaryCta: { label: "Schedule a call", href: INTRO_CALL_URL },
   },
 
   contact: {

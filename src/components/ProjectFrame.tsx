@@ -1,27 +1,27 @@
 /**
- * BrowserFrame and TerminalFrame: the picture frame of a project card (light browser window / dark terminal).
- * Why (D16): both cards have the identical 16:10 frame size, and both are wrapped in GlareHover.
- * Until real screenshots exist the frame shows a labelled placeholder (`shot`).
- * Without `href` (the client website, batch 10) the frame is a plain labelled box (role="img"), not a link.
- * Dark theme (ADR 0004): the browser frame stays light (a light window reads clearly on navy; colours are
- * provisional, Mohammed decides after seeing the build); the terminal frame is dark and gets a `line` border so
- * its edge separates from the night-sky background.
+ * BrowserFrame and TerminalFrame: the window frame of a project card (light browser window / dark terminal).
+ * Why (D16): both cards get a frame of the same size, and both are wrapped in GlareHover.
+ * Batch 12: the frames show real content passed as children (the scrolling site screenshot, the scaling chart), so
+ * they are plain boxes, not links and not role="img": the content names itself (the screenshot's alt, the chart's
+ * aria-label). The address bar is decoration and hidden from screen readers.
+ * Equal height: on two-column layouts each frame fills its grid row (height 100% down the chain, see .frame in
+ * sections.css), so the shorter frame stretches to match the taller one instead of leaving a gap under it.
+ * Dark theme (ADR 0004): the browser frame stays light (a light window reads clearly on navy); the terminal frame
+ * is dark and gets a `line` border so its edge separates from the night-sky background.
  */
+import type { ReactNode } from "react";
 import GlareHover from "./rb/GlareHover";
-import { newTabLabel, newTabProps } from "@/lib/links";
 import { LINE } from "@/lib/theme";
 
 type FrameProps = {
-  href?: string; // an external URL (opens in a new tab); none = the frame is not a link
-  ariaLabel: string;
   address: string;
-  shot: string;
+  children: ReactNode;
 };
 
-// The three round dots and address pill that make it look like a window
+// The three round dots and address pill that make it look like a window (decorative)
 function Bar({ address }: { address: string }) {
   return (
-    <span className="frame-bar">
+    <span className="frame-bar" aria-hidden="true">
       <i />
       <i />
       <i />
@@ -30,27 +30,11 @@ function Bar({ address }: { address: string }) {
   );
 }
 
-// The frame's outer element: a link that opens in a new tab, or (no href) a plain box named by its aria-label.
-function FrameBox({ href, ariaLabel, className, children }: { href?: string; ariaLabel: string; className: string; children: React.ReactNode }) {
-  if (!href) {
-    return (
-      <span className={className} role="img" aria-label={ariaLabel}>
-        {children}
-      </span>
-    );
-  }
-  return (
-    <a className={className} href={href} aria-label={newTabLabel(ariaLabel, href)} {...newTabProps(href)}>
-      {children}
-    </a>
-  );
-}
-
-export function BrowserFrame({ href, ariaLabel, address, shot }: FrameProps) {
+export function BrowserFrame({ address, children }: FrameProps) {
   return (
     <GlareHover
       width="100%"
-      height="auto"
+      height="100%"
       background="#ffffff"
       borderRadius="18px"
       borderColor="#e2e6eb"
@@ -59,20 +43,19 @@ export function BrowserFrame({ href, ariaLabel, address, shot }: FrameProps) {
       blendMode="normal"
       className="frame-glare"
     >
-      <FrameBox className="frame" href={href} ariaLabel={ariaLabel}>
+      <div className="frame">
         <Bar address={address} />
-        <span className="frame-shot">{shot}</span>
-      </FrameBox>
+        {children}
+      </div>
     </GlareHover>
   );
 }
 
-export function TerminalFrame({ href, ariaLabel, address, shot }: FrameProps) {
-  const lines = shot.split("\n");
+export function TerminalFrame({ address, children }: FrameProps) {
   return (
     <GlareHover
       width="100%"
-      height="auto"
+      height="100%"
       background="#0f1216"
       borderRadius="18px"
       borderColor={LINE}
@@ -80,20 +63,10 @@ export function TerminalFrame({ href, ariaLabel, address, shot }: FrameProps) {
       glareOpacity={0.35}
       className="frame-glare"
     >
-      <FrameBox className="frame frame--dark" href={href} ariaLabel={ariaLabel}>
+      <div className="frame frame--dark">
         <Bar address={address} />
-        <span className="frame-shot">
-          <span className="term-lines">
-            {lines.map((line, i) => (
-              <span key={i}>
-                {line}
-                {i < lines.length - 1 ? <br /> : null}
-              </span>
-            ))}
-            <b className="caret" />
-          </span>
-        </span>
-      </FrameBox>
+        {children}
+      </div>
     </GlareHover>
   );
 }

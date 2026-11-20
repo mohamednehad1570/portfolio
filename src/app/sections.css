@@ -586,15 +586,21 @@ section[id] {
 .frame-glare:hover {
   transform: translateY(-6px);
 }
-/* both project frames are exactly the same size (16:10 picture area), whatever is inside them.
+/* Both project frames are the same size (batch 12): in the two-column layout each frame fills its grid row
+   (Reveal -> GlareHover -> .frame all 100% tall), so the shorter one stretches to the taller one's height; the
+   browser frame's picture area grows with it (16:10 at least). On phones the cards stack and keep natural heights.
    The browser frame is a light window on the dark page (D16), so it carries its own text and line colours
    (--frame-*): the global muted/line tokens are light-on-dark and would be unreadable on it. */
+.project-media {
+  height: 100%;
+}
 .frame {
   --frame-text: #535a65; /* 6:1 or better on the light frame surfaces */
   --frame-line: #e2e6eb;
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 100%;
   text-decoration: none;
   color: var(--frame-text);
 }
@@ -626,16 +632,44 @@ section[id] {
   color: var(--frame-text);
 }
 .frame-shot {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
+  flex: 1 0 auto; /* grows when the row is taller than 16:10 */
   width: 100%;
   aspect-ratio: 16 / 10;
   overflow: hidden;
-  padding: 24px;
   background: #eef1f4;
-  font-size: 14px;
-  text-align: center;
+}
+/* Scrolling homepage screenshot (ScrollingShot, batch 12): the tall image sits at the top of the window and glides
+   to --end (its height minus the window's, set in JS) and back. 14 s cycle: hold 1 s at the top, glide down 5.5 s,
+   hold 1 s, glide up 6.5 s; each glide eased (the timing function applies per keyframe segment). It runs only while
+   the frame is half in view (.is-playing). Without JS --end is unset (0) and the loop is paused: a still top view. */
+.frame-shot--scroll {
+  position: relative;
+}
+.shot-scroll,
+.shot-scroll img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.shot-scroll {
+  animation: shot-scroll 14s ease-in-out infinite paused;
+}
+.frame-shot--scroll.is-playing .shot-scroll {
+  animation-play-state: running;
+}
+@keyframes shot-scroll {
+  0%,
+  7.14% {
+    transform: translateY(0);
+  }
+  46.43%,
+  53.57% {
+    transform: translateY(calc(-1 * var(--end, 0px)));
+  }
+  100% {
+    transform: translateY(0);
+  }
 }
 .frame--dark {
   --frame-text: #9aa3ad;
@@ -651,32 +685,99 @@ section[id] {
   background: #1f242b;
   color: #9aa3ad;
 }
-.frame--dark .frame-shot {
-  background: #0f1216;
+/* Scaling chart (ScalingChart, batch 12) inside the terminal frame: a dark inset plot panel with a fixed height
+   (the SVG is drawn at that real size, so nothing shifts), then the legend and the caption. */
+.chart {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 14px;
   color: #9aa3ad;
-  font-family: ui-monospace, Menlo, monospace;
+}
+.chart-plot {
+  position: relative;
+  height: 260px;
+  border-radius: 10px;
+  background: #0a0d11;
+  border: 1px solid #262a31;
+  cursor: pointer;
+}
+.chart-plot svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.chart-plot text {
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  fill: #9aa3ad;
+}
+.chart-plot .chart-ylabel {
+  font-size: 12px;
+  font-weight: 600;
+  fill: #c3cad3;
+}
+/* the marker shows once the sweep passes 0, the line-end labels at the end, the playhead only while sweeping */
+.chart-marker,
+.chart-endlabels {
+  transition: opacity 0.5s ease;
+}
+.chart-plot:not(.is-marker) .chart-marker,
+.chart-plot:not(.is-done) .chart-endlabels {
+  opacity: 0;
+}
+.chart-plot .chart-endlabels text {
+  font-size: 12px;
+  font-weight: 600;
+  fill: currentColor;
+}
+.chart-endlabels text:first-child {
+  color: #6fb0e0;
+}
+.chart-endlabels text:last-child {
+  color: #8b95a5;
+}
+.chart-head {
+  stroke: rgba(233, 238, 244, 0.35);
+  stroke-width: 1;
+  opacity: 0;
+}
+.chart-plot.is-playing .chart-head {
+  opacity: 1;
+}
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  font-size: 12.5px;
+}
+.chart-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.chart-key::before {
+  content: "";
+  width: 18px;
+  border-radius: 2px;
+}
+.chart-key--predictive::before {
+  height: 3px;
+  background: #6fb0e0;
+}
+.chart-key--reactive::before {
+  height: 2.4px;
+  background: #8b95a5;
+}
+.chart-caption {
+  margin: 0;
   font-size: 13px;
-  line-height: 1.8;
-  justify-content: flex-start;
-  align-items: flex-start;
-  text-align: left;
-}
-.term-lines {
-  display: block;
-}
-.caret {
-  display: inline-block;
-  width: 8px;
-  height: 15px;
-  margin-left: 4px;
-  vertical-align: -2px;
-  background: var(--color-accent);
-  animation: blink 1s steps(1) infinite;
-}
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
+  line-height: 1.55;
+  color: #9aa3ad;
 }
 .tags {
   display: flex;
@@ -1004,6 +1105,9 @@ html:not(.js) .blur-text span {
     flex-direction: row;
     align-items: center;
     padding-right: 64px; /* keeps Privacy clear of the go-to-top button */
+  }
+  .chart-plot {
+    height: 220px; /* the scaling chart's plot on phones */
   }
 }
 
