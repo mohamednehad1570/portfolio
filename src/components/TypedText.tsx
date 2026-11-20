@@ -10,6 +10,7 @@
  *  - `start` lets a parent hold the typing (the hero title waits for the label) and `onDone` tells it when
  *    the last character is typed.
  * Without JavaScript or with reduced motion the full text is shown at once (rules in TextType.css).
+ * Batch 15: `lead` passes TextType's lead (a leading part the page's CSS hides on some screens, typed in one step there).
  */
 "use client";
 
@@ -33,6 +34,8 @@ type Props = {
   cursor: "keep" | "hide";
   hideAfter?: number;
   onDone?: () => void;
+  /** Leading characters the page may hide (class `text-type__char--lead`); `hiddenMedia` = where it hides them. */
+  lead?: { length: number; hiddenMedia: string };
 };
 
 export default function TypedText({
@@ -46,6 +49,7 @@ export default function TypedText({
   cursor,
   hideAfter = 0,
   onDone,
+  lead,
 }: Props) {
   const [cursorOn, setCursorOn] = useState(true);
   const timer = useRef<number | undefined>(undefined);
@@ -76,6 +80,8 @@ export default function TypedText({
       enabled={start}
       reserveSpace
       onTypingComplete={finished}
+      leadLength={lead?.length ?? 0}
+      leadHiddenMedia={lead?.hiddenMedia}
     />
   );
 }

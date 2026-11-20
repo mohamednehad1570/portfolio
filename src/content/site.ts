@@ -6,6 +6,7 @@
  * Batch 12: hero label and meta description without "Remote"; mobile menu labels; the projects' scrolling
  * screenshot and scaling-chart copy; the Projects "Schedule a call" button goes to the intro call.
  * Batch 13: the website card's screenshot frame links to the client site preview (CLIENT_PREVIEW_URL).
+ * Batch 15 (SEO, approved by Mohammed): the hero label is the page's H1 and starts with the name (`labelName`).
  */
 
 export type NavItem = { id: "about" | "projects" | "contact"; label: string; href: string };
@@ -98,6 +99,8 @@ export const site = {
   ] satisfies MenuItem[],
 
   hero: {
+    // The H1 reads labelName + label; below 768 px labelName is screen-reader only (the name sits top-left there).
+    labelName: "Mohammed Nehad · ",
     label: "Cloud & infrastructure engineer",
     title: "I don't let go until it's solved, for everyone.",
     description: "Four years of chasing tricky IT issues to their cause led me to the cloud systems behind them.",

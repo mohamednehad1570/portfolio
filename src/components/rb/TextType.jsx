@@ -2,6 +2,8 @@
  * TextType: typewriter text (hero label and title, section labels).
  * From React Bits (github.com/DavidHDev/react-bits), MIT + Commons Clause, see LICENSE-react-bits.md.
  * Vendored for this site; every change is marked `MODIFIED` (see README.md in this folder).
+ * Batch 15: `leadLength` / `leadHiddenMedia` mark a leading part of the text that the page may hide on some screens
+ * (the hero H1's "Mohammed Nehad · " below 768 px); there it is typed in one step instead of character by character.
  */
 'use client';
 
@@ -121,6 +123,10 @@ const TextType = ({
   enabled = true,
   reserveSpace = false,
   onTypingComplete,
+  // MODIFIED (batch 15): the first `leadLength` characters get the class `text-type__char--lead` (the page's CSS can
+  // hide them); while `leadHiddenMedia` matches, they appear all at once, so typing starts on the visible part.
+  leadLength = 0,
+  leadHiddenMedia,
   ...props
 }) => {
   const [textIndex, setTextIndex] = useState(0);
@@ -280,11 +286,16 @@ const TextType = ({
         }
       } else if (shown < total) {
         const lead = shown === 0 ? initialDelay : 0;
+        // MODIFIED (batch 15): the hidden lead (see props) is skipped in one step, after the usual start delay
+        const skipLead =
+          shown < leadLength && !reverseMode && leadHiddenMedia && window.matchMedia(leadHiddenMedia).matches;
         const next = reverseMode ? total - shown - 1 : shown;
         const wrong = mistakes > 0 && shown > 0 && lastTypo.current !== next ? typoFor(chars[next]) : null;
 
         if (reduceMotion) {
           wait(lead, () => setCount(total));
+        } else if (skipLead) {
+          wait(lead, () => setCount(leadLength));
         } else if (wrong && Math.random() < Math.min(1, mistakes) * 0.16) {
           lastTypo.current = next;
           const plan = [wrong];
@@ -345,7 +356,9 @@ const TextType = ({
     maxSpeed,
     mistakes,
     reverseMode,
-    reduceMotion
+    reduceMotion,
+    leadLength,
+    leadHiddenMedia
   ]);
 
   const animateChar = useCallback(
@@ -359,13 +372,15 @@ const TextType = ({
 
   const start = reverseMode ? total - shown : 0;
   const marked = Math.min(selected, shown);
+  // MODIFIED (batch 15): class for a character at position `at` in the text (lead characters are marked)
+  const leadClass = at => (at < leadLength ? ' text-type__char--lead' : '');
   const correct = chars.slice(start, start + shown).map((char, i) => {
     const isMarked = reverseMode ? i < marked : i >= shown - marked;
     return (
       <span
         key={start + i}
         ref={animateChar}
-        className={isMarked ? 'text-type__char text-type__char--selected' : 'text-type__char'}
+        className={(isMarked ? 'text-type__char text-type__char--selected' : 'text-type__char') + leadClass(start + i)}
       >
         {char}
       </span>
@@ -392,7 +407,7 @@ const TextType = ({
   const pending =
     reserveSpace && !reverseMode
       ? chars.slice(shown).map((char, i) => (
-          <span key={`pending-${shown + i}`} className="text-type__char text-type__char--pending">
+          <span key={`pending-${shown + i}`} className={`text-type__char text-type__char--pending${leadClass(shown + i)}`}>
             {char}
           </span>
         ))

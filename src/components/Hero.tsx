@@ -1,5 +1,5 @@
 /**
- * Hero (#home): label, the one H1, description, two buttons ("Get in touch", "Schedule a call", ADR 0011), and the
+ * Hero (#home): label (the page's one H1), title, description, two buttons ("Get in touch", "Schedule a call", ADR 0011), and the
  * photo on the other side.
  * Why (D14 revised, ADR 0005): the label types first, then the title; the title's cursor is the only blinking
  * cursor on the page. The description blurs in word by word once the title is typed, and the buttons fade up
@@ -14,6 +14,9 @@
  * Batch 12: the mouse parallax is gone. Batch 13: the photo's Dawn hover and scroll-linked star dust live in HeroPhoto.
  * Phones (< 768 px): the site name sits at the top-left of the hero (not fixed, it scrolls away); the top bar that
  * carries it on larger screens is hidden there (the bubble menu replaces it, see MobileMenu).
+ * Batch 15 (SEO): the label is the H1 and reads "Mohammed Nehad · Cloud & infrastructure engineer" (its static
+ * screen-reader copy is in the exported HTML); the title is a paragraph with the same look. Below 768 px the name
+ * part is hidden from view (CSS `.hero-label`), stays in the H1 for screen readers and is typed in one step.
  */
 "use client";
 
@@ -30,6 +33,8 @@ import TypedText from "./TypedText";
 const WORDS_FROM = { filter: "blur(8px)", opacity: 0, y: 12 };
 const WORDS_TO = [{ filter: "blur(0px)", opacity: 1, y: 0 }];
 const WORDS_EASE = [0.2, 0.7, 0.2, 1];
+// The H1's name part, hidden from view below 768 px (same breakpoint as `.hero-label` in sections.css).
+const LABEL_LEAD = { length: Array.from(site.hero.labelName).length, hiddenMedia: "(max-width: 767px)" };
 
 export default function Hero() {
   const { hero } = site;
@@ -53,16 +58,17 @@ export default function Hero() {
       <div className="wrap hero-grid">
         <div className="hero-text">
           <TypedText
-            as="p"
-            className="eyebrow"
-            text={hero.label}
+            as="h1"
+            className="eyebrow hero-label"
+            text={hero.labelName + hero.label}
+            lead={LABEL_LEAD}
             speed={34}
             startDelay={200}
             cursor="hide"
             onDone={() => setLabelDone(true)}
           />
           <TypedText
-            as="h1"
+            as="p"
             className="h1 hero-title"
             text={hero.title}
             speed={40}
