@@ -4,6 +4,7 @@
  * their own CSS; tokens come from globals.css.
  * Layout idea: one dark night-sky page (ADR 0004), content in a 1200px column, the starfield canvas fixed behind
  * everything (ADR 0002).
+ * Batch 15: below 768 px the hero H1's name part is hidden from view (.hero-label, mobile navigation block).
  */
 
 .page {
@@ -977,6 +978,11 @@ html:not(.js) .blur-text span {
     --header-h: 0px; /* no top bar */
   }
   .nav {
+    display: none;
+  }
+  /* batch 15: the H1's "Mohammed Nehad · " is hidden from view here (the name above already shows it); the
+     H1's screen-reader copy (.text-type__sr) still holds the full text */
+  .hero-label .text-type__char--lead {
     display: none;
   }
   /* level with the 48 px burger: same top offset, centred on its height */
